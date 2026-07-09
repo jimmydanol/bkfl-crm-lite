@@ -2238,6 +2238,21 @@ function SettingsPage(){
                   </div>
                 ))}
               </div>
+              <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>Document categories</div>
+              <div style={{marginBottom:14}}>
+                {[
+                  ["#7a9c80","Approved by Firm","home base. Uploaded, accepted by the AI analysis, and manually approved by your firm. A case is document-complete when everything applicable is here."],
+                  ["#F59E0B","Accepted by AI","uploaded and passed the AI analysis. Waiting on your firm's approval."],
+                  ["#dc3545","AI Flagged","uploaded, but the AI found a problem (wrong document, missing pages, illegible). Your firm reviews it — approve anyway, or reject to re-request."],
+                  ["#999999","Not Applicable","the debtor gave a reason instead of uploading. Judgment-call reasons are flagged for attorney review."],
+                  ["#F59E0B","Awaiting Upload","not yet received — never uploaded, promised for later, or rejected by your firm. This list is exactly what the follow-up email requests."],
+                ].map((c,i)=>(
+                  <div key={i} style={{display:"flex",gap:10,marginBottom:6}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:c[0],flexShrink:0,marginTop:6}}/>
+                    <div><strong style={{color:"#434343"}}>{c[1]}</strong> — {c[2]}</div>
+                  </div>
+                ))}
+              </div>
               <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>How and when we follow up</div>
               <p style={{margin:"0 0 14px"}}>Once a week, the AI drafts a single follow-up email listing everything still awaiting upload — including anything your firm rejected, with the rejection reason written in. It is never sent automatically: it arrives as the task “Approve document follow-up request” and goes out only after someone at your firm approves it. Follow-ups repeat weekly until every item is received or accounted for.</p>
               <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>What the debtor's reasons do</div>
