@@ -2225,9 +2225,25 @@ function SettingsPage(){
           <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden"}}>
             <div style={{padding:"12px 20px",borderBottom:"1px solid #eee",fontSize:13,fontWeight:700,color:"#434343"}}>Follow-Up Rules</div>
             <div style={{padding:"14px 20px",fontSize:13,color:"#555",lineHeight:1.7}}>
-              <p style={{margin:"0 0 8px"}}>Every checklist item moves through: <strong>awaiting upload</strong> → <strong>AI analysis</strong> (accepted or flagged) → <strong>firm approval</strong>. Every document requires manual firm approval — AI acceptance is a recommendation, never the final word. Awaiting-upload items go into the weekly document follow-up email (after attorney approval).</p>
-              <p style={{margin:"0 0 8px"}}><strong>Reasons that keep chasing:</strong> "{DOC_REASONS.will_send_later}" and "{DOC_REASONS.not_taken_yet}" — the item stays on the follow-up list.</p>
-              <p style={{margin:0}}><strong>Reasons that close the item but flag attorney review:</strong> "{DOC_REASONS.doesnt_apply}", "{DOC_REASONS.didnt_file}", and "{DOC_REASONS.dont_have_copy}" (softer chase). Valuation reports, mortgage statements, and titles generate one item per property or vehicle.</p>
+              <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>How a document moves</div>
+              <div style={{marginBottom:14}}>
+                {[
+                  ["Awaiting Upload","requested from the debtor, not yet received."],
+                  ["AI Analysis","every upload is analyzed automatically and either accepted or flagged."],
+                  ["Firm Approval","a member of your firm approves or rejects it. AI acceptance is a recommendation — no document is final until your firm approves it."],
+                ].map((st,i)=>(
+                  <div key={i} style={{display:"flex",gap:10,marginBottom:6}}>
+                    <div style={{width:20,height:20,borderRadius:"50%",background:"#e7eae5",color:"#3d5c43",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>{i+1}</div>
+                    <div><strong style={{color:"#434343"}}>{st[0]}</strong> — {st[1]}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>How and when we follow up</div>
+              <p style={{margin:"0 0 14px"}}>Once a week, the AI drafts a single follow-up email listing everything still awaiting upload — including anything your firm rejected, with the rejection reason written in. It is never sent automatically: it arrives as the task “Approve document follow-up request” and goes out only after someone at your firm approves it. Follow-ups repeat weekly until every item is received or accounted for.</p>
+              <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>What the debtor's reasons do</div>
+              <p style={{margin:"0 0 6px"}}><strong>Keep chasing:</strong> “{DOC_REASONS.will_send_later}” and “{DOC_REASONS.not_taken_yet}” — the item stays on the follow-up list.</p>
+              <p style={{margin:"0 0 14px"}}><strong>Stop chasing, flag for attorney review:</strong> “{DOC_REASONS.doesnt_apply}”, “{DOC_REASONS.didnt_file}”, and “{DOC_REASONS.dont_have_copy}” (softer chase).</p>
+              <p style={{margin:0}}><strong>One per asset:</strong> valuation reports, mortgage statements, and vehicle titles generate one checklist item per property or vehicle.</p>
             </div>
           </div>
         </div>
