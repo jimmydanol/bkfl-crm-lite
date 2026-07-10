@@ -25,6 +25,10 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 
 `docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.
 
+## Change log
+
+See [`CHANGELOG.md`](CHANGELOG.md) for dated CRM behavior and deployment changes.
+
 ## Jimmy branch Intake handoff demo
 
 - CRM Intake Inbox: `https://jimmydanol.github.io/bkfl-crm-lite/?view=intake-inbox`
