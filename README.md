@@ -29,6 +29,15 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 
 See [`CHANGELOG.md`](CHANGELOG.md) for dated CRM behavior and deployment changes.
 
+## Jimmy experimental branch
+
+- Branch: `Jimmy-experimental`
+- Purpose: isolated competitor-parity prototyping without changing stable Jimmy
+  or Matt review branches.
+- Parity notes: [`docs/EXPERIMENTAL-PARITY.md`](docs/EXPERIMENTAL-PARITY.md)
+- Safety: fake/demo data only; experimental drafts and assistant actions do not
+  contact clients or outside vendors.
+
 ## Jimmy branch Intake handoff demo
 
 - CRM Intake Inbox: `https://jimmydanol.github.io/bkfl-crm-lite/?view=intake-inbox`

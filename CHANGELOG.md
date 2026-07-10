@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-07-10 - Jimmy experimental
+
+- Created the isolated `Jimmy-experimental` branch from Jimmy's stable CRM
+  branch.
+- Added an Automation Lab with prioritized follow-up, text/email draft approval,
+  source-assistant queues, common-creditor review, and export readiness.
+- Added a downloadable fake-data review CSV while keeping real messaging,
+  financial connections, OCR, credit reports, and petition imports disabled.
+- Added a visible `Jimmy Experimental` banner and parity documentation.
+
 ## 2026-07-10
 
 ### Organization name synchronization (`65cb128`)

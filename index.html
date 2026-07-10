@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BK FastLane — CRM Lite (Jimmy Branch)</title>
+<title>BK FastLane - CRM Lite (Jimmy Experimental)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -11,13 +11,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 <script src="./intake-bridge.js"></script>
 <script src="./data/intake-submissions.js"></script>
-<script type="text/babel" src="./crm-intake-components.jsx"></script>
+<script type="text/babel" src="./crm-intake-components.jsx-source"></script>
 <style>
 :root{--branch-banner-height:32px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;padding-top:var(--branch-banner-height);}
 #root{display:flex;min-height:calc(100vh - var(--branch-banner-height));}
 .branch-banner{position:fixed;top:0;left:0;right:0;height:var(--branch-banner-height);z-index:10000;display:flex;align-items:center;justify-content:center;background:#214e5f;color:#fff;font-size:13px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;box-shadow:0 1px 0 rgba(0,0,0,0.12);}
+.automation-lab{margin-top:var(--branch-banner-height)!important;}
+.automation-metrics{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));border:1px solid #d9dedb;background:#fff;margin-bottom:18px;}
+.automation-metric{padding:14px 16px;border-right:1px solid #d9dedb;min-width:0;}.automation-metric:last-child{border-right:0}.automation-metric strong{display:block;font-size:22px;color:#25313a}.automation-metric span{font-size:11px;color:#65717a;text-transform:uppercase;font-weight:700;}
+.automation-tabs{display:flex;border-bottom:1px solid #d9dedb;overflow-x:auto;background:#fff;}.automation-tabs button{border:0;border-bottom:3px solid transparent;background:#fff;color:#65717a;padding:11px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.automation-tabs button.active{color:#315f57;border-bottom-color:#315f57;background:#f4f6f3}.automation-tabs button:focus-visible,.automation-action:focus-visible{outline:3px solid rgba(49,95,87,.24);outline-offset:-3px}
+.automation-table-wrap{overflow:auto;border:1px solid #d9dedb;border-top:0;background:#fff}.automation-table{width:100%;min-width:900px;border-collapse:collapse}.automation-table th{padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;color:#65717a;background:#f4f6f3;border-bottom:1px solid #d9dedb}.automation-table td{padding:11px 12px;border-bottom:1px solid #edf0ee;font-size:12px;vertical-align:middle}.automation-table tr:last-child td{border-bottom:0}
+.automation-action{border:0;border-radius:6px;background:#315f57;color:#fff;padding:8px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}.automation-action.secondary{background:#fff;color:#315f57;border:1px solid #aebfba}.automation-action[disabled]{background:#96a39f;color:#fff;cursor:default}.automation-status{display:inline-block;border-radius:4px;padding:3px 7px;font-size:10px;font-weight:700;background:#eef2ef;color:#315f57;border:1px solid #cbd8d2;white-space:nowrap}.automation-status.warning{background:#fff5dc;color:#805d16;border-color:#e4c476}.automation-status.ready{background:#e6f4ea;color:#28603a;border-color:#afd0b8}
+.automation-draft{margin-top:16px;border:1px solid #b9cdbf;border-left:4px solid #d7a23f;border-radius:6px;background:#fff;padding:16px}.automation-draft textarea{width:100%;min-height:150px;border:1px solid #cbd3cf;border-radius:6px;padding:10px;font-size:12px;line-height:1.5;resize:vertical}.automation-note{font-size:11px;color:#65717a;line-height:1.5}.automation-progress{width:110px;height:6px;background:#e3e8e5;border-radius:3px;overflow:hidden;margin-top:5px}.automation-progress i{display:block;height:100%;background:#7fa98a;border-radius:3px}
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
@@ -45,12 +52,13 @@ a{text-decoration:none;}
   .crm-record-detail>div:first-child{padding-left:14px!important;padding-right:14px!important;}
   .crm-record-detail>div:last-child{padding:12px!important;}
   [data-testid="intake-package-view"]>div:first-child{padding:14px!important;}
+  .automation-lab{padding:14px!important;}.automation-metrics{grid-template-columns:1fr 1fr}.automation-metric:nth-child(2){border-right:0}.automation-metric:nth-child(-n+2){border-bottom:1px solid #d9dedb}.automation-tabs{display:grid;grid-template-columns:1fr 1fr;overflow:visible;border:1px solid #d9dedb;border-bottom:0}.automation-tabs button{min-height:42px;padding:8px 6px;white-space:normal;border-right:1px solid #edf0ee;border-bottom:1px solid #d9dedb}.automation-tabs button:nth-child(2n){border-right:0}.automation-tabs button.active{border-bottom-color:#315f57}.automation-draft>div:first-child{align-items:flex-start!important;flex-direction:column}.automation-draft>div:last-child{align-items:stretch!important;flex-direction:column}.automation-action{min-height:36px}
 }
 </style>
 </head>
 <body>
 <!-- BK FastLane CRM LITE (v1 dev build) — scaled-down from bkfl-manage.html on 2026-07-08. Scope: Leads, Contacts, Tasks. Original file untouched. -->
-<div class="branch-banner">Jimmy Branch | Fake Data Demo</div>
+<div class="branch-banner">Jimmy Experimental | Fake Data Demo</div>
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
@@ -677,6 +685,7 @@ function useOrganizationBrand(){
 const sidebarItems=[
   {key:"dashboard",label:"DASHBOARD",d:"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"},
   {key:"intake-inbox",label:"INTAKE INBOX",d:"M4 4h16v12H4z M4 12h4l2 3h4l2-3h4 M8 8h8"},
+  {key:"automation-lab",label:"AUTOMATION LAB",experimental:true,d:"M13 2L3 14h8l-1 8 11-13h-8z"},
   {key:"leads",label:"LEADS",d:"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"},
   {key:"contacts",label:"CONTACTS",d:"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"},
   {key:"settings",label:"SETTINGS",d:"M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"},
@@ -730,7 +739,7 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
           return(
           <a key={n.key} onClick={()=>nav(n.key)} title={collapsed?n.label:undefined} style={{display:"flex",alignItems:"center",gap:collapsed?0:14,justifyContent:collapsed?"center":"flex-start",padding:collapsed?"11px 0":"11px 20px",cursor:"pointer",fontSize:13,fontWeight:500,letterSpacing:"0.5px",color:active?"#fff":"#fff",background:active?"#5a7c60":"#7a9c80",borderRadius:8,margin:collapsed?"4px 6px":"4px 12px",transition:"all 0.15s",opacity:n.comingSoon?0.6:1,whiteSpace:"nowrap",overflow:"hidden"}}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{flexShrink:0}}><path d={n.d} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            {!collapsed&&<React.Fragment><span style={{display:"flex",flexDirection:"column",lineHeight:1.2}}><span>{n.label}</span>{n.comingSoon&&<span style={{fontSize:9,opacity:0.7}}>(coming soon)</span>}</span></React.Fragment>}
+            {!collapsed&&<React.Fragment><span style={{display:"flex",flexDirection:"column",lineHeight:1.2}}><span>{n.label}</span>{(n.comingSoon||n.experimental)&&<span style={{fontSize:9,opacity:0.75}}>{n.experimental?"(experimental)":"(coming soon)"}</span>}</span></React.Fragment>}
           </a>);
         })}
       </nav>
@@ -3032,6 +3041,119 @@ const TASK_STAGES=[];
 const DEFAULT_TASK_TEMPLATES=[];
 
 
+function AutomationLabPage({leads}){
+  const storageKey="bkfl_experimental_automation_v1";
+  const [tab,setTab]=useState("follow-up");
+  const [draft,setDraft]=useState(null);
+  const [lab,setLab]=useState(()=>{
+    try{return JSON.parse(localStorage.getItem(storageKey)||"{}")||{};}catch(e){return{};}
+  });
+  useEffect(()=>{try{localStorage.setItem(storageKey,JSON.stringify(lab));}catch(e){}},[lab]);
+
+  const rows=useMemo(()=>{
+    const stageProgress={"New Lead":12,"Intake Sent":46,"Intake Submitted":78};
+    const today=new Date().toISOString().slice(0,10);
+    return (leads||[]).map(lead=>{
+      const checklist=lead.docChecklist||[];
+      const approved=checklist.filter(doc=>doc.status==="approved").length;
+      const openDocs=checklist.filter(doc=>doc.status!=="approved");
+      const documentProgress=checklist.length?Math.round(70+(approved/checklist.length)*28):0;
+      const progress=Math.min(98,Math.max(stageProgress[lead.leadStage]||20,documentProgress));
+      const overdue=(lead.tasks||[]).filter(task=>task.status!=="Completed"&&task.due&&task.due<=today).length;
+      const language=(lead.id===2||lead.id===6)?"ES":"EN";
+      const lastContact=(lead.communications&&lead.communications[0]&&lead.communications[0].date)||lead.intakeSubmittedDate||lead.intakeSentDate||lead.createdDate||"-";
+      return {...lead,progress,openDocs,overdue,language,lastContact};
+    }).sort((a,b)=>(b.overdue-a.overdue)||(b.openDocs.length-a.openDocs.length)||(a.progress-b.progress));
+  },[leads]);
+
+  const overdueCount=rows.reduce((sum,row)=>sum+row.overdue,0);
+  const openDocCount=rows.reduce((sum,row)=>sum+row.openDocs.length,0);
+  const approvalCount=(lab.approvals||[]).length;
+  const submittedCount=rows.filter(row=>row.leadStage==="Intake Submitted").length;
+  const getChannel=lead=>((lab.channels||{})[lead.id]||(lead.phone?"Text":"Email"));
+  const setChannel=(leadId,value)=>setLab(previous=>({...previous,channels:{...(previous.channels||{}),[leadId]:value}}));
+  const docName=id=>(DOC_TYPES.find(doc=>doc.id===id)||{}).name||id.replace(/_/g," ");
+
+  const openDraft=row=>{
+    const missing=row.openDocs.slice(0,4).map(doc=>docName(doc.docId));
+    const list=missing.length?missing.map(item=>"- "+item).join("\n"):"- Complete the remaining questionnaire sections";
+    setDraft({leadId:row.id,name:row.firstName+" "+row.lastName,channel:getChannel(row),body:"Hi "+row.firstName+",\n\nTo keep your bankruptcy intake moving, please complete or upload the following:\n\n"+list+"\n\nUse your secure Intake link to continue. Reply if you need help locating any item.\n\n-- "+((window.BKFLIntakeBridge&&window.BKFLIntakeBridge.readOrganization(localStorage).name)||"Your legal team")});
+  };
+  const queueDraft=()=>{
+    if(!draft)return;
+    const queued={id:Date.now(),leadId:draft.leadId,name:draft.name,channel:draft.channel,body:draft.body,status:"Awaiting attorney approval",createdAt:new Date().toISOString()};
+    setLab(previous=>({...previous,approvals:[queued,...(previous.approvals||[])].slice(0,30)}));
+    setDraft(null);
+  };
+  const startAssistant=key=>setLab(previous=>({...previous,assistants:{...(previous.assistants||{}),[key]:"Queued for human review"}}));
+  const assistantStatus=key=>(lab.assistants||{})[key]||"Not started";
+
+  const assistants=[
+    {key:"paystubs",name:"Paystub Assistant",coverage:"Sort six months by pay date; compare gross pay and deductions."},
+    {key:"bank-statements",name:"Bank Statement Assistant",coverage:"Group statements by account and month; flag missing pages or months."},
+    {key:"credit-report",name:"Credit Report Import",coverage:"Match reported creditors against a permitted source after consent."},
+    {key:"pdf-conversion",name:"Document PDF Conversion",coverage:"Normalize supported uploads before indexing and attorney review."}
+  ];
+  const creditorRows=[
+    {name:"Capital One",category:"Credit card",matches:3,status:"Verify address"},
+    {name:"Chase",category:"Bank / credit card",matches:2,status:"Statement found"},
+    {name:"Synchrony Bank",category:"Retail credit",matches:2,status:"Verify account"},
+    {name:"Portfolio Recovery Associates",category:"Debt buyer",matches:1,status:"Collection notice found"},
+    {name:"Nelnet",category:"Student loan servicer",matches:1,status:"Verify loan owner"},
+    {name:"Ally Financial",category:"Auto finance",matches:1,status:"Statement found"}
+  ];
+  const exportRows=[
+    {name:"B101 Voluntary Petition",source:"Identity, venue, chapter, prior cases",ready:submittedCount>0},
+    {name:"Schedules A/B and D-F",source:"Assets, secured and unsecured debts",ready:openDocCount<12},
+    {name:"Schedules I/J",source:"Income, deductions, household expenses",ready:rows.some(row=>row.progress>=78)},
+    {name:"Form 107 SOFA",source:"Financial affairs and supporting records",ready:submittedCount>1},
+    {name:"Attorney review package",source:"Source evidence, gaps, conflicts, provenance",ready:approvalCount>0}
+  ];
+  const downloadCsv=()=>{
+    const quote=value=>'"'+String(value==null?"":value).replace(/"/g,'""')+'"';
+    const lines=[["Client","Stage","Progress","Open documents","Overdue tasks","Preferred language"],...rows.map(row=>[row.firstName+" "+row.lastName,row.leadStage,row.progress+"%",row.openDocs.length,row.overdue,row.language])];
+    const blob=new Blob([lines.map(line=>line.map(quote).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");link.href=url;link.download="bk-fastlane-experimental-review.csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+
+  return(
+    <div className="automation-lab" data-testid="automation-lab" style={{padding:"24px 28px",flex:1,maxWidth:1400,width:"100%",margin:"0 auto"}}>
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:20,marginBottom:18,flexWrap:"wrap"}}>
+        <div><div style={{display:"flex",alignItems:"center",gap:9,marginBottom:5}}><h1 style={{fontSize:22,fontWeight:700,color:"#25313a",margin:0}}>Automation Lab</h1><span className="automation-status warning">Jimmy experimental</span></div><p style={{fontSize:13,color:"#65717a",margin:0,maxWidth:760,lineHeight:1.5}}>Competitor-parity workflow for follow-up, source review, creditor matching, and petition-export readiness. Fake data only.</p></div>
+        <div className="automation-note" style={{maxWidth:330,borderLeft:"3px solid #d7a23f",paddingLeft:10}}>Nothing here sends a message, connects a financial account, pulls a credit report, or creates a filing. Human approval remains required.</div>
+      </div>
+
+      <div className="automation-metrics">
+        <div className="automation-metric"><strong>{rows.length}</strong><span>Active intake clients</span></div>
+        <div className="automation-metric"><strong>{overdueCount}</strong><span>Overdue follow-ups</span></div>
+        <div className="automation-metric"><strong>{openDocCount}</strong><span>Open document items</span></div>
+        <div className="automation-metric"><strong>{approvalCount}</strong><span>Drafts awaiting approval</span></div>
+      </div>
+
+      <div className="automation-tabs" role="tablist" aria-label="Automation Lab views">
+        {[['follow-up','Follow-up queue'],['assistants','Source assistants'],['creditors','Creditor review'],['exports','Export readiness']].map(item=><button key={item[0]} type="button" role="tab" aria-selected={tab===item[0]} className={tab===item[0]?"active":""} onClick={()=>setTab(item[0])}>{item[1]}</button>)}
+      </div>
+
+      {tab==="follow-up"&&<React.Fragment>
+        <div className="automation-table-wrap">
+          <table className="automation-table"><thead><tr><th>Client</th><th>Progress</th><th>Open items</th><th>Last contact</th><th>Language</th><th>Channel</th><th>Next action</th></tr></thead><tbody>
+            {rows.map(row=><tr key={row.id}><td><strong style={{color:"#25313a"}}>{row.firstName} {row.lastName}</strong><div style={{color:"#65717a",fontSize:11,marginTop:2}}>{row.leadStage}</div></td><td><strong>{row.progress}%</strong><div className="automation-progress"><i style={{width:row.progress+"%"}}/></div></td><td><span className={"automation-status "+(row.openDocs.length||row.overdue?"warning":"ready")}>{row.openDocs.length} docs / {row.overdue} overdue</span></td><td>{row.lastContact}</td><td>{row.language}</td><td><select aria-label={"Follow-up channel for "+row.firstName+" "+row.lastName} value={getChannel(row)} onChange={event=>setChannel(row.id,event.target.value)} style={{border:"1px solid #cbd3cf",borderRadius:6,padding:"6px 7px",fontSize:11}}><option>Email</option><option>Text</option></select></td><td><button className="automation-action" type="button" onClick={()=>openDraft(row)}>Draft request</button></td></tr>)}
+          </tbody></table>
+        </div>
+        {draft&&<div className="automation-draft" data-testid="automation-draft"><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}><div><strong style={{fontSize:14,color:"#25313a"}}>Draft {draft.channel.toLowerCase()} for {draft.name}</strong><div className="automation-note">Review and edit before adding it to the attorney approval queue.</div></div><span className="automation-status warning">Not sent</span></div><textarea aria-label="Follow-up draft" value={draft.body} onChange={event=>setDraft({...draft,body:event.target.value})}/><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginTop:10}}><span className="automation-note">Queueing records a local fake-data approval item only.</span><div style={{display:"flex",gap:8}}><button className="automation-action secondary" type="button" onClick={()=>setDraft(null)}>Cancel</button><button className="automation-action" type="button" onClick={queueDraft}>Queue for attorney approval</button></div></div></div>}
+      </React.Fragment>}
+
+      {tab==="assistants"&&<div className="automation-table-wrap"><table className="automation-table"><thead><tr><th>Assistant</th><th>Review scope</th><th>Status</th><th>Action</th></tr></thead><tbody>{assistants.map(item=>{const status=assistantStatus(item.key);const queued=status!=="Not started";return <tr key={item.key}><td><strong>{item.name}</strong></td><td>{item.coverage}</td><td><span className={"automation-status "+(queued?"ready":"warning")}>{status}</span></td><td><button className="automation-action" type="button" disabled={queued} onClick={()=>startAssistant(item.key)}>{queued?"Queued":"Queue review"}</button></td></tr>;})}</tbody></table></div>}
+
+      {tab==="creditors"&&<div className="automation-table-wrap"><table className="automation-table"><thead><tr><th>Common creditor</th><th>Category</th><th>Demo matches</th><th>Review state</th></tr></thead><tbody>{creditorRows.map(item=><tr key={item.name}><td><strong>{item.name}</strong></td><td>{item.category}</td><td>{item.matches}</td><td><span className={"automation-status "+(item.status.indexOf("found")!==-1?"ready":"warning")}>{item.status}</span></td></tr>)}</tbody></table><div className="automation-note" style={{padding:12,borderTop:"1px solid #edf0ee"}}>This is an original demonstration list, not BK Questionnaire's proprietary creditor database. Every legal name, owner, account, and notice address must be verified from source evidence.</div></div>}
+
+      {tab==="exports"&&<React.Fragment><div className="automation-table-wrap"><table className="automation-table"><thead><tr><th>Output</th><th>Source coverage</th><th>Readiness</th></tr></thead><tbody>{exportRows.map(item=><tr key={item.name}><td><strong>{item.name}</strong></td><td>{item.source}</td><td><span className={"automation-status "+(item.ready?"ready":"warning")}>{item.ready?"Review-ready":"Needs evidence"}</span></td></tr>)}</tbody></table></div><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginTop:14,flexWrap:"wrap"}}><span className="automation-note">The CSV is a review index, not a court form or petition-preparation import.</span><button className="automation-action" data-testid="download-review-csv" type="button" onClick={downloadCsv}>Download review CSV</button></div></React.Fragment>}
+    </div>
+  );
+}
+
+
 
 function PlaceholderPage({title}){
   return(<div style={{padding:"24px 28px",flex:1}}><h1 style={{fontSize:22,fontWeight:700,color:"#434343",marginBottom:20}}>{title}</h1>
@@ -3053,7 +3175,10 @@ function App(){
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_auto_templates",JSON.stringify(autoTemplates));}catch(e){}},[autoTemplates]);
   const [taskAutoTemplates,setTaskAutoTemplates]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_task_auto_templates");if(s)return JSON.parse(s);}catch(e){}return [];});
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_task_auto_templates",JSON.stringify(taskAutoTemplates));}catch(e){}},[taskAutoTemplates]);
-  const [page,setPage]=useState(()=>new URLSearchParams(window.location.search).get("view")==="intake-inbox"?"intake-inbox":"dashboard");
+  const [page,setPage]=useState(()=>{
+    const requested=new URLSearchParams(window.location.search).get("view");
+    return sidebarItems.some(item=>item.key===requested)?requested:"dashboard";
+  });
   const [selectedMatter,setSelectedMatter]=useState(null);
   const [selectedLead,setSelectedLead]=useState(null);
   const [selectedContact,setSelectedContact]=useState(null);
@@ -3081,6 +3206,7 @@ function App(){
         {page!=="lead-detail"&&page!=="contact-detail"&&<TopBar leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="dashboard"&&<DashboardPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="intake-inbox"&&<IntakeInboxPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
+        {page==="automation-lab"&&<AutomationLabPage leads={leads}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="lead-detail"&&<LeadDetail lead={currentLead} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead} matters={matters} setMatters={setMatters} setSelectedMatter={setSelectedMatter} setSelectedContact={setSelectedContact} msgTemplates={msgTemplates} seqTemplates={seqTemplates} commAutomations={autoTemplates}/>}
         {page==="contacts"&&<ContactsPage matters={matters} leads={leads} standaloneContacts={standaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
