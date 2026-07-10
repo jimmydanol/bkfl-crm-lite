@@ -654,20 +654,24 @@ function StageBadge({stage}){
 }
 
 /* ─── SIDEBAR ─── */
-function useOrganizationName(){
+function getOrganizationInitials(name){
+  return name.split(/\s+/).filter(Boolean).map(part=>part[0]).join("").slice(0,2).toUpperCase()||"BK";
+}
+
+function useOrganizationBrand(){
   const bridge=window.BKFLIntakeBridge;
-  const [organizationName,setOrganizationName]=useState(()=>bridge.readOrganization(localStorage).name);
+  const [organization,setOrganization]=useState(()=>bridge.readOrganization(localStorage));
   useEffect(()=>{
-    const syncOrganizationName=()=>setOrganizationName(bridge.readOrganization(localStorage).name);
-    const handleStorage=(event)=>{if(event.key===bridge.ORGANIZATION_STORAGE_KEY)syncOrganizationName();};
+    const syncOrganization=()=>setOrganization(bridge.readOrganization(localStorage));
+    const handleStorage=(event)=>{if(event.key===bridge.ORGANIZATION_STORAGE_KEY)syncOrganization();};
     window.addEventListener("storage",handleStorage);
-    window.addEventListener(bridge.ORGANIZATION_EVENT,syncOrganizationName);
+    window.addEventListener(bridge.ORGANIZATION_EVENT,syncOrganization);
     return()=>{
       window.removeEventListener("storage",handleStorage);
-      window.removeEventListener(bridge.ORGANIZATION_EVENT,syncOrganizationName);
+      window.removeEventListener(bridge.ORGANIZATION_EVENT,syncOrganization);
     };
   },[bridge]);
-  return organizationName;
+  return organization;
 }
 
 const sidebarItems=[
@@ -711,7 +715,8 @@ function useConfirm(){
 }
 
 function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
-  const organizationName=useOrganizationName();
+  const organization=useOrganizationBrand();
+  const organizationInitials=getOrganizationInitials(organization.name);
   const nav=(p)=>{setPage(p);setSelectedMatter(null);};
   const w=collapsed?68:250;
   return(
@@ -737,11 +742,11 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
       </div>
       <div style={{padding:collapsed?"16px 8px":"16px 20px",borderTop:"1px solid rgba(0,0,0,0.08)"}}>
         <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:collapsed?"center":"flex-start"}}>
-          <div style={{width:34,height:34,borderRadius:"50%",background:"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            <span style={{color:"#fff",fontSize:14,fontWeight:700,letterSpacing:"0.5px"}}>ML</span>
+          <div style={{width:34,height:34,borderRadius:6,background:"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,overflow:"hidden"}}>
+            {organization.logo?<img data-testid="organization-logo-sidebar" src={organization.logo} alt={organization.name+" logo"} style={{width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>:<span style={{color:"#fff",fontSize:14,fontWeight:700,letterSpacing:"0.5px"}}>{organizationInitials}</span>}
           </div>
           {!collapsed&&<div>
-            <div data-testid="organization-name-sidebar" style={{color:"#333",fontSize:13,fontWeight:500}}>{organizationName}</div>
+            <div data-testid="organization-name-sidebar" style={{color:"#333",fontSize:13,fontWeight:500}}>{organization.name}</div>
           </div>}
         </div>
       </div>
@@ -1962,6 +1967,8 @@ function SettingsPage(){
   const [editingUser,setEditingUser]=useState(null);
   const [userForm,setUserForm]=useState({firstName:"",lastName:"",email:"",role:"Staff"});
   const [orgSaved,setOrgSaved]=useState(false);
+  const [logoError,setLogoError]=useState("");
+  const [orgSaveError,setOrgSaveError]=useState("");
 
   /* Stages state */
   const [leadStages,setLeadStages]=useState(()=>{
@@ -2067,13 +2074,60 @@ function SettingsPage(){
   useEffect(()=>{localStorage.setItem("bkfl_lite_lead_stages",JSON.stringify(leadStages));},[leadStages]);
   useEffect(()=>{localStorage.setItem("bkfl_lite_matter_stages",JSON.stringify(matterStages));},[matterStages]);
 
+  const selectOrganizationLogo=(event)=>{
+    const input=event.target;
+    const file=input.files&&input.files[0];
+    if(!file)return;
+    setLogoError("");
+    if(!["image/png","image/jpeg"].includes(file.type)){
+      setLogoError("Choose a PNG or JPG logo.");
+      input.value="";
+      return;
+    }
+    if(file.size>5*1024*1024){
+      setLogoError("Logo must be 5 MB or smaller.");
+      input.value="";
+      return;
+    }
+    const reader=new FileReader();
+    reader.onerror=()=>{setLogoError("The logo could not be read.");input.value="";};
+    reader.onload=(readEvent)=>{
+      const image=new Image();
+      image.onerror=()=>{setLogoError("The selected file is not a valid image.");input.value="";};
+      image.onload=()=>{
+        const scale=Math.min(1,400/image.naturalWidth,400/image.naturalHeight);
+        const canvas=document.createElement("canvas");
+        canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+        const context=canvas.getContext("2d");
+        context.imageSmoothingEnabled=true;
+        context.imageSmoothingQuality="high";
+        context.drawImage(image,0,0,canvas.width,canvas.height);
+        const format=file.type==="image/png"?"image/png":"image/jpeg";
+        setOrg(current=>({...current,logo:canvas.toDataURL(format,0.9)}));
+        input.value="";
+      };
+      image.src=readEvent.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveOrg=()=>{
-    if(!org.name.trim())return;
-    const savedOrganization=bridge.writeOrganization(localStorage,org);
-    setOrg(savedOrganization);
-    window.dispatchEvent(new CustomEvent(bridge.ORGANIZATION_EVENT,{detail:savedOrganization}));
-    setOrgSaved(true);
-    setTimeout(()=>setOrgSaved(false),2000);
+    if(!org.name.trim()){
+      setOrgSaveError("Organization name is required.");
+      return;
+    }
+    try{
+      const savedOrganization=bridge.writeOrganization(localStorage,org);
+      setOrg(savedOrganization);
+      window.dispatchEvent(new CustomEvent(bridge.ORGANIZATION_EVENT,{detail:savedOrganization}));
+      setOrgSaveError("");
+      setOrgSaved(true);
+      setTimeout(()=>setOrgSaved(false),2000);
+    }catch{
+      setOrgSaved(false);
+      setOrgSaveError("The logo is too large for this browser. Choose a smaller image and try again.");
+    }
   };
   const addUser=()=>{
     if(!userForm.firstName||!userForm.lastName||!userForm.email)return;
@@ -2108,7 +2162,7 @@ function SettingsPage(){
           {/* Logo Section */}
           <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",padding:24,marginBottom:24,display:"flex",alignItems:"center",gap:20}}>
             <div style={{width:80,height:80,borderRadius:"50%",background:"#e7eae5",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,overflow:"hidden"}}>
-              {org.logo?<img src={org.logo} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:
+              {org.logo?<img data-testid="organization-logo-preview" src={org.logo} alt={org.name+" logo preview"} style={{width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>:
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke="#7A9C80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
             </div>
             <div>
@@ -2117,10 +2171,11 @@ function SettingsPage(){
               <div style={{display:"flex",gap:8}}>
                 <label style={{padding:"6px 16px",fontSize:12,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>
                   Change
-                  <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const file=e.target.files[0];if(file){const reader=new FileReader();reader.onload=ev=>setOrg({...org,logo:ev.target.result});reader.readAsDataURL(file);}}}/>
+                  <input data-testid="organization-logo-input" aria-label="Choose organization logo" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" style={{display:"none"}} onChange={selectOrganizationLogo}/>
                 </label>
-                {org.logo&&<button onClick={()=>setOrg({...org,logo:null})} style={{padding:"6px 16px",fontSize:12,fontWeight:500,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",color:"#434343",cursor:"pointer"}}>Remove</button>}
+                {org.logo&&<button onClick={()=>{setOrg({...org,logo:null});setLogoError("");}} style={{padding:"6px 16px",fontSize:12,fontWeight:500,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",color:"#434343",cursor:"pointer"}}>Remove</button>}
               </div>
+              {logoError&&<div role="alert" style={{fontSize:12,color:"#a33b3b",fontWeight:500,marginTop:8}}>{logoError}</div>}
             </div>
           </div>
 
@@ -2173,6 +2228,7 @@ function SettingsPage(){
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <button data-testid="save-organization-button" onClick={saveOrg} style={{padding:"10px 28px",fontSize:14,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>Save Changes</button>
             {orgSaved&&<span style={{fontSize:13,color:"#3d5c43",fontWeight:500}}>Saved successfully!</span>}
+            {orgSaveError&&<span role="alert" style={{fontSize:13,color:"#a33b3b",fontWeight:500}}>{orgSaveError}</span>}
           </div>
         </div>
       )}

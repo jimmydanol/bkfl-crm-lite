@@ -69,10 +69,16 @@ const organizationStorage = {
 assert.equal(bridge.readOrganization(organizationStorage).name, 'McCune Legal')
 const savedOrganization = bridge.writeOrganization(organizationStorage, {
   ...bridge.DEFAULT_ORGANIZATION,
+  logo: 'data:image/png;base64,ZmFrZS1sb2dv',
   name: '  Stein Legal  ',
 })
 assert.equal(savedOrganization.name, 'Stein Legal')
+assert.equal(savedOrganization.logo, 'data:image/png;base64,ZmFrZS1sb2dv')
 assert.equal(bridge.readOrganization(organizationStorage).name, 'Stein Legal')
+assert.equal(
+  bridge.readOrganization(organizationStorage).logo,
+  'data:image/png;base64,ZmFrZS1sb2dv',
+)
 assert.equal(
   JSON.parse(organizationStorage.getItem(bridge.ORGANIZATION_STORAGE_KEY)).name,
   'Stein Legal',

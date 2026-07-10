@@ -15,7 +15,10 @@ button,a{touch-action:manipulation;}
 .branch-bar{height:34px;background:#214e5f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;text-transform:uppercase;}
 .app-header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20;}
 .brand{display:flex;align-items:center;gap:12px;min-width:0;}
-.brand-mark{width:34px;height:34px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;border-radius:6px;}
+.brand-mark,.brand-logo{width:34px;height:34px;border-radius:6px;flex:0 0 34px;}
+.brand-mark{background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;}
+.brand-logo{display:block;object-fit:contain;background:#fff;border:1px solid var(--line);}
+.brand-mark[hidden],.brand-logo[hidden]{display:none!important;}
 .brand-name{font-size:16px;font-weight:700;white-space:nowrap;}
 .brand-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .demo-badge{background:var(--gold-soft);color:#6f4a11;border:1px solid #d9b56f;border-radius:4px;padding:5px 8px;font-size:11px;font-weight:700;white-space:nowrap;}
@@ -80,6 +83,7 @@ button,a{touch-action:manipulation;}
 <header class="app-header">
   <div class="brand">
     <div class="brand-mark" id="organizationInitials">ML</div>
+    <img class="brand-logo" id="organizationLogo" data-testid="organization-logo-header" alt="" hidden>
     <div><div class="brand-name" id="organizationName" data-testid="organization-name-header">McCune Legal</div><div class="brand-sub">BK FastLane Intake - completed debtor package demo</div></div>
   </div>
   <div class="demo-badge">FAKE DATA ONLY</div>
@@ -126,8 +130,22 @@ button,a{touch-action:manipulation;}
     const organization=bridge.readOrganization(window.localStorage);
     const name=organization.name;
     const initials=name.split(/\s+/).filter(Boolean).map(part=>part[0]).join('').slice(0,2).toUpperCase()||'BK';
+    const initialsElement=document.getElementById('organizationInitials');
+    const logoElement=document.getElementById('organizationLogo');
     document.getElementById('organizationName').textContent=name;
-    document.getElementById('organizationInitials').textContent=initials;
+    initialsElement.textContent=initials;
+    if(organization.logo){
+      logoElement.alt=`${name} logo`;
+      logoElement.hidden=false;
+      initialsElement.hidden=true;
+      logoElement.onerror=()=>{logoElement.hidden=true;initialsElement.hidden=false;};
+      logoElement.src=organization.logo;
+    }else{
+      logoElement.hidden=true;
+      logoElement.removeAttribute('src');
+      logoElement.alt='';
+      initialsElement.hidden=false;
+    }
     document.title=`${name} Intake Demo - Jimmy Branch`;
   };
   window.addEventListener('storage',(event)=>{
