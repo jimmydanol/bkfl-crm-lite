@@ -1,0 +1,1640 @@
+window.BKFL_INTAKE_SUBMISSIONS = {
+  "demo": true,
+  "generatedAt": "2026-07-10T06:43:32.164Z",
+  "packages": [
+    {
+      "demo": true,
+      "generatedAt": "2026-07-10T06:43:32.164Z",
+      "matter": {
+        "id": "matter-d7f1b1bc-87a3-4dc3-8df6-873c89a67800",
+        "title": "Amara Jensen fake Chapter 7 intake",
+        "chapter": "7",
+        "status": "ready-for-attorney",
+        "filingState": "CO",
+        "district": "District of Colorado",
+        "clientGoals": "Stop wage garnishment, keep car if affordable, discharge credit cards and medical debt.",
+        "urgentConcerns": "Payroll says garnishment may start again next pay period.",
+        "priorBankruptcyFiled": "No",
+        "priorBankruptcyDetails": "",
+        "hasDependents": "Yes",
+        "spouseFilingJointly": "No",
+        "isEmployed": "Yes",
+        "hasOtherHouseholdIncome": "Yes",
+        "personalInfoSubmittedAt": "2026-07-04T14:00:00.000Z",
+        "createdAt": "2026-07-10T06:43:32.543Z",
+        "updatedAt": "2026-07-10T06:43:32.543Z",
+        "debtors": [
+          {
+            "id": "debtor-5e8b851e-0185-4778-9e3a-4b0fb4b25132",
+            "firstName": "Amara",
+            "middleName": "Leigh",
+            "lastName": "Jensen",
+            "otherNames": "Amara L. Cortez",
+            "email": "amara.jensen.fake@example.test",
+            "phone": "(303) 555-0148",
+            "ssnLast4": "3478",
+            "socialSecurityNumber": "111-22-3478",
+            "address": "4217 West 30th Avenue Apt 3B",
+            "city": "Denver",
+            "state": "CO",
+            "zipCode": "80212",
+            "county": "Denver",
+            "mailingAddressDifferent": false,
+            "dateOfBirth": "04/18/1987"
+          }
+        ],
+        "household": {
+          "dependents": [
+            {
+              "id": "dependent-45b73363-0653-4e4e-b947-a55fbd26d211",
+              "name": "Fake minor child",
+              "age": "9",
+              "relationship": "Child",
+              "livesWithDebtor": "Yes"
+            }
+          ],
+          "householdSize": 2,
+          "maritalStatus": "Single"
+        },
+        "assets": [
+          {
+            "id": "asset-3ae52389-6642-4cbc-8ba2-200947d54201",
+            "category": "Bank or financial account",
+            "description": "Elevations Credit Union",
+            "estimatedValue": 650,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "Checking"
+          },
+          {
+            "id": "asset-54b90893-8a06-4572-bfe7-d35a320f3e41",
+            "category": "Vehicle",
+            "description": "2015 Toyota Corolla",
+            "estimatedValue": 6500,
+            "lienAmount": 3800,
+            "exemptionNote": "",
+            "financingStatus": "Financed",
+            "keepIntent": "Keep if payment can be reaffirmed or redeemed affordably",
+            "make": "Toyota",
+            "mileage": "112000",
+            "model": "Corolla",
+            "year": "2015"
+          },
+          {
+            "id": "asset-271caeae-e9ea-4457-b9bb-4cfadbeecef6",
+            "category": "Household goods and furnishings",
+            "description": "Apartment furniture, appliances, clothing, phone, laptop",
+            "estimatedValue": 4200,
+            "lienAmount": 0,
+            "exemptionNote": ""
+          },
+          {
+            "id": "asset-f6e23b36-7377-4cff-8a29-cc050ecf5bcc",
+            "category": "Retirement or pension account",
+            "description": "Employer 401(k)",
+            "estimatedValue": 17500,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "401(k)"
+          }
+        ],
+        "debts": [
+          {
+            "id": "debt-1d337841-039d-47d8-ba88-9bdeaa6ce664",
+            "type": "unsecured",
+            "creditor": "Chase Card Services",
+            "amount": 13200,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Collection calls; made $700 total in the last 90 days."
+          },
+          {
+            "id": "debt-be150d98-f834-4b90-b90f-cc8732375c6c",
+            "type": "unsecured",
+            "creditor": "Denver Medical Group",
+            "amount": 6800,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Old emergency room balance with collector."
+          },
+          {
+            "id": "debt-b6f74bd8-9597-4804-a555-1406f0c54e89",
+            "type": "secured",
+            "creditor": "Toyota Motor Credit",
+            "amount": 4100,
+            "collateral": "2015 Toyota Corolla",
+            "arrears": 450,
+            "notes": "One payment behind, wants to keep vehicle."
+          },
+          {
+            "id": "debt-81a8b9fd-427e-4e2f-84b7-c4b22b691fcc",
+            "type": "unsecured",
+            "creditor": "Peak Recovery LLC",
+            "amount": 2400,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "County court judgment; wage garnishment threat."
+          }
+        ],
+        "contracts": [],
+        "codebtors": [],
+        "income": [
+          {
+            "id": "income-deaa1638-c286-4b35-81d9-465162e62603",
+            "source": "Employment",
+            "employer": "Front Range Health Partners",
+            "amount": 4950,
+            "frequency": "Biweekly",
+            "sixMonthTotal": 29670
+          },
+          {
+            "id": "income-7d9a1865-d194-425f-ac61-34bb00ab34e5",
+            "source": "Child support",
+            "employer": "Co-parent support",
+            "amount": 600,
+            "frequency": "Monthly",
+            "sixMonthTotal": 3600
+          }
+        ],
+        "payStubIncomeEvidence": [],
+        "expenses": [
+          {
+            "id": "expense-646a2e31-063e-4e82-8943-77263741e747",
+            "category": "Rent or home/mortgage payment",
+            "monthlyAmount": 1650,
+            "notes": ""
+          },
+          {
+            "id": "expense-c505a7a8-a754-43f6-9d32-856c2da0563e",
+            "category": "Electricity, heat, natural gas",
+            "monthlyAmount": 145,
+            "notes": ""
+          },
+          {
+            "id": "expense-f5c00a72-0eb0-4dda-b6e1-c5b32558dbcd",
+            "category": "Water, sewer, garbage collection",
+            "monthlyAmount": 60,
+            "notes": ""
+          },
+          {
+            "id": "expense-b914d10c-b61b-4579-8e8c-09bfd1e49a2c",
+            "category": "Phone, cell, internet, satellite & cable",
+            "monthlyAmount": 185,
+            "notes": ""
+          },
+          {
+            "id": "expense-f1092806-fd8a-4da7-b7ab-513b0f3455fb",
+            "category": "Food & housekeeping supplies",
+            "monthlyAmount": 720,
+            "notes": ""
+          },
+          {
+            "id": "expense-7c4f6a89-b0d4-4bb1-a066-ddc07b6a7c7c",
+            "category": "Childcare & children's education",
+            "monthlyAmount": 350,
+            "notes": ""
+          },
+          {
+            "id": "expense-b3f029dd-1b2b-454f-bac3-80b758293999",
+            "category": "Medical & dental expenses",
+            "monthlyAmount": 125,
+            "notes": ""
+          },
+          {
+            "id": "expense-97cbb000-175c-4351-9ab7-da59899df068",
+            "category": "Transportation",
+            "monthlyAmount": 420,
+            "notes": ""
+          },
+          {
+            "id": "expense-19ebca29-b575-46e7-8103-f36b8181e2b5",
+            "category": "Vehicle payments",
+            "monthlyAmount": 330,
+            "notes": ""
+          },
+          {
+            "id": "expense-a1889811-e0df-4fc9-8d56-0e174e6218e3",
+            "category": "Vehicle insurance",
+            "monthlyAmount": 180,
+            "notes": ""
+          },
+          {
+            "id": "expense-ef546d39-9b65-452c-b123-270582ce3db8",
+            "category": "Other expenses",
+            "monthlyAmount": 140,
+            "notes": "School activities and supplies"
+          }
+        ],
+        "sofaEvents": [
+          {
+            "id": "sofa-4df7fd04-5220-4be6-8d0c-7d0e1e348060",
+            "eventType": "Lawsuit / judgment",
+            "date": "05/15/2026",
+            "amount": 2400,
+            "description": "Collection lawsuit judgment by Peak Recovery LLC in Denver County Court."
+          },
+          {
+            "id": "sofa-61c30742-a786-4445-a183-b9fe80ec4fea",
+            "eventType": "Creditor payments over $600",
+            "date": "06/10/2026",
+            "amount": 700,
+            "description": "Payments to Chase Card Services within 90 days before intake."
+          }
+        ],
+        "petitionFlags": {
+          "evictionJudgment": "No",
+          "hazardousProperty": "No",
+          "hazardousPropertyAddress": "",
+          "hazardousPropertyCity": "",
+          "hazardousPropertyDescription": "",
+          "hazardousPropertyImmediateReason": "",
+          "hazardousPropertyState": "",
+          "hazardousPropertyStreet2": "",
+          "hazardousPropertyZipCode": "",
+          "rentsResidence": "Yes",
+          "soleProprietor": "No",
+          "soleProprietorBusinessCity": "",
+          "soleProprietorBusinessName": "",
+          "soleProprietorBusinessState": "",
+          "soleProprietorBusinessStreet": "",
+          "soleProprietorBusinessType": "",
+          "soleProprietorBusinessUnit": "",
+          "soleProprietorBusinessZipCode": ""
+        },
+        "chapter7": {
+          "meansTestStatus": "Below median intake",
+          "medianIncomeState": "Colorado",
+          "estimatedMonthlyIncome": 5550,
+          "securedPropertyIntent": "Keep Toyota if payment and exemption analysis support it.",
+          "priorBankruptcyDischarge": "",
+          "assetDistributionEstimate": "No apparent nonexempt asset distribution based on fake data only."
+        },
+        "chapter13": {
+          "planMonths": 0,
+          "proposedMonthlyPayment": 0,
+          "priorityClaimsEstimate": 0,
+          "arrearsCureEstimate": 0,
+          "disposableIncomeNotes": ""
+        },
+        "documents": [
+          {
+            "id": "document-60323abb-a4f2-412a-bcef-35d3ee11487e",
+            "name": "Driver's license",
+            "category": "Identity",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T14:00:00.000Z"
+          },
+          {
+            "id": "document-e221e587-86de-4ab8-a96d-f44aeed21f8f",
+            "name": "Pay stubs - last 6 months",
+            "category": "Income",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T14:00:00.000Z"
+          },
+          {
+            "id": "document-84d0647b-ee31-49dd-8240-06b95939fd98",
+            "name": "Tax return - last year",
+            "category": "Taxes",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T14:00:00.000Z"
+          },
+          {
+            "id": "document-26853bba-05ad-485a-a8d7-7d64035317a8",
+            "name": "Bank statements - last 6 months",
+            "category": "Banking",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T14:00:00.000Z"
+          },
+          {
+            "id": "document-f2677a18-b01c-440d-b57e-89546c040e25",
+            "name": "Statements for all debts",
+            "category": "Debt",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T14:00:00.000Z"
+          }
+        ],
+        "financialAffairs": {
+          "prior-addresses": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-amara-prior-address",
+                "fields": {
+                  "address": "1550 South Logan Street, Denver, CO 80210",
+                  "dates": "2023-08 to 2024-11"
+                }
+              }
+            ]
+          },
+          "community-property-state": {
+            "answer": "No",
+            "entries": []
+          },
+          "job-or-business-income": {
+            "answer": "Yes",
+            "entries": [],
+            "selected": [
+              "Wages, commissions, bonuses, or tips"
+            ]
+          },
+          "other-income": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-amara-other-income",
+                "fields": {
+                  "amount": "600",
+                  "frequency": "Monthly",
+                  "source": "Child support"
+                }
+              }
+            ]
+          },
+          "creditor-payments-90-days": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-amara-creditor-payment",
+                "fields": {
+                  "amountOwed": "13200",
+                  "creditor": "Chase Card Services",
+                  "paymentDates": "2026-05, 2026-06",
+                  "totalPaid": "700"
+                }
+              }
+            ]
+          },
+          "insider-debt-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "insider-benefit-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "lawsuits": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-amara-lawsuit",
+                "fields": {
+                  "caseNumber": "26CFAKE1022",
+                  "caseTitle": "Peak Recovery LLC v. Amara Jensen",
+                  "courtOrAgency": "Denver County Court",
+                  "status": "Judgment entered; garnishment threatened"
+                }
+              }
+            ]
+          },
+          "property-taken": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-amara-garnishment",
+                "fields": {
+                  "creditor": "Peak Recovery LLC",
+                  "date": "2026-05",
+                  "property": "Wages garnished once before payroll hold",
+                  "value": "325"
+                }
+              }
+            ]
+          },
+          "setoff": {
+            "answer": "No",
+            "entries": []
+          },
+          "receiver-property": {
+            "answer": "No",
+            "entries": []
+          },
+          "gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "charitable-gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "losses": {
+            "answer": "No",
+            "entries": []
+          },
+          "bankruptcy-consult-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "creditor-help-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-transfers": {
+            "answer": "No",
+            "entries": []
+          },
+          "asset-protection-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "closed-accounts": {
+            "answer": "No",
+            "entries": []
+          },
+          "safe-deposit-box": {
+            "answer": "No",
+            "entries": []
+          },
+          "storage-unit": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-for-others": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-liability-notice": {
+            "answer": "No",
+            "entries": []
+          },
+          "hazardous-material-release": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-proceeding": {
+            "answer": "No",
+            "entries": []
+          },
+          "business-connections": {
+            "answer": "No",
+            "entries": []
+          },
+          "business-financial-statements": {
+            "answer": "No",
+            "entries": []
+          }
+        }
+      },
+      "packageId": "bkfl-demo-single-wage-earner-ch7",
+      "readiness": {
+        "documentsReady": 5,
+        "documentsRequired": 5,
+        "fieldsFilled": 27,
+        "fieldsRequired": 27,
+        "reviewFlagCount": 1,
+        "status": "ready-for-attorney"
+      },
+      "reviewFlags": [
+        {
+          "id": "debts-Unsecured debt captured",
+          "severity": "info",
+          "sectionId": "debts",
+          "title": "Unsecured debt captured",
+          "detail": "$22,400 in unsecured claims is recorded for review."
+        }
+      ],
+      "schemaVersion": 1,
+      "source": {
+        "branch": "Jimmy",
+        "scenarioId": "single-wage-earner-ch7",
+        "system": "BK FastLane Intake"
+      },
+      "submittedAt": "2026-07-04T14:00:00.000Z"
+    },
+    {
+      "demo": true,
+      "generatedAt": "2026-07-10T06:43:32.164Z",
+      "matter": {
+        "id": "matter-e655e122-0803-4840-9509-b94d21c92223",
+        "title": "Marcus and Elena Ortega fake Chapter 13 intake",
+        "chapter": "13",
+        "status": "ready-for-attorney",
+        "filingState": "UT",
+        "district": "District of Utah",
+        "clientGoals": "Stop foreclosure, cure mortgage arrears, keep both vehicles, and repay priority taxes through plan.",
+        "urgentConcerns": "Mortgage sale date notice says sale is scheduled within 30 days.",
+        "priorBankruptcyFiled": "Yes",
+        "priorBankruptcyDetails": "Marcus filed Chapter 7 in Utah around 2017 and received a discharge. Elena has not filed before.",
+        "hasDependents": "Yes",
+        "spouseFilingJointly": "Yes",
+        "isEmployed": "Yes",
+        "hasOtherHouseholdIncome": "Yes",
+        "personalInfoSubmittedAt": "2026-07-04T15:10:00.000Z",
+        "createdAt": "2026-07-10T06:43:32.577Z",
+        "updatedAt": "2026-07-10T06:43:32.577Z",
+        "debtors": [
+          {
+            "id": "debtor-edcad991-f60b-4648-93aa-7ca762f5b885",
+            "firstName": "Marcus",
+            "middleName": "Daniel",
+            "lastName": "Ortega",
+            "otherNames": "M. Daniel Ortega",
+            "email": "marcus.ortega.fake@example.test",
+            "phone": "(801) 555-0122",
+            "ssnLast4": "4488",
+            "socialSecurityNumber": "222-33-4488",
+            "address": "1188 East Aspen View Drive",
+            "city": "Sandy",
+            "state": "UT",
+            "zipCode": "84092",
+            "county": "Salt Lake",
+            "mailingAddressDifferent": false,
+            "dateOfBirth": "09/21/1981"
+          },
+          {
+            "id": "debtor-8b9109bb-0287-4e7a-b6d8-902f91705fbf",
+            "firstName": "Elena",
+            "middleName": "Marisol",
+            "lastName": "Ortega",
+            "otherNames": "Elena M. Rivera",
+            "email": "elena.ortega.fake@example.test",
+            "phone": "(801) 555-0177",
+            "ssnLast4": "5599",
+            "socialSecurityNumber": "333-44-5599",
+            "address": "1188 East Aspen View Drive",
+            "city": "Sandy",
+            "state": "UT",
+            "zipCode": "84092",
+            "county": "Salt Lake",
+            "mailingAddressDifferent": false,
+            "dateOfBirth": "02/07/1983"
+          }
+        ],
+        "household": {
+          "dependents": [
+            {
+              "id": "dependent-95a642d3-cb9a-428a-951e-03adab57d61f",
+              "name": "Fake minor child 1",
+              "age": "14",
+              "relationship": "Child",
+              "livesWithDebtor": "Yes"
+            },
+            {
+              "id": "dependent-9fe488b2-78de-4eaf-9b79-bd2c43482cb0",
+              "name": "Fake minor child 2",
+              "age": "11",
+              "relationship": "Child",
+              "livesWithDebtor": "Yes"
+            }
+          ],
+          "householdSize": 4,
+          "maritalStatus": "Married"
+        },
+        "assets": [
+          {
+            "id": "asset-8fa13a1e-2119-4c84-936d-ad4cdbb12f7b",
+            "category": "Real estate",
+            "description": "Primary residence",
+            "estimatedValue": 515000,
+            "lienAmount": 438000,
+            "exemptionNote": "",
+            "keepIntent": "Keep and cure arrears through Chapter 13 plan",
+            "propertyCity": "Sandy",
+            "propertyState": "UT",
+            "propertyStreet": "1188 East Aspen View Drive",
+            "propertyZipCode": "84092",
+            "purchaseDate": "06/15/2018"
+          },
+          {
+            "id": "asset-e5364300-d98c-4b26-bc76-17fae1991fcd",
+            "category": "Vehicle",
+            "description": "2020 Honda Odyssey",
+            "estimatedValue": 24500,
+            "lienAmount": 21800,
+            "exemptionNote": "",
+            "financingStatus": "Financed",
+            "keepIntent": "Keep",
+            "make": "Honda",
+            "mileage": "72500",
+            "model": "Odyssey",
+            "year": "2020"
+          },
+          {
+            "id": "asset-2e9aebf7-4dcd-4e84-a2f9-3657a5fa3894",
+            "category": "Vehicle",
+            "description": "2012 Subaru Outback",
+            "estimatedValue": 7200,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "financingStatus": "Paid off",
+            "keepIntent": "Keep",
+            "make": "Subaru",
+            "mileage": "148000",
+            "model": "Outback",
+            "year": "2012"
+          },
+          {
+            "id": "asset-67ca7def-f106-4500-ac71-090cff6650f5",
+            "category": "Bank or financial account",
+            "description": "America First Credit Union checking",
+            "estimatedValue": 1850,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "Checking"
+          },
+          {
+            "id": "asset-482411a6-ad53-4b04-9383-cc49ebe7dd32",
+            "category": "Bank or financial account",
+            "description": "America First Credit Union savings",
+            "estimatedValue": 600,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "Savings"
+          },
+          {
+            "id": "asset-eebac9d1-251f-49fe-9f15-905af4aff954",
+            "category": "Retirement or pension account",
+            "description": "Marcus 401(k)",
+            "estimatedValue": 82500,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "401(k)"
+          },
+          {
+            "id": "asset-1f37d337-5a5e-48f8-a8a7-e370776c8d62",
+            "category": "Household goods and furnishings",
+            "description": "Household furniture, appliances, clothing, electronics, and school laptops",
+            "estimatedValue": 7900,
+            "lienAmount": 0,
+            "exemptionNote": ""
+          }
+        ],
+        "debts": [
+          {
+            "id": "debt-0c16e44d-06fd-47ef-a5c3-bb35cc0ff455",
+            "type": "secured",
+            "creditor": "Beehive Mortgage Servicing",
+            "amount": 438000,
+            "collateral": "Primary residence",
+            "arrears": 16800,
+            "notes": "Foreclosure sale date noticed. Need arrears cure treatment."
+          },
+          {
+            "id": "debt-e2812665-4b47-47c2-b970-c459f8648bda",
+            "type": "secured",
+            "creditor": "Honda Financial Services",
+            "amount": 21800,
+            "collateral": "2020 Honda Odyssey",
+            "arrears": 940,
+            "notes": "Two payments behind; wants to keep."
+          },
+          {
+            "id": "debt-2f601fbe-6517-4ce1-bd96-e107f1a29ee9",
+            "type": "priority",
+            "creditor": "IRS / federal income tax",
+            "amount": 8800,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Estimated priority portion from recent tax years; verify returns and transcripts."
+          },
+          {
+            "id": "debt-39ef6781-ab7b-4952-b6c5-de7d9d07cdf2",
+            "type": "unsecured",
+            "creditor": "General unsecured credit cards",
+            "amount": 38500,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Multiple cards consolidated as client estimate."
+          },
+          {
+            "id": "debt-19951d72-5c2b-40d2-88c1-2c4e4b802d9e",
+            "type": "unsecured",
+            "creditor": "Intermountain Medical Center",
+            "amount": 12300,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Medical balances and collection letters."
+          }
+        ],
+        "contracts": [],
+        "codebtors": [],
+        "income": [
+          {
+            "id": "income-fa704937-6bc8-489a-9199-d3b4c9f81505",
+            "source": "Employment",
+            "employer": "Wasatch Transit Authority",
+            "amount": 6200,
+            "frequency": "Biweekly",
+            "sixMonthTotal": 37200
+          },
+          {
+            "id": "income-180f4ebc-2bc5-4290-b359-ec08d726e88b",
+            "source": "Employment",
+            "employer": "Cottonwood Dental Group",
+            "amount": 3600,
+            "frequency": "Twice monthly",
+            "sixMonthTotal": 21600
+          },
+          {
+            "id": "income-70663e7a-d0e7-4fc7-b650-5db0e634814f",
+            "source": "Disability / public benefits",
+            "employer": "VA disability",
+            "amount": 720,
+            "frequency": "Monthly",
+            "sixMonthTotal": 4320
+          }
+        ],
+        "payStubIncomeEvidence": [],
+        "expenses": [
+          {
+            "id": "expense-2c0540d7-c16f-4563-866e-55d9ab56a87a",
+            "category": "Mortgage payment",
+            "monthlyAmount": 2740,
+            "notes": ""
+          },
+          {
+            "id": "expense-73f7d7c1-1cb7-4262-b1cb-0abcd95ee078",
+            "category": "HOA / association dues",
+            "monthlyAmount": 95,
+            "notes": ""
+          },
+          {
+            "id": "expense-5e43c801-bdf7-4c76-88f6-8d3172653fb1",
+            "category": "Electricity, heat, natural gas",
+            "monthlyAmount": 260,
+            "notes": ""
+          },
+          {
+            "id": "expense-bcaf6cef-3b88-45c0-8eea-48f5ff963b06",
+            "category": "Water, sewer, garbage collection",
+            "monthlyAmount": 115,
+            "notes": ""
+          },
+          {
+            "id": "expense-9ee9d0bf-d3a6-44eb-8c66-51bf85f5b34d",
+            "category": "Phone, cell, internet, satellite & cable",
+            "monthlyAmount": 260,
+            "notes": ""
+          },
+          {
+            "id": "expense-8e4da8b5-bfdd-4a3b-a9f0-aa6cd4e5a139",
+            "category": "Food & housekeeping supplies",
+            "monthlyAmount": 1220,
+            "notes": ""
+          },
+          {
+            "id": "expense-385dce38-313c-42b7-a660-df0c4e5a112d",
+            "category": "Childcare & children's education",
+            "monthlyAmount": 640,
+            "notes": ""
+          },
+          {
+            "id": "expense-b8b01090-f57b-48c8-814c-47181a1c2a01",
+            "category": "Medical & dental expenses",
+            "monthlyAmount": 310,
+            "notes": ""
+          },
+          {
+            "id": "expense-358217a0-3a6f-4e84-ac65-b41bcef5515d",
+            "category": "Transportation",
+            "monthlyAmount": 620,
+            "notes": ""
+          },
+          {
+            "id": "expense-14f802b8-b8d3-480d-b4dc-2e3b679ae2ca",
+            "category": "Vehicle payments",
+            "monthlyAmount": 590,
+            "notes": ""
+          },
+          {
+            "id": "expense-6ec62a0e-b01e-40c5-aad0-a2398bc40cba",
+            "category": "Vehicle insurance",
+            "monthlyAmount": 285,
+            "notes": ""
+          },
+          {
+            "id": "expense-5296073d-a711-487d-898f-cb33d5e0d8d5",
+            "category": "Taxes",
+            "monthlyAmount": 375,
+            "notes": "Payroll withholding shortfall estimate"
+          },
+          {
+            "id": "expense-11e2ebf5-184e-4355-af60-012b684b008e",
+            "category": "Other expenses",
+            "monthlyAmount": 340,
+            "notes": "School lunches, activities, prescriptions"
+          }
+        ],
+        "sofaEvents": [
+          {
+            "id": "sofa-f6233296-5256-416a-8321-6ea46c0a0259",
+            "eventType": "Foreclosure / property at risk",
+            "date": "06/20/2026",
+            "amount": 16800,
+            "description": "Foreclosure sale notice from Beehive Mortgage Servicing."
+          },
+          {
+            "id": "sofa-a564ce60-18c6-421c-8793-49ca8401ea28",
+            "eventType": "Priority tax debt",
+            "date": "04/15/2026",
+            "amount": 8800,
+            "description": "Recent federal income tax balance disclosed by debtors."
+          }
+        ],
+        "petitionFlags": {
+          "evictionJudgment": "No",
+          "hazardousProperty": "No",
+          "hazardousPropertyAddress": "",
+          "hazardousPropertyCity": "",
+          "hazardousPropertyDescription": "",
+          "hazardousPropertyImmediateReason": "",
+          "hazardousPropertyState": "",
+          "hazardousPropertyStreet2": "",
+          "hazardousPropertyZipCode": "",
+          "rentsResidence": "No",
+          "soleProprietor": "No",
+          "soleProprietorBusinessCity": "",
+          "soleProprietorBusinessName": "",
+          "soleProprietorBusinessState": "",
+          "soleProprietorBusinessStreet": "",
+          "soleProprietorBusinessType": "",
+          "soleProprietorBusinessUnit": "",
+          "soleProprietorBusinessZipCode": ""
+        },
+        "chapter7": {
+          "meansTestStatus": "",
+          "medianIncomeState": "",
+          "estimatedMonthlyIncome": 0,
+          "securedPropertyIntent": "",
+          "priorBankruptcyDischarge": "",
+          "assetDistributionEstimate": ""
+        },
+        "chapter13": {
+          "arrearsCureEstimate": 17740,
+          "disposableIncomeNotes": "Fake data suggests rough net monthly income of $10,520 less expenses of about $7,850 before plan payment. Verify payroll deductions, taxes, and allowed expenses.",
+          "planMonths": 60,
+          "priorityClaimsEstimate": 8800,
+          "proposedMonthlyPayment": 850
+        },
+        "documents": [
+          {
+            "id": "document-08547f6c-a060-4fd3-b44a-ac3da9ecc70a",
+            "name": "Driver's license",
+            "category": "Identity",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T15:10:00.000Z"
+          },
+          {
+            "id": "document-32f3576c-445d-4ea8-b5d4-d5ffaf69c96c",
+            "name": "Pay stubs - last 6 months",
+            "category": "Income",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T15:10:00.000Z"
+          },
+          {
+            "id": "document-333e287e-95bd-4968-b6ec-3d7bf29b3638",
+            "name": "Tax return - last year",
+            "category": "Taxes",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T15:10:00.000Z"
+          },
+          {
+            "id": "document-c35fab45-094b-43e4-a282-58fd7461056b",
+            "name": "Bank statements - last 6 months",
+            "category": "Banking",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T15:10:00.000Z"
+          },
+          {
+            "id": "document-e5aa8a43-4f07-43e3-8669-be7b5b9c22ab",
+            "name": "Statements for all debts",
+            "category": "Debt",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T15:10:00.000Z"
+          }
+        ],
+        "financialAffairs": {
+          "prior-addresses": {
+            "answer": "No",
+            "entries": []
+          },
+          "community-property-state": {
+            "answer": "No",
+            "entries": []
+          },
+          "job-or-business-income": {
+            "answer": "Yes",
+            "entries": [],
+            "selected": [
+              "Wages, commissions, bonuses, or tips"
+            ]
+          },
+          "other-income": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-ortega-va",
+                "fields": {
+                  "amount": "720",
+                  "frequency": "Monthly",
+                  "source": "VA disability"
+                }
+              }
+            ]
+          },
+          "creditor-payments-90-days": {
+            "answer": "No",
+            "entries": []
+          },
+          "insider-debt-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "insider-benefit-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "lawsuits": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-taken": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-ortega-foreclosure",
+                "fields": {
+                  "creditor": "Beehive Mortgage Servicing",
+                  "date": "2026-06",
+                  "property": "Primary residence foreclosure sale noticed",
+                  "value": "515000"
+                }
+              }
+            ]
+          },
+          "setoff": {
+            "answer": "No",
+            "entries": []
+          },
+          "receiver-property": {
+            "answer": "No",
+            "entries": []
+          },
+          "gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "charitable-gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "losses": {
+            "answer": "No",
+            "entries": []
+          },
+          "bankruptcy-consult-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "creditor-help-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-transfers": {
+            "answer": "No",
+            "entries": []
+          },
+          "asset-protection-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "closed-accounts": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-ortega-closed-account",
+                "fields": {
+                  "accountType": "Checking",
+                  "closingBalance": "42",
+                  "date": "2026-01",
+                  "institution": "Mountain America Credit Union",
+                  "last4": "7712"
+                }
+              }
+            ]
+          },
+          "safe-deposit-box": {
+            "answer": "No",
+            "entries": []
+          },
+          "storage-unit": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-for-others": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-liability-notice": {
+            "answer": "No",
+            "entries": []
+          },
+          "hazardous-material-release": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-proceeding": {
+            "answer": "No",
+            "entries": []
+          },
+          "business-connections": {
+            "answer": "No",
+            "entries": []
+          },
+          "business-financial-statements": {
+            "answer": "No",
+            "entries": []
+          }
+        }
+      },
+      "packageId": "bkfl-demo-joint-homeowner-ch13",
+      "readiness": {
+        "documentsReady": 5,
+        "documentsRequired": 5,
+        "fieldsFilled": 27,
+        "fieldsRequired": 27,
+        "reviewFlagCount": 2,
+        "status": "ready-for-attorney"
+      },
+      "reviewFlags": [
+        {
+          "id": "chapter13-Arrears need plan treatment",
+          "severity": "info",
+          "sectionId": "chapter13",
+          "title": "Arrears need plan treatment",
+          "detail": "$17,740 in recorded arrears should be reconciled with plan treatment."
+        },
+        {
+          "id": "debts-Unsecured debt captured",
+          "severity": "info",
+          "sectionId": "debts",
+          "title": "Unsecured debt captured",
+          "detail": "$50,800 in unsecured claims is recorded for review."
+        }
+      ],
+      "schemaVersion": 1,
+      "source": {
+        "branch": "Jimmy",
+        "scenarioId": "joint-homeowner-ch13",
+        "system": "BK FastLane Intake"
+      },
+      "submittedAt": "2026-07-04T15:10:00.000Z"
+    },
+    {
+      "demo": true,
+      "generatedAt": "2026-07-10T06:43:32.164Z",
+      "matter": {
+        "id": "matter-c02c19f0-b984-4bda-bd45-c38a5752839c",
+        "title": "Theo Bennett fake self-employed Chapter 7 intake",
+        "chapter": "7",
+        "status": "ready-for-attorney",
+        "filingState": "CO",
+        "district": "District of Colorado",
+        "clientGoals": "Discharge business-related unsecured debt, understand tax debt treatment, keep work van if possible.",
+        "urgentConcerns": "Supplier lawsuit and possible levy against business checking account.",
+        "priorBankruptcyFiled": "No",
+        "priorBankruptcyDetails": "",
+        "hasDependents": "No",
+        "spouseFilingJointly": "No",
+        "isEmployed": "Yes",
+        "hasOtherHouseholdIncome": "No",
+        "personalInfoSubmittedAt": "2026-07-04T16:20:00.000Z",
+        "createdAt": "2026-07-10T06:43:32.584Z",
+        "updatedAt": "2026-07-10T06:43:32.584Z",
+        "debtors": [
+          {
+            "id": "debtor-c48c30dd-b5e4-4ba5-a6d8-8dafef521803",
+            "firstName": "Theo",
+            "middleName": "James",
+            "lastName": "Bennett",
+            "otherNames": "T.J. Bennett",
+            "email": "theo.bennett.fake@example.test",
+            "phone": "(720) 555-0194",
+            "ssnLast4": "6612",
+            "socialSecurityNumber": "444-55-6612",
+            "address": "914 South Fox Street",
+            "city": "Denver",
+            "state": "CO",
+            "zipCode": "80223",
+            "county": "Denver",
+            "mailingAddressDifferent": false,
+            "dateOfBirth": "12/05/1990"
+          }
+        ],
+        "household": {
+          "dependents": [],
+          "householdSize": 1,
+          "maritalStatus": "Single"
+        },
+        "assets": [
+          {
+            "id": "asset-5b574cf5-89c9-42bc-a514-642f71e5ce7b",
+            "category": "Bank or financial account",
+            "description": "Business checking at Alpine Bank",
+            "estimatedValue": 350,
+            "lienAmount": 0,
+            "exemptionNote": "",
+            "accountType": "Checking"
+          },
+          {
+            "id": "asset-dbb38997-0848-4bb1-92f4-1d1a0f55e6d0",
+            "category": "Vehicle",
+            "description": "2019 Ford Transit work van",
+            "estimatedValue": 22000,
+            "lienAmount": 12800,
+            "exemptionNote": "",
+            "financingStatus": "Financed",
+            "keepIntent": "Keep if trustee/secured-creditor treatment allows",
+            "make": "Ford",
+            "mileage": "94000",
+            "model": "Transit",
+            "year": "2019"
+          },
+          {
+            "id": "asset-fe574428-ddb5-4b7c-bb55-90c53f721916",
+            "category": "Business related property",
+            "description": "Mobile repair tools, compressor, diagnostic tablet, inventory bins",
+            "estimatedValue": 18000,
+            "lienAmount": 0,
+            "exemptionNote": "Attorney must review tool-of-trade and business asset exemptions."
+          },
+          {
+            "id": "asset-f4e5369a-5a29-4de3-952f-1b602d941686",
+            "category": "Money someone owes you",
+            "description": "Customer receivables for completed repair work",
+            "estimatedValue": 3200,
+            "lienAmount": 0,
+            "exemptionNote": ""
+          },
+          {
+            "id": "asset-9b538df2-653a-4b3e-94cc-ec9e576f7ec2",
+            "category": "Household goods and furnishings",
+            "description": "Apartment furnishings, clothing, phone, basic electronics",
+            "estimatedValue": 3100,
+            "lienAmount": 0,
+            "exemptionNote": ""
+          }
+        ],
+        "debts": [
+          {
+            "id": "debt-28ce06a3-13ac-45ed-933c-b6db258f540e",
+            "type": "priority",
+            "creditor": "IRS / federal income tax",
+            "amount": 18000,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Client says taxes are from 2023 and 2024. Need return dates/transcripts."
+          },
+          {
+            "id": "debt-3f2c8c52-d4f2-4f83-aaac-f716d78d6a94",
+            "type": "secured",
+            "creditor": "Ford Credit",
+            "amount": 14800,
+            "collateral": "2019 Ford Transit work van",
+            "arrears": 2100,
+            "notes": "Secured work vehicle debt, two payments behind."
+          },
+          {
+            "id": "debt-59301f1b-be4c-424c-b7a2-b57091b9ab7e",
+            "type": "unsecured",
+            "creditor": "Mile High Parts Supply",
+            "amount": 6400,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Supplier lawsuit filed; client also paid $2,000 to brother for a business loan."
+          },
+          {
+            "id": "debt-b9636f60-d580-440d-a979-ed592e0f3a02",
+            "type": "unsecured",
+            "creditor": "Business and personal credit cards",
+            "amount": 38500,
+            "collateral": "",
+            "arrears": 0,
+            "notes": "Mixed business/personal expenses."
+          }
+        ],
+        "contracts": [],
+        "codebtors": [],
+        "income": [
+          {
+            "id": "income-edee6411-d481-41f3-9e5d-638855bcd03b",
+            "source": "Business income",
+            "employer": "Bennett Mobile Repair LLC / sole proprietor",
+            "amount": 3600,
+            "frequency": "Irregular",
+            "sixMonthTotal": 23100
+          }
+        ],
+        "payStubIncomeEvidence": [],
+        "expenses": [
+          {
+            "id": "expense-85f47364-1bd6-4837-a480-c30e4a3794e1",
+            "category": "Rent or home/mortgage payment",
+            "monthlyAmount": 1450,
+            "notes": ""
+          },
+          {
+            "id": "expense-4e0d6087-65ab-42e0-80bc-68d4dce69d9a",
+            "category": "Electricity, heat, natural gas",
+            "monthlyAmount": 110,
+            "notes": ""
+          },
+          {
+            "id": "expense-fdeee813-ce07-4486-8ca5-4f103748f329",
+            "category": "Water, sewer, garbage collection",
+            "monthlyAmount": 45,
+            "notes": ""
+          },
+          {
+            "id": "expense-f64fed11-0294-466e-beeb-2dabe7f3f959",
+            "category": "Phone, cell, internet, satellite & cable",
+            "monthlyAmount": 210,
+            "notes": ""
+          },
+          {
+            "id": "expense-1c845fff-7920-47d2-8921-ddb83e5363be",
+            "category": "Food & housekeeping supplies",
+            "monthlyAmount": 520,
+            "notes": ""
+          },
+          {
+            "id": "expense-0ed21705-eba9-4f22-afb2-0a534948887d",
+            "category": "Transportation",
+            "monthlyAmount": 620,
+            "notes": "Fuel and maintenance for work van"
+          },
+          {
+            "id": "expense-eb74a1d8-cc41-46ac-bc4e-b45be5c75446",
+            "category": "Vehicle payments",
+            "monthlyAmount": 585,
+            "notes": ""
+          },
+          {
+            "id": "expense-b7ea9d51-11cf-46d2-ad5d-356c22efd945",
+            "category": "Vehicle insurance",
+            "monthlyAmount": 260,
+            "notes": ""
+          },
+          {
+            "id": "expense-655ee699-9e04-461a-888c-2389479e7876",
+            "category": "Taxes",
+            "monthlyAmount": 300,
+            "notes": "Estimated self-employment tax set-aside"
+          },
+          {
+            "id": "expense-33072a53-8b18-48da-880f-c26233dae6a7",
+            "category": "Other expenses",
+            "monthlyAmount": 390,
+            "notes": "Shop storage and software subscriptions"
+          }
+        ],
+        "sofaEvents": [
+          {
+            "id": "sofa-199d7edd-cb87-4d97-8ea9-33911b0dad5b",
+            "eventType": "Business collection lawsuit",
+            "date": "06/01/2026",
+            "amount": 6400,
+            "description": "Supplier collection action filed by Mile High Parts Supply."
+          },
+          {
+            "id": "sofa-2257f028-7c4a-47f4-9e5a-1743b5718a01",
+            "eventType": "Insider payment",
+            "date": "04/12/2026",
+            "amount": 2000,
+            "description": "Payment to brother for old business loan within one year."
+          },
+          {
+            "id": "sofa-7eb039ca-fa8b-419b-9cac-0b3fe60613ef",
+            "eventType": "Tax debt / SOFA income reconciliation",
+            "date": "03/30/2026",
+            "amount": 18000,
+            "description": "Tax balance disclosed for recent self-employment years."
+          }
+        ],
+        "petitionFlags": {
+          "evictionJudgment": "No",
+          "hazardousProperty": "Yes",
+          "hazardousPropertyAddress": "2450 West Alameda Avenue",
+          "hazardousPropertyCity": "Denver",
+          "hazardousPropertyDescription": "Pressurized tanks and automotive solvents stored in rented shop bay",
+          "hazardousPropertyImmediateReason": "Fire department warning says storage needs immediate correction",
+          "hazardousPropertyState": "CO",
+          "hazardousPropertyStreet2": "Bay 4",
+          "hazardousPropertyZipCode": "80219",
+          "rentsResidence": "Yes",
+          "soleProprietor": "Yes",
+          "soleProprietorBusinessCity": "Denver",
+          "soleProprietorBusinessName": "Bennett Mobile Repair LLC",
+          "soleProprietorBusinessState": "CO",
+          "soleProprietorBusinessStreet": "2450 West Alameda Avenue",
+          "soleProprietorBusinessType": "None of above",
+          "soleProprietorBusinessUnit": "Bay 4",
+          "soleProprietorBusinessZipCode": "80219"
+        },
+        "chapter7": {
+          "meansTestStatus": "Full calculation needed",
+          "medianIncomeState": "Colorado",
+          "estimatedMonthlyIncome": 3600,
+          "securedPropertyIntent": "Keep work van if secured debt and exemption review permit.",
+          "priorBankruptcyDischarge": "",
+          "assetDistributionEstimate": "Business tools, receivables, and vehicle equity require exemption and trustee-risk review."
+        },
+        "chapter13": {
+          "planMonths": 0,
+          "proposedMonthlyPayment": 0,
+          "priorityClaimsEstimate": 0,
+          "arrearsCureEstimate": 0,
+          "disposableIncomeNotes": ""
+        },
+        "documents": [
+          {
+            "id": "document-4a4f462e-8d27-4cb8-8585-ac04e2bc852c",
+            "name": "Driver's license",
+            "category": "Identity",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T16:20:00.000Z"
+          },
+          {
+            "id": "document-4c78be64-eb84-4865-97af-b897cd5f96d1",
+            "name": "Pay stubs - last 6 months",
+            "category": "Income",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T16:20:00.000Z"
+          },
+          {
+            "id": "document-a86a2567-60b0-4fd3-8669-1937fde9d1fa",
+            "name": "Tax return - last year",
+            "category": "Taxes",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T16:20:00.000Z"
+          },
+          {
+            "id": "document-a4fc0ea6-bc23-4202-aa13-9ca72288c4eb",
+            "name": "Bank statements - last 6 months",
+            "category": "Banking",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T16:20:00.000Z"
+          },
+          {
+            "id": "document-6938936a-30a0-4673-924c-f7259d538d8d",
+            "name": "Statements for all debts",
+            "category": "Debt",
+            "status": "received",
+            "notes": "Fake demo document received with completed intake.",
+            "extractionReviews": [],
+            "receivedAt": "2026-07-04T16:20:00.000Z"
+          }
+        ],
+        "financialAffairs": {
+          "prior-addresses": {
+            "answer": "No",
+            "entries": []
+          },
+          "community-property-state": {
+            "answer": "No",
+            "entries": []
+          },
+          "job-or-business-income": {
+            "answer": "Yes",
+            "entries": [],
+            "selected": [
+              "Self-employment or business income"
+            ]
+          },
+          "other-income": {
+            "answer": "No",
+            "entries": []
+          },
+          "creditor-payments-90-days": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-creditor-payment",
+                "fields": {
+                  "amountOwed": "6400",
+                  "creditor": "Mile High Parts Supply",
+                  "paymentDates": "2026-05",
+                  "totalPaid": "900"
+                }
+              }
+            ]
+          },
+          "insider-debt-payments": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-insider",
+                "fields": {
+                  "amountOwed": "3000",
+                  "insiderName": "Fake brother",
+                  "paymentDates": "2026-04",
+                  "relationship": "Brother",
+                  "totalPaid": "2000"
+                }
+              }
+            ]
+          },
+          "insider-benefit-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "lawsuits": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-lawsuit",
+                "fields": {
+                  "caseNumber": "26CVFAKE3301",
+                  "caseTitle": "Mile High Parts Supply v. Theo Bennett",
+                  "courtOrAgency": "Denver County Court",
+                  "status": "Pending"
+                }
+              }
+            ]
+          },
+          "property-taken": {
+            "answer": "No",
+            "entries": []
+          },
+          "setoff": {
+            "answer": "No",
+            "entries": []
+          },
+          "receiver-property": {
+            "answer": "No",
+            "entries": []
+          },
+          "gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "charitable-gifts": {
+            "answer": "No",
+            "entries": []
+          },
+          "losses": {
+            "answer": "No",
+            "entries": []
+          },
+          "bankruptcy-consult-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "creditor-help-payments": {
+            "answer": "No",
+            "entries": []
+          },
+          "property-transfers": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-transfer",
+                "fields": {
+                  "date": "2025-12",
+                  "property": "Old engine hoist",
+                  "recipient": "Former business partner",
+                  "relationship": "Former partner",
+                  "valueReceived": "500"
+                }
+              }
+            ]
+          },
+          "asset-protection-transfer": {
+            "answer": "No",
+            "entries": []
+          },
+          "closed-accounts": {
+            "answer": "No",
+            "entries": []
+          },
+          "safe-deposit-box": {
+            "answer": "No",
+            "entries": []
+          },
+          "storage-unit": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-storage",
+                "fields": {
+                  "access": "Theo only",
+                  "contents": "Repair tools and customer parts",
+                  "facility": "South Platte Storage Unit B-12"
+                }
+              }
+            ]
+          },
+          "property-for-others": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-liability-notice": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-environmental",
+                "fields": {
+                  "date": "2026-02",
+                  "environmentalLaw": "Hazardous materials storage inquiry",
+                  "governmentUnit": "Denver Fire Department",
+                  "notice": "Warning about storage of solvents and pressurized tanks in rented shop bay"
+                }
+              }
+            ]
+          },
+          "hazardous-material-release": {
+            "answer": "No",
+            "entries": []
+          },
+          "environmental-proceeding": {
+            "answer": "No",
+            "entries": []
+          },
+          "business-connections": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-business",
+                "fields": {
+                  "businessName": "Bennett Mobile Repair LLC",
+                  "businessType": "Mobile auto repair / sole proprietor LLC",
+                  "ein": "Fake EIN not provided",
+                  "from": "2021-03",
+                  "role": "Owner / operator",
+                  "to": "present"
+                }
+              }
+            ]
+          },
+          "business-financial-statements": {
+            "answer": "Yes",
+            "entries": [
+              {
+                "id": "fa-bennett-financial-statement",
+                "fields": {
+                  "date": "2025-11",
+                  "description": "Business revenue statement for parts credit line",
+                  "recipient": "Mile High Parts Supply"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "packageId": "bkfl-demo-self-employed-ch7-business",
+      "readiness": {
+        "documentsReady": 5,
+        "documentsRequired": 5,
+        "fieldsFilled": 27,
+        "fieldsRequired": 27,
+        "reviewFlagCount": 1,
+        "status": "ready-for-attorney"
+      },
+      "reviewFlags": [
+        {
+          "id": "debts-Unsecured debt captured",
+          "severity": "info",
+          "sectionId": "debts",
+          "title": "Unsecured debt captured",
+          "detail": "$44,900 in unsecured claims is recorded for review."
+        }
+      ],
+      "schemaVersion": 1,
+      "source": {
+        "branch": "Jimmy",
+        "scenarioId": "self-employed-ch7-business",
+        "system": "BK FastLane Intake"
+      },
+      "submittedAt": "2026-07-04T16:20:00.000Z"
+    }
+  ],
+  "schemaVersion": 1,
+  "source": "BK FastLane Intake fake debtor agent"
+};

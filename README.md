@@ -24,3 +24,16 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 ## Spec
 
 `docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.
+
+## Jimmy branch Intake handoff demo
+
+- CRM Intake Inbox: `https://jimmydanol.github.io/bkfl-crm-lite/?view=intake-inbox`
+- Fake debtor Intake: `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html`
+- Scope: fake data only. The browser-local handoff is for Matt/Jimmy workflow review, not real client data.
+
+The demo feed is generated from completed canonical Intake `Matter` records. To rebuild it after running the Intake fake-debtor agent:
+
+```powershell
+node scripts/build-intake-demo-feed.mjs <path-to-debtor-agent-index.json>
+node scripts/test-intake-crm-bridge.mjs
+```
