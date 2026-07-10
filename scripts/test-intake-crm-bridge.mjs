@@ -61,6 +61,23 @@ assert.deepEqual(
   once.map((lead) => lead.id).sort(),
 )
 
+const organizationValues = new Map()
+const organizationStorage = {
+  getItem: (key) => organizationValues.get(key) ?? null,
+  setItem: (key, value) => organizationValues.set(key, value),
+}
+assert.equal(bridge.readOrganization(organizationStorage).name, 'McCune Legal')
+const savedOrganization = bridge.writeOrganization(organizationStorage, {
+  ...bridge.DEFAULT_ORGANIZATION,
+  name: '  Stein Legal  ',
+})
+assert.equal(savedOrganization.name, 'Stein Legal')
+assert.equal(bridge.readOrganization(organizationStorage).name, 'Stein Legal')
+assert.equal(
+  JSON.parse(organizationStorage.getItem(bridge.ORGANIZATION_STORAGE_KEY)).name,
+  'Stein Legal',
+)
+
 console.log(
   JSON.stringify(
     {

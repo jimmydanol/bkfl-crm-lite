@@ -6,7 +6,20 @@
   'use strict'
 
   const HANDOFF_STORAGE_KEY = 'bkfl_intake_handoffs_v1'
+  const ORGANIZATION_EVENT = 'bkfl:organization-change'
+  const ORGANIZATION_STORAGE_KEY = 'bkfl_lite_org_v1'
   const PACKAGE_SCHEMA_VERSION = 1
+  const DEFAULT_ORGANIZATION = Object.freeze({
+    city: 'Boulder',
+    country: 'United States',
+    logo: null,
+    name: 'McCune Legal',
+    phone: '(303) 759-0728',
+    state: 'CO',
+    street: '2101 Pearl St.',
+    website: '',
+    zip: '80302',
+  })
 
   const clean = (value) => (typeof value === 'string' ? value.trim() : '')
   const asArray = (value) => (Array.isArray(value) ? value : [])
@@ -14,6 +27,37 @@
   const numberValue = (value) => {
     const parsed = Number(value)
     return Number.isFinite(parsed) ? parsed : 0
+  }
+
+  const normalizeOrganization = (candidate) => {
+    const source = candidate && typeof candidate === 'object' ? candidate : {}
+    return {
+      city: clean(source.city) || DEFAULT_ORGANIZATION.city,
+      country: clean(source.country) || DEFAULT_ORGANIZATION.country,
+      logo: typeof source.logo === 'string' && source.logo ? source.logo : null,
+      name: clean(source.name) || DEFAULT_ORGANIZATION.name,
+      phone: clean(source.phone) || DEFAULT_ORGANIZATION.phone,
+      state: clean(source.state) || DEFAULT_ORGANIZATION.state,
+      street: clean(source.street) || DEFAULT_ORGANIZATION.street,
+      website: clean(source.website),
+      zip: clean(source.zip) || DEFAULT_ORGANIZATION.zip,
+    }
+  }
+
+  const readOrganization = (storage) => {
+    try {
+      return normalizeOrganization(
+        JSON.parse(storage?.getItem(ORGANIZATION_STORAGE_KEY) || 'null'),
+      )
+    } catch {
+      return normalizeOrganization()
+    }
+  }
+
+  const writeOrganization = (storage, candidate) => {
+    const organization = normalizeOrganization(candidate)
+    storage.setItem(ORGANIZATION_STORAGE_KEY, JSON.stringify(organization))
+    return organization
   }
 
   const debtorName = (debtor) =>
@@ -215,7 +259,10 @@
   }
 
   return {
+    DEFAULT_ORGANIZATION,
     HANDOFF_STORAGE_KEY,
+    ORGANIZATION_EVENT,
+    ORGANIZATION_STORAGE_KEY,
     PACKAGE_SCHEMA_VERSION,
     debtorName,
     enqueuePackage,
@@ -225,8 +272,10 @@
     mergePackagesIntoLeads,
     normalizePackage,
     packageToLead,
+    readOrganization,
     readQueuedPackages,
     total,
     validatePackage,
+    writeOrganization,
   }
 })

@@ -79,8 +79,8 @@ button,a{touch-action:manipulation;}
 <div class="branch-bar">Jimmy Branch - Fake Data Workflow</div>
 <header class="app-header">
   <div class="brand">
-    <div class="brand-mark">BK</div>
-    <div><div class="brand-name">BK FastLane Intake</div><div class="brand-sub">Completed debtor package demo</div></div>
+    <div class="brand-mark" id="organizationInitials">ML</div>
+    <div><div class="brand-name" id="organizationName" data-testid="organization-name-header">McCune Legal</div><div class="brand-sub">BK FastLane Intake - completed debtor package demo</div></div>
   </div>
   <div class="demo-badge">FAKE DATA ONLY</div>
 </header>
@@ -121,6 +121,18 @@ button,a{touch-action:manipulation;}
   const packages=(window.BKFL_INTAKE_SUBMISSIONS&&window.BKFL_INTAKE_SUBMISSIONS.packages)||[];
   let selectedIndex=0;
   let current=packages.length?JSON.parse(JSON.stringify(packages[0])):null;
+
+  const renderOrganizationBrand=()=>{
+    const organization=bridge.readOrganization(window.localStorage);
+    const name=organization.name;
+    const initials=name.split(/\s+/).filter(Boolean).map(part=>part[0]).join('').slice(0,2).toUpperCase()||'BK';
+    document.getElementById('organizationName').textContent=name;
+    document.getElementById('organizationInitials').textContent=initials;
+    document.title=`${name} Intake Demo - Jimmy Branch`;
+  };
+  window.addEventListener('storage',(event)=>{
+    if(event.key===bridge.ORGANIZATION_STORAGE_KEY)renderOrganizationBrand();
+  });
 
   const escapeHtml=(value)=>String(value??'').replace(/[&<>"']/g,(char)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const money=(value)=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(value)||0);
@@ -232,6 +244,7 @@ button,a{touch-action:manipulation;}
     window.location.href=`./?view=intake-inbox&packageId=${encodeURIComponent(current.packageId)}`;
   });
 
+  renderOrganizationBrand();
   renderProfiles();
   render();
 })();

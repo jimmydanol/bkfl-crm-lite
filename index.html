@@ -654,6 +654,22 @@ function StageBadge({stage}){
 }
 
 /* ─── SIDEBAR ─── */
+function useOrganizationName(){
+  const bridge=window.BKFLIntakeBridge;
+  const [organizationName,setOrganizationName]=useState(()=>bridge.readOrganization(localStorage).name);
+  useEffect(()=>{
+    const syncOrganizationName=()=>setOrganizationName(bridge.readOrganization(localStorage).name);
+    const handleStorage=(event)=>{if(event.key===bridge.ORGANIZATION_STORAGE_KEY)syncOrganizationName();};
+    window.addEventListener("storage",handleStorage);
+    window.addEventListener(bridge.ORGANIZATION_EVENT,syncOrganizationName);
+    return()=>{
+      window.removeEventListener("storage",handleStorage);
+      window.removeEventListener(bridge.ORGANIZATION_EVENT,syncOrganizationName);
+    };
+  },[bridge]);
+  return organizationName;
+}
+
 const sidebarItems=[
   {key:"dashboard",label:"DASHBOARD",d:"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"},
   {key:"intake-inbox",label:"INTAKE INBOX",d:"M4 4h16v12H4z M4 12h4l2 3h4l2-3h4 M8 8h8"},
@@ -695,6 +711,7 @@ function useConfirm(){
 }
 
 function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
+  const organizationName=useOrganizationName();
   const nav=(p)=>{setPage(p);setSelectedMatter(null);};
   const w=collapsed?68:250;
   return(
@@ -724,7 +741,7 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
             <span style={{color:"#fff",fontSize:14,fontWeight:700,letterSpacing:"0.5px"}}>ML</span>
           </div>
           {!collapsed&&<div>
-            <div style={{color:"#333",fontSize:13,fontWeight:500}}>McCune Legal</div>
+            <div data-testid="organization-name-sidebar" style={{color:"#333",fontSize:13,fontWeight:500}}>{organizationName}</div>
           </div>}
         </div>
       </div>
@@ -1931,12 +1948,10 @@ function AITab({item,isLead,update}){
 
 /* ─── SETTINGS PAGE ─── */
 function SettingsPage(){
+  const bridge=window.BKFLIntakeBridge;
   const [confirm,confirmModal]=useConfirm();
   const [settingsTab,setSettingsTab]=useState("organization");
-  const [org,setOrg]=useState(()=>{
-    try{const s=localStorage.getItem("bkfl_lite_org_v1");return s?JSON.parse(s):{name:"McCune Legal",phone:"(303) 759-0728",website:"",street:"2101 Pearl St.",city:"Boulder",state:"CO",country:"United States",zip:"80302",logo:null};}
-    catch{return{name:"McCune Legal",phone:"(303) 759-0728",website:"",street:"2101 Pearl St.",city:"Boulder",state:"CO",country:"United States",zip:"80302",logo:null};}
-  });
+  const [org,setOrg]=useState(()=>bridge.readOrganization(localStorage));
   const [users,setUsers]=useState(()=>{
     try{const s=localStorage.getItem("bkfl_lite_users_v2");return s?JSON.parse(s):[
       {id:1,firstName:"Matt",lastName:"McCune",email:"matt@mccunelegal.com",role:"Attorney",createdDate:"2026-03-30",status:"Active"},
@@ -2048,12 +2063,18 @@ function SettingsPage(){
     }
   };
 
-  useEffect(()=>{localStorage.setItem("bkfl_lite_org_v1",JSON.stringify(org));},[org]);
   useEffect(()=>{localStorage.setItem("bkfl_lite_users_v2",JSON.stringify(users));},[users]);
   useEffect(()=>{localStorage.setItem("bkfl_lite_lead_stages",JSON.stringify(leadStages));},[leadStages]);
   useEffect(()=>{localStorage.setItem("bkfl_lite_matter_stages",JSON.stringify(matterStages));},[matterStages]);
 
-  const saveOrg=()=>{setOrgSaved(true);setTimeout(()=>setOrgSaved(false),2000);};
+  const saveOrg=()=>{
+    if(!org.name.trim())return;
+    const savedOrganization=bridge.writeOrganization(localStorage,org);
+    setOrg(savedOrganization);
+    window.dispatchEvent(new CustomEvent(bridge.ORGANIZATION_EVENT,{detail:savedOrganization}));
+    setOrgSaved(true);
+    setTimeout(()=>setOrgSaved(false),2000);
+  };
   const addUser=()=>{
     if(!userForm.firstName||!userForm.lastName||!userForm.email)return;
     if(editingUser){
@@ -2108,7 +2129,7 @@ function SettingsPage(){
             <h2 style={{fontSize:16,fontWeight:700,color:"#434343",marginBottom:20}}>General Information</h2>
             <div style={{marginBottom:16}}>
               <label style={labelStyle}>Organization Name *</label>
-              <input value={org.name} onChange={e=>setOrg({...org,name:e.target.value})} style={inputStyle}/>
+              <input data-testid="organization-name-input" value={org.name} onChange={e=>setOrg({...org,name:e.target.value})} style={inputStyle}/>
             </div>
             <div style={{marginBottom:16}}>
               <label style={labelStyle}>Contact Number *</label>
@@ -2150,7 +2171,7 @@ function SettingsPage(){
           </div>
 
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <button onClick={saveOrg} style={{padding:"10px 28px",fontSize:14,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>Save Changes</button>
+            <button data-testid="save-organization-button" onClick={saveOrg} style={{padding:"10px 28px",fontSize:14,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>Save Changes</button>
             {orgSaved&&<span style={{fontSize:13,color:"#3d5c43",fontWeight:500}}>Saved successfully!</span>}
           </div>
         </div>
