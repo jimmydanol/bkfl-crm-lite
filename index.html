@@ -2234,12 +2234,11 @@ function SettingsPage(){
       setUsers(prev=>prev.map(u=>u.id===editingUser?{...u,...userForm}:u));
       setEditingUser(null);
     }else{
-      setUsers(prev=>[...prev,{...userForm,id:Date.now(),createdDate:new Date().toISOString().split("T")[0],status:"Active"}]);
+      setUsers(prev=>[...prev,{...userForm,id:Date.now(),createdDate:new Date().toISOString().split("T")[0],status:userForm.status||"Active"}]);
     }
-    setUserForm({firstName:"",lastName:"",email:"",role:"Staff"});setShowAddUser(false);
+    setUserForm({firstName:"",lastName:"",email:"",role:"Staff",status:"Active"});setShowAddUser(false);
   };
-  const startEditUser=(u)=>{setEditingUser(u.id);setUserForm({firstName:u.firstName,lastName:u.lastName,email:u.email,role:u.role});setShowAddUser(true);};
-  const toggleUserStatus=(id)=>setUsers(prev=>prev.map(u=>u.id===id?{...u,status:u.status==="Active"?"Inactive":"Active"}:u));
+  const startEditUser=(u)=>{setEditingUser(u.id);setUserForm({firstName:u.firstName,lastName:u.lastName,email:u.email,role:u.role,status:u.status||"Active"});setShowAddUser(true);};
 
   const inputStyle={width:"100%",padding:"12px 14px",fontSize:14,border:"1px solid #d0d0d0",borderRadius:8,outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
   const labelStyle={fontSize:12,fontWeight:500,color:"#888",marginBottom:6,display:"block"};
@@ -2513,24 +2512,20 @@ function SettingsPage(){
             <div style={{background:"#fff",borderRadius:8,margin:20,border:"1px solid #e0e0e0",overflow:"hidden"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 20px",borderBottom:"1px solid #e0e0e0"}}>
                 <h3 style={{fontSize:15,fontWeight:600,color:"#434343",margin:0}}>Users List</h3>
-                <button onClick={()=>{setEditingUser(null);setUserForm({firstName:"",lastName:"",email:"",role:"Staff"});setShowAddUser(true);}} style={{padding:"8px 18px",fontSize:13,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>Add New User</button>
+                <button onClick={()=>{setEditingUser(null);setUserForm({firstName:"",lastName:"",email:"",role:"Staff",status:"Active"});setShowAddUser(true);}} style={{padding:"8px 18px",fontSize:13,fontWeight:600,border:"none",borderRadius:6,background:"#7a9c80",color:"#fff",cursor:"pointer"}}>Add New User</button>
               </div>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
                 <thead><tr style={{background:"#FBFAF7",borderBottom:"1px solid #e0e0e0"}}>
-                  {["S.No","Name","Email ID","Role","Status","Action"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}
+                  {["Name","Email ID","Role","Status","Action"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}
                 </tr></thead>
                 <tbody>{users.map((u,i)=>(
                   <tr key={u.id} style={{borderBottom:"1px solid #f0f0f0"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f3ef"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                    <td style={{padding:"14px 14px",color:"#888"}}>{i+1}</td>
                     <td style={{padding:"14px 14px",fontWeight:500,color:"#434343"}}>{u.firstName} {u.lastName}</td>
                     <td style={{padding:"14px 14px",color:"#555"}}>{u.email}</td>
                     <td style={{padding:"14px 14px",color:"#555"}}>{u.role}</td>
                     <td style={{padding:"14px 14px"}}><span style={{padding:"3px 10px",borderRadius:4,fontSize:11,fontWeight:600,background:u.status==="Active"?"#dce8de":"#fde8e8",color:u.status==="Active"?"#3d5c43":"#c0392b"}}>{u.status}</span></td>
                     <td style={{padding:"14px 14px"}}>
                       <div style={{display:"flex",gap:8}}>
-                        <button onClick={()=>toggleUserStatus(u.id)} title={u.status==="Active"?"Deactivate":"Activate"} style={{background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.6}}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
                         <button onClick={()=>startEditUser(u)} title="Edit user" style={{background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.6}}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </button>
@@ -2562,11 +2557,19 @@ function SettingsPage(){
               <label style={labelStyle}>Email *</label>
               <input value={userForm.email} onChange={e=>setUserForm({...userForm,email:e.target.value})} style={inputStyle} placeholder="user@mccunelegal.com"/>
             </div>
-            <div style={{marginBottom:20}}>
-              <label style={labelStyle}>Role</label>
-              <select value={userForm.role} onChange={e=>setUserForm({...userForm,role:e.target.value})} style={inputStyle}>
-                <option>Attorney</option><option>Staff</option>
-              </select>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:20}}>
+              <div>
+                <label style={labelStyle}>Role</label>
+                <select value={userForm.role} onChange={e=>setUserForm({...userForm,role:e.target.value})} style={inputStyle}>
+                  <option>Attorney</option><option>Staff</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Status</label>
+                <select value={userForm.status||"Active"} onChange={e=>setUserForm({...userForm,status:e.target.value})} style={inputStyle}>
+                  <option>Active</option><option>Inactive</option>
+                </select>
+              </div>
             </div>
             <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
               <button onClick={()=>{setShowAddUser(false);setEditingUser(null);}} style={{padding:"10px 20px",fontSize:13,fontWeight:500,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",color:"#434343",cursor:"pointer"}}>Cancel</button>
