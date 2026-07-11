@@ -1050,12 +1050,12 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
                   newLead.intakeSentDate=_t;
                   newLead.communications=[{id:Date.now()+2,date:_t,type:"Email",direction:"Outgoing",subject:"Your secure intake form — McCune Legal",body:"Hi "+firstName+",\n\nWelcome to McCune Legal \u2014 we\u2019re excited to help you take the next step toward a fresh financial start! Here\u2019s what to do next:\n\n1. Complete our secure intake form: https://intake.mccunelegal.com/form/lead-intake \u2014 it walks you through everything we need, one question at a time. Your answers save as you go, so you can finish in more than one sitting \u2014 most people who gather the items below first finish in about an hour.\n2. Upload your documents as you go \u2014 the form tells you exactly which ones.\n3. That\u2019s it. Once you submit, our team reviews everything and reaches out with your next steps.\n\nHelpful to have nearby before you start:\n- Photo ID and Social Security card\n- Pay stubs from the last 6 months\n- Federal tax returns for the last 2 years\n- Bank statements from the last 6 months\n- Bills, statements, or collection letters for your debts\n- Your regular monthly bills (rent or mortgage, utilities, car, insurance)\n\nQuestions along the way? Just reply to this email or call our office.\n\nMcCune Legal",to:firstName+" "+lastName,email:email||""},...(newLead.communications||[])];
                   newLead.timeline=[{id:Date.now()+3,date:_t,action:"Intake link sent",detail:"Status: New Lead → Intake Sent",user:"Matt McCune"},...(newLead.timeline||[])];
-                  newLead.tasks=[{id:Date.now()+4,title:"Approve follow-up email — intake not completed",due:new Date(Date.now()+7*86400000).toISOString().split("T")[0],status:"Pending",assignee:"Matt McCune",stage:"Intake Sent",recurring:true},...(newLead.tasks||[])];
+                  if(taskEnabled("Approve follow-up email — intake not completed")){newLead.tasks=[{id:Date.now()+4,title:"Approve follow-up email — intake not completed",due:new Date(Date.now()+7*86400000).toISOString().split("T")[0],status:"Pending",assignee:"Matt McCune",stage:"Intake Sent",recurring:true},...(newLead.tasks||[])];}
                   navigator.clipboard.writeText("https://intake.mccunelegal.com/form/lead-intake").catch(()=>{});
                 }
                 if(!f.sendIntake){
                   const _t2=new Date().toISOString().split("T")[0];
-                  newLead.tasks=[{id:Date.now()+4,title:"Send the intake link",due:_t2,status:"Pending",assignee:"Matt McCune",stage:"New Lead"},...(newLead.tasks||[])];
+                  if(taskEnabled("Send the intake link")){newLead.tasks=[{id:Date.now()+4,title:"Send the intake link",due:_t2,status:"Pending",assignee:"Matt McCune",stage:"New Lead"},...(newLead.tasks||[])];}
                 }
                 setLeads(prev=>[newLead,...prev]);
                 setShowNewRecord(null);resetNewRecordForm();
@@ -1240,7 +1240,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             const closed=(lead.tasks||[]).map(tk=>tk.status!=="Completed"&&tk.stage==="Intake Sent"?{...tk,status:"Completed",completedDate:_t}:tk);
             const genChecklist=(lead.docChecklist&&lead.docChecklist.length)?lead.docChecklist:DOC_TYPES.filter(d=>d.group==="all"&&d.when==="Always"&&d.req!=="optional").map((d,i)=>d.req==="required"?(d.id==="bank_statements"?{id:i+1,docId:d.id,status:"ai_flagged",aiNote:"Only 3 of 6 months present",fileName:"bank-statements.pdf",date:_t}:{id:i+1,docId:d.id,status:"ai_accepted",aiNote:"Passed AI analysis",fileName:d.id.replace(/_/g,"-")+".pdf",date:_t}):{id:i+1,docId:d.id,status:"open"});
             const genPkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||{submitted:new Date().toLocaleString("en-US",{month:"numeric",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}),court:"Central District of California",goals:"(Demo submission — goals captured from the intake form)",concerns:"—",household:{maritalStatus:"—",jointFiling:"No",dependents:0,debtors:[{name:lead.firstName+" "+lead.lastName,dob:"—",ssn:"—",email:lead.email||"—",phone:lead.phone||"—",address:"—"}]},income:[],expenses:[],assets:[],debts:[],counseling:"—",sofa:{answers:{},events:[]},flags:[]};
-            update({leadStage:"Intake Submitted",intakeSubmittedDate:_t,intakePackage:genPkg,docChecklist:genChecklist,tasks:[{id:Date.now()+2,title:"Review & approve AI Intake Summary email",due:_tomorrow,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:Date.now()+3,title:"Approve document follow-up request",due:_week,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},...closed],timeline:[{id:Date.now()+1,date:_t,action:"Intake submitted",detail:"Status: Intake Sent → Intake Submitted",user:"System"},...(lead.timeline||[])]});
+            update({leadStage:"Intake Submitted",intakeSubmittedDate:_t,intakePackage:genPkg,docChecklist:genChecklist,tasks:[...(taskEnabled("Review & approve AI Intake Summary email")?[{id:Date.now()+2,title:"Review & approve AI Intake Summary email",due:_tomorrow,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"}]:[]),...(taskEnabled("Approve document follow-up request")?[{id:Date.now()+3,title:"Approve document follow-up request",due:_week,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true}]:[]),...closed],timeline:[{id:Date.now()+1,date:_t,action:"Intake submitted",detail:"Status: Intake Sent → Intake Submitted",user:"System"},...(lead.timeline||[])]});
           }} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#fff",color:"#888",border:"1px dashed #bbb"}}>Simulate Submission (dev)</button>}
           <button onClick={()=>openEdit(lead)} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#7A9C80",color:"#fff",border:"none"}}>Edit Lead</button>
         </div>
@@ -2143,9 +2143,16 @@ function AITab({item,isLead,update}){
 }
 
 /* ─── SETTINGS PAGE ─── */
+const TASK_TOGGLES_KEY="bkfl_lite_task_toggles_v1";
+function getTaskToggles(){try{return JSON.parse(localStorage.getItem(TASK_TOGGLES_KEY))||{};}catch(e){return{};}}
+function taskEnabled(key){return getTaskToggles()[key]!==false;}
+function setTaskEnabled(key,on){const m=getTaskToggles();m[key]=on;localStorage.setItem(TASK_TOGGLES_KEY,JSON.stringify(m));}
+
 function SettingsPage(){
   const [confirm,confirmModal]=useConfirm();
   const [settingsTab,setSettingsTab]=useState("organization");
+  const [taskToggles,setTaskTogglesUi]=useState(getTaskToggles());
+  const flipTask=(key)=>{const en=taskToggles[key]!==false;setTaskEnabled(key,!en);setTaskTogglesUi(getTaskToggles());};
   const [org,setOrg]=useState(()=>{
     try{const s=localStorage.getItem("bkfl_lite_org_v1");return s?JSON.parse(s):{name:"McCune Legal",phone:"(303) 759-0728",website:"",street:"2101 Pearl St.",city:"Boulder",state:"CO",country:"United States",zip:"80302",logo:null};}
     catch{return{name:"McCune Legal",phone:"(303) 759-0728",website:"",street:"2101 Pearl St.",city:"Boulder",state:"CO",country:"United States",zip:"80302",logo:null};}
@@ -2403,7 +2410,7 @@ function SettingsPage(){
 
       {settingsTab==="tasks"&&(
         <div style={{maxWidth:900}}>
-          <p style={{fontSize:13,color:"#666",marginBottom:16}}>Five pre-set Tasks run the whole intake process. Every Task is one decision and one click — the AI does the work, a person approves it. There is no mark-complete shortcut: a Task ends by being done, or by being removed. Nothing happens without review.</p>
+          <p style={{fontSize:13,color:"#666",marginBottom:16}}>Five pre-set Tasks run the whole intake process. Every Task is one decision and one click — the AI does the work, a person approves it. There is no mark-complete shortcut: a Task ends by being done, or by being removed. Nothing happens without review. Each Task type also has an On/Off switch: Off stops the system from creating that Task — Tasks already open are not affected. Because every email leaves the system through a Task, turning a Task off also turns off its email.</p>
           {[
             {title:"Send the intake link",stage:"New Lead",created:"Automatically, when a new Lead is created without “Send Intake Form Link” checked — the intake email hasn’t gone out, so sending it becomes the first Task",repeats:"Never — a one-time Task. It stays open until the link is sent, so a new Lead can't sit silently. The law firm can also remove it, which closes it as Removed in the Task history",desc:"To send the link, open the Task — from Dashboard → Outstanding Tasks, or from the Lead's Tasks tab — and click Approve & Send on the draft. That one click sends the “Intake Form Link” template email (see Settings → Communications) and completes this Task."},
             {title:"Approve follow-up email — intake not completed",stage:"Intake Sent",created:"1 week after the intake link is sent",repeats:"Weekly, until the debtor submits the intake",desc:"The AI drafts a reminder email nudging the debtor to complete their intake form. The law firm reviews and approves it before it goes out. When the debtor submits, any open copy of this Task is closed automatically."},
@@ -2411,6 +2418,7 @@ function SettingsPage(){
             {title:"Review submitted documents",stage:"Daily 5:00 AM Batch",batch:true,created:"By the daily 5:00 a.m. batch, for every Lead with Documents uploaded since the last run",repeats:"At most one open Task per Lead — the batch refreshes the Document count on an existing open Task instead of stacking a new one",desc:"Debtors upload in dribbles, so uploads are digested overnight rather than firing a Task per file. The Task deep-links straight into the Lead's Documents tab, and completes automatically when the review pile is cleared. The Dashboard's Intake Inbox still shows live counts between batches."},
             {title:"Approve document follow-up request",stage:"Intake Submitted",created:"1 week after the intake is submitted",repeats:"Weekly, until the flagged Documents are received",desc:"The AI compares the submitted intake against what the case requires and flags missing Documents. It drafts a request email listing them; the law firm approves it before it is sent to the debtor."},
           ].map((task,i)=>{
+            const enabled=taskToggles[task.title]!==false;
             const sc=task.batch?{bg:"#fef3cd",border:"#F59E0B",text:"#856404"}:(leadStageColors[task.stage]||{bg:"#f5f5f5",border:"#999",text:"#555"});
             return(
             <div key={i} style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16}}>
@@ -2419,12 +2427,21 @@ function SettingsPage(){
                   <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid #7a9c80",flexShrink:0}}/>
                   <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>{task.title}</span>
                 </div>
-                <span style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
-                  <span style={{fontSize:10.5,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:"0.6px"}}>{task.batch?"Runs":"Lead Stage"}</span>
-                  <span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:5,padding:"5px 16px",fontSize:14,fontWeight:700,whiteSpace:"nowrap"}}>{task.stage}</span>
+                <span style={{display:"flex",alignItems:"center",gap:20}}>
+                  <span style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                    <span style={{fontSize:10.5,fontWeight:700,color:enabled?"#7a9c80":"#C0392B",textTransform:"uppercase",letterSpacing:"0.6px"}}>{enabled?"On":"Off"}</span>
+                    <button onClick={()=>flipTask(task.title)} title={enabled?"On \u2014 the system creates this Task automatically. Click to turn it off.":"Off \u2014 the system will not create this Task. Click to turn it on."} style={{width:56,height:26,borderRadius:13,border:"none",cursor:"pointer",position:"relative",padding:0,background:enabled?"#7a9c80":"#C0392B",transition:"background 0.15s"}}>
+                      <span style={{position:"absolute",top:3,left:enabled?33:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left 0.15s",boxShadow:"0 1px 2px rgba(0,0,0,0.3)"}}/>
+                    </button>
+                  </span>
+                  <span style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+                    <span style={{fontSize:10.5,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:"0.6px"}}>{task.batch?"Runs":"Lead Stage"}</span>
+                    <span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:5,padding:"5px 16px",fontSize:14,fontWeight:700,whiteSpace:"nowrap"}}>{task.stage}</span>
+                  </span>
                 </span>
               </div>
-              <div style={{padding:"14px 20px"}}>
+              {!enabled&&<div style={{background:"#fdf0ef",borderBottom:"1px solid #f0d8d5",padding:"8px 20px",fontSize:12.5,color:"#C0392B",fontWeight:600}}>Off — the system will not create this Task. Tasks already in Outstanding are not affected: they can still be approved or removed.</div>}
+              <div style={{padding:"14px 20px",opacity:enabled?1:0.45}}>
                 <div style={{display:"grid",gridTemplateColumns:"110px 1fr",rowGap:6,columnGap:12,fontSize:13,marginBottom:10}}>
                   <span style={{color:"#999",fontWeight:600}}>Created</span><span style={{color:"#555"}}>{task.created}</span>
                   <span style={{color:"#999",fontWeight:600}}>Repeats</span><span style={{color:"#555"}}>{task.repeats}</span>
@@ -2643,7 +2660,7 @@ function buildApprovalPatch(l,t){
   if(t.title==="Send the intake link"){
     const _due=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
     patch.leadStage="Intake Sent";patch.intakeSentDate=today;
-    tasks=[{id:Date.now()+2,title:"Approve follow-up email — intake not completed",due:_due,status:"Pending",assignee:"Matt McCune",stage:"Intake Sent",recurring:true},...tasks];
+    if(taskEnabled("Approve follow-up email — intake not completed")){tasks=[{id:Date.now()+2,title:"Approve follow-up email — intake not completed",due:_due,status:"Pending",assignee:"Matt McCune",stage:"Intake Sent",recurring:true},...tasks];}
   }else if(t.recurring&&l.leadStage===t.stage){
     const next=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
     tasks=[{...t,id:Date.now()+3,status:"Pending",due:next,completedDate:undefined},...tasks];
@@ -2751,7 +2768,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
       const open=tasks.find(tk=>tk.status!=="Completed"&&tk.batchDigest);
       if(n>0){
         if(open){tasks=tasks.map(tk=>tk.id===open.id?{...tk,title:"Review submitted documents ("+n+")",due:today2}:tk);}
-        else{tasks=[{id:Date.now()+l.id,title:"Review submitted documents ("+n+")",due:today2,status:"Pending",assignee:"Angie Sullivan",stage:l.leadStage,batchDigest:true},...tasks];}
+        else if(taskEnabled("Review submitted documents")){tasks=[{id:Date.now()+l.id,title:"Review submitted documents ("+n+")",due:today2,status:"Pending",assignee:"Angie Sullivan",stage:l.leadStage,batchDigest:true},...tasks];}
       }else if(open){
         tasks=tasks.map(tk=>tk.id===open.id?{...tk,status:"Completed",completedDate:today2}:tk);
       }
