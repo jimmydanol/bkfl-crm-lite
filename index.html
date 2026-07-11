@@ -1591,7 +1591,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               {filtered.length===0?<div style={{padding:40,textAlign:"center",color:"#999"}}>{taskFilter==="outstanding"?"No outstanding tasks.":taskFilter==="removed"?"No removed tasks.":"No completed tasks."}</div>:(
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
                 <thead><tr style={{background:"#FBFAF7",borderBottom:"1px solid #e0e0e0"}}>
-                  {["","Due Date","Name","Assigned To","Status",""].map((h,i)=><th key={i} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5,width:h===""?(i===0?36:36):undefined}}>{h}</th>)}
+                  {["Review","Task","Assigned To","Status","Due","Remove"].map((h,i)=><th key={i} style={{textAlign:(h==="Due"||h==="Remove")?"right":"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5,width:h==="Review"?52:h==="Remove"?64:undefined}}>{h}</th>)}
                 </tr></thead>
                 <tbody>{_.orderBy(filtered,[t=>t.due||"9999"],["asc"]).map(task=>{
                   const isOverdue=task.due&&task.status!=="Completed"&&task.due<new Date().toISOString().split("T")[0];
@@ -1607,10 +1607,6 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         ?<div title={"Completed"+(task.completedDate?" "+task.completedDate:"")} style={{width:20,height:20,borderRadius:"50%",border:"2px solid #7A9C80",background:"#7A9C80",display:"flex",alignItems:"center",justifyContent:"center"}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
                         :<div title="Open to review & approve" style={{width:20,height:20,borderRadius:"50%",border:"2px solid #7A9C80",background:"transparent"}}/>}
                     </td>
-                    <td style={{padding:"12px 14px",whiteSpace:"nowrap"}}>
-                      <div style={{color:isOverdue?"#dc3545":"#555",fontWeight:isOverdue?600:400}}>{formatDate(task.due)}{isOverdue&&<span style={{fontSize:10,marginLeft:6,color:"#dc3545",fontWeight:700}}>OVERDUE</span>}</div>
-                      {task.status==="Completed"&&task.completedDate&&<div style={{fontSize:11,color:"#7A9C80",marginTop:2}}>Completed {formatDate(task.completedDate)}</div>}
-                    </td>
                     <td style={{padding:"12px 14px"}}>
                       <div title={(task.status!=="Completed"&&task.status!=="Removed")?"Open to review & approve":undefined} style={{fontWeight:500,color:task.status==="Removed"?"#999":"#434343",textDecoration:task.status==="Completed"?"line-through":"none"}}>{task.title}</div>
                       {task.description&&<div style={{fontSize:12,color:"#888",marginTop:2}}>{task.description}</div>}
@@ -1620,7 +1616,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     </td>
                     <td style={{padding:"12px 14px",color:"#555"}}>{task.assignee||"—"}{isClientTask&&<div style={{fontSize:10,color:"#7A9C80",fontWeight:600}}>CLIENT</div>}</td>
                     <td style={{padding:"12px 14px"}}><span style={{fontSize:11,fontWeight:600,color:task.status==="Removed"?"#999":task.status==="Completed"?"#3d5c43":"#856404",background:task.status==="Removed"?"#f0f0ed":task.status==="Completed"?"#dce8de":"#fef3cd",padding:"2px 10px",borderRadius:4}}>{task.status}</span></td>
-                    <td style={{padding:"12px 14px",width:64}}>{task.status==="Removed"?<button onClick={e=>{e.stopPropagation();restoreTask(task.id);}} title="Restore this task to Outstanding" style={{background:"none",border:"1px solid #9bba9f",borderRadius:5,cursor:"pointer",padding:"3px 10px",fontSize:11,fontWeight:700,color:"#3d5c43"}} onMouseEnter={e=>e.currentTarget.style.background="#e7eae5"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>Restore</button>:(task.status!=="Completed")&&<button onClick={e=>{e.stopPropagation();deleteTask(task.id);}} style={{background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.8}} title="Remove task — delete without completing" onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.8}><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#666" strokeWidth="1.5" strokeLinecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#666" strokeWidth="1.5" fill="none"/></svg></button>}</td>
+                    <td style={{padding:"12px 14px",whiteSpace:"nowrap",textAlign:"right"}}>
+                      <div style={{color:isOverdue?"#dc3545":"#555",fontWeight:isOverdue?600:400}}>{formatDate(task.due)}{isOverdue&&<span style={{fontSize:10,marginLeft:6,color:"#dc3545",fontWeight:700}}>OVERDUE</span>}</div>
+                      {task.status==="Completed"&&task.completedDate&&<div style={{fontSize:11,color:"#7A9C80",marginTop:2}}>Completed {formatDate(task.completedDate)}</div>}
+                    </td>
+                    <td style={{padding:"12px 14px",width:64,textAlign:"right"}}>{task.status==="Removed"?<button onClick={e=>{e.stopPropagation();restoreTask(task.id);}} title="Restore this task to Outstanding" style={{background:"none",border:"1px solid #9bba9f",borderRadius:5,cursor:"pointer",padding:"3px 10px",fontSize:11,fontWeight:700,color:"#3d5c43"}} onMouseEnter={e=>e.currentTarget.style.background="#e7eae5"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>Restore</button>:(task.status!=="Completed")&&<button onClick={e=>{e.stopPropagation();deleteTask(task.id);}} style={{background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.8}} title="Remove task — delete without completing" onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.8}><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#666" strokeWidth="1.5" strokeLinecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#666" strokeWidth="1.5" fill="none"/></svg></button>}</td>
                   </tr>
                   {taskNotify===task.id&&(
                     <tr style={{borderBottom:"1px solid #f0f0f0",background:"#f9faf8"}}>
@@ -2901,7 +2901,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
                   <div style={{fontSize:12,fontWeight:500,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.title}</div>
                   <div style={{fontSize:10,color:"#999"}}>{t.leadName} · <span style={{color:(leadStageColors[t.leadStage]||{}).text||"#999",fontWeight:600}}>{t.leadStage}</span> — {t.assignee}</div>
                 </div>
-                <div style={{width:78,flexShrink:0,textAlign:"right",fontSize:10,color:"#888",whiteSpace:"nowrap"}}>{t.due?new Date(t.due+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}</div>
+                <div style={{width:78,flexShrink:0,textAlign:"right",fontSize:10,color:(t.due&&t.due<todayISO)?"#dc3545":"#888",fontWeight:(t.due&&t.due<todayISO)?700:400,whiteSpace:"nowrap"}}>{t.due?new Date(t.due+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}</div>
                 <div style={{width:56,flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
                   <button onClick={e=>{e.stopPropagation();removeTask(t);}} title="Remove task — delete without completing" style={{background:"none",border:"none",cursor:"pointer",padding:4,opacity:0.8}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.8}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c0392b" strokeWidth="1.6" strokeLinecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#c0392b" strokeWidth="1.6" fill="none"/></svg>
