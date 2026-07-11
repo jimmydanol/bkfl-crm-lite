@@ -38,9 +38,9 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 
 ## 5. Enterprise / Non-Functional (mostly undiscussed — decide before handoff)
 - ⬜ Security & compliance: encryption at rest/in transit, privilege considerations, data retention/deletion policy, audit logging
-- ⬜ Multi-tenancy: one deployment per firm vs. shared platform (affects everything; decide early)
+- ✅ Multi-tenancy: DECIDED — the existing v1 platform is multi-tenant and that model carries forward; this project changes the windows (intake + CRM), adds document upload, and new rules on top of it
 - ⬜ Auth & roles: login, password reset, Attorney vs. Staff permissions (UI exists; behavior spec doesn't)
-- ⬜ Integrations & accounts: email delivery (SendGrid/SES), file storage, Anthropic API — who owns which accounts and keys
+- ⬜ Integrations & accounts: hosted on Azure (existing) — email delivery service, file storage (Azure Blob), Anthropic API; document who owns which accounts and keys
 - ⬜ Environments: dev / staging / production, and where the demo data lives vs. real data
 
 ## 6. Working Process with India
