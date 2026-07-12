@@ -2907,7 +2907,6 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
       {/* ── Intake Inbox — submitted packages ready for review ── */}
       {(()=>{
         const submitted=_.orderBy(leads.filter(l=>l.leadStage==="Intake Submitted"&&!l.dashHidden),"intakeSubmittedDate","desc");
-        if(!submitted.length)return null;
         return(
         <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:18}}>
           <div style={{padding:"14px 20px",background:"#dce8de",borderBottom:"2px solid #7A9C80",display:"flex",alignItems:"center",gap:10}}>
@@ -2919,6 +2918,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
             <span style={{width:22}}/>
           </div>
           <div style={{maxHeight:172,overflowY:"auto"}}>
+          {submitted.length===0&&<div style={{fontSize:12,color:"#ccc",textAlign:"center",padding:"16px 0"}}>No submitted intakes waiting for review</div>}
           {submitted.map(l=>{
             return(
             <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 20px",borderBottom:"1px solid #f5f5f5",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f9f9f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
@@ -2934,7 +2934,6 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
       {/* ── Stage 4 — Ready for Petition Prep (the finish line) ── */}
       {(()=>{
         const ready=_.orderBy(leads.filter(l=>l.leadStage==="Ready for Petition Prep"&&!l.dashHidden),"prepReadyDate","desc");
-        if(!ready.length)return null;
         const sc=leadStageColors["Ready for Petition Prep"];
         return(
         <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:18}}>
@@ -2948,6 +2947,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
             <span style={{width:22}}/>
           </div>
           <div style={{maxHeight:172,overflowY:"auto"}}>
+            {ready.length===0&&<div style={{fontSize:12,color:"#ccc",textAlign:"center",padding:"16px 0"}}>No cases ready yet — a Lead lands here the moment its Document checklist is complete</div>}
             {ready.map(l=>(
               <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 20px",borderBottom:"1px solid #f5f5f5",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f7f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                 <span style={{flex:1,fontSize:13,fontWeight:600,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l.firstName} {l.lastName}</span>
