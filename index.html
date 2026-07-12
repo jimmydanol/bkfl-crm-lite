@@ -1460,14 +1460,14 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
-              <div style={{display:"grid",gridTemplateColumns:"5fr 8fr 5fr",alignItems:"stretch"}}>
+              <div style={{display:"grid",gridTemplateColumns:"5fr 8fr 5fr",alignItems:"stretch",height:620}}>
 
-                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:380}}>
+                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:0}}>
                   <div id="col-chase" style={{padding:"11px 14px",borderBottom:"1px solid #f0f0ed",background:"#fdf0ef"}}>
                     <div style={{fontSize:13,fontWeight:700,color:"#a94438",textTransform:"uppercase",letterSpacing:"0.5px"}}>Missing {"\u2014"} To Chase <span style={{background:"#dc3545",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{chase.length}</span></div>
                     <div style={{fontSize:11.5,color:"#c07267",marginTop:2}}>Not uploaded, rejected, or missing {"\u2014"} we will request these in the follow-up email</div>
                   </div>
-                  <div style={{flex:1,padding:"10px 12px",maxHeight:480,overflowY:"auto"}}>
+                  <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
                     {chase.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing to chase {"\u2014"} rejections and Keep Chasing rulings land here.</div>}
                     {chase.map(d=>{return(
                       <div key={d.id} id={"chasecard-"+d.id} style={{border:"1px solid #eee",borderRadius:8,padding:"9px 11px",marginBottom:7,background:"#fff"}}>
@@ -1497,12 +1497,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   </div>
                 </div>
 
-                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:380}}>
+                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:0}}>
                   <div style={{padding:"11px 14px",borderBottom:"1px solid #f0f0ed",background:"#fdf6e7"}}>
                     <div style={{fontSize:13,fontWeight:700,color:"#856404",textTransform:"uppercase",letterSpacing:"0.5px"}}>To Review <span style={{background:"#F59E0B",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{queue.length}</span> <span style={{marginLeft:6,background:"#7a9c80",color:"#fff",borderRadius:4,padding:"1px 8px",fontSize:10,fontWeight:700,letterSpacing:"0.5px"}}>START HERE</span></div>
                     <div style={{fontSize:11.5,color:"#b8963e",marginTop:2}}>Work down the list {"\u2014"} approve, reject, or not needed closes each one</div>
                   </div>
-                  <div style={{flex:1,padding:"10px 12px",maxHeight:540,overflowY:"auto"}}>
+                  <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
                     {queue.length===0&&(
                       <div style={{textAlign:"center",padding:"34px 12px"}}>
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1552,12 +1552,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   </div>
                 </div>
 
-                <div style={{display:"flex",flexDirection:"column",minHeight:380}}>
+                <div style={{display:"flex",flexDirection:"column",minHeight:0}}>
                   <div id="col-home" style={{padding:"11px 14px",borderBottom:"1px solid #f0f0ed",background:"#eef6ef"}}>
                     <div style={{fontSize:13,fontWeight:700,color:"#3d5c43",textTransform:"uppercase",letterSpacing:"0.5px"}}>Home Base <span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{buckets.home.length}</span></div>
                     <div style={{fontSize:11.5,color:"#5a7c60",marginTop:2}}>Uploaded, approved, category closed</div>
                   </div>
-                  <div style={{flex:1,padding:"10px 12px",maxHeight:540,overflowY:"auto"}}>
+                  <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
                     {buckets.home.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing approved yet {"\u2014"} every approval lands here.</div>}
                     {buckets.home.map(d=>(
                       <div key={d.id} style={{display:"flex",alignItems:"center",gap:7,border:"1px solid #e7efe8",borderRadius:8,padding:"8px 11px",marginBottom:6,background:"#fcfefc"}}>
