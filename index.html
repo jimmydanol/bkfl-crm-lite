@@ -446,7 +446,7 @@ const INITIAL_MATTERS=[
    ════════════════════════════════════════════════════════════════ */
 const _rel=(n)=>new Date(Date.now()+n*86400000).toISOString().split("T")[0]; /* demo due dates stay fresh relative to today */
 const INITIAL_LEADS=[
-  {id:2,firstName:"Linda",lastName:"Tran",email:"ltran@email.com",phone:"(310) 555-0244",bankruptcyType:"Chapter 13",leadStage:"Intake Submitted",intakeSentDate:"2026-06-24",intakeSubmittedDate:"2026-07-02",createdDate:"2025-04-25",leadNotes:"Wants to save home from foreclosure. Dual income household.",contacts:[{id:1,name:"Linda Tran",firstName:"Linda",middleName:"",lastName:"Tran",role:"Lead",email:"ltran@email.com",phone:"(310) 555-0244"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"approved",fileName:"tran-license.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:2,docId:"ssn_proof",status:"approved",fileName:"tran-w2-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:3,docId:"bank_statements",status:"ai_flagged",aiNote:"Statement pages 3–4 missing from two months",fileName:"tran-chase-jan-jun.pdf",date:"2026-07-06"},{id:4,docId:"unsecured_statements",status:"approved",fileName:"tran-cc-statements.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:5,docId:"tax_return_y1",status:"approved",fileName:"tran-1040-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:6,docId:"tax_return_y2",status:"reason_given",reason:"didnt_file"},{id:7,docId:"counseling_certificate",status:"reason_given",reason:"not_taken_yet"},{id:8,docId:"pay_stubs",status:"reason_given",reason:"will_send_later"},{id:9,docId:"kbb_valuation",status:"ai_accepted",aiNote:"KBB report for 2019 Honda Civic — consistent with stated value",fileName:"kbb-2019-civic.pdf",date:"2026-07-06"},{id:10,docId:"vehicle_loan_statements",status:"approved",fileName:"tran-honda-finance.pdf",date:"2026-07-02",approvedDate:"2026-07-02"}],tasks:[{id:1,due:_rel(1),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:4,title:"Review Documents — initial intake submission",due:_rel(1),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true},{id:3,title:"Approve follow-up email — intake not completed",due:"2026-07-01",status:"Completed",completedDate:"2026-07-02",assignee:"Matt McCune",stage:"Intake Sent"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-25",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
+  {id:2,firstName:"Linda",lastName:"Tran",email:"ltran@email.com",phone:"(310) 555-0244",bankruptcyType:"Chapter 13",leadStage:"Intake Submitted",intakeSentDate:"2026-06-24",intakeSubmittedDate:"2026-07-02",createdDate:"2025-04-25",leadNotes:"Wants to save home from foreclosure. Dual income household.",contacts:[{id:1,name:"Linda Tran",firstName:"Linda",middleName:"",lastName:"Tran",role:"Lead",email:"ltran@email.com",phone:"(310) 555-0244"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"approved",fileName:"tran-license.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:2,docId:"ssn_proof",status:"approved",fileName:"tran-w2-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:3,docId:"bank_statements",status:"ai_flagged",aiNote:"Statement pages 3–4 missing from two months",fileName:"tran-chase-jan-jun.pdf",date:"2026-07-06"},{id:4,docId:"unsecured_statements",status:"approved",fileName:"tran-cc-statements.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:5,docId:"tax_return_y1",status:"approved",fileName:"tran-1040-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:6,docId:"tax_return_y2",status:"reason_given",reason:"didnt_file"},{id:7,docId:"counseling_certificate",status:"reason_given",reason:"not_taken_yet"},{id:8,docId:"pay_stubs",status:"reason_given",reason:"will_send_later"},{id:9,docId:"kbb_valuation",status:"ai_accepted",aiNote:"KBB report for 2019 Honda Civic — consistent with stated value",fileName:"kbb-2019-civic.pdf",date:"2026-07-06"},{id:10,docId:"vehicle_loan_statements",status:"approved",fileName:"tran-honda-finance.pdf",date:"2026-07-02",approvedDate:"2026-07-02"}],tasks:[{id:1,due:_rel(1),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:4,title:"Review Documents — initial intake submission",due:_rel(1),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true},{id:3,title:"Approve follow-up email — intake not completed",due:"2026-07-01",status:"Completed",completedDate:"2026-07-02",completedBy:"Matt McCune",assignee:"Matt McCune",stage:"Intake Sent"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-25",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:3,firstName:"Marcus",lastName:"Washington",email:"mwashington@email.com",phone:"(213) 555-0377",bankruptcyType:"Chapter 7",leadStage:"New Lead",createdDate:"2025-04-30",leadNotes:"Called in from website. Medical debt and credit cards.",contacts:[{id:1,name:"Marcus Washington",firstName:"Marcus",middleName:"Dwayne",lastName:"Washington",role:"Lead",email:"mwashington@email.com",phone:"(213) 555-0377"}],calendarEvents:[],communications:[],notes:[],documents:[],tasks:[{id:1,title:"Send the intake link",due:_rel(0),status:"Pending",assignee:"Matt McCune",stage:"New Lead"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-30",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:4,firstName:"Jennifer",lastName:"Kim",email:"jkim@email.com",phone:"(714) 555-0128",bankruptcyType:"Litigation",leadStage:"New Lead",createdDate:"2025-04-22",leadNotes:"Creditor harassment issue. Possible FDCPA violation.",contacts:[{id:1,name:"Jennifer Kim",firstName:"Jennifer",middleName:"Sue",lastName:"Kim",role:"Lead",email:"jkim@email.com",phone:"(714) 555-0128"}],calendarEvents:[],communications:[],notes:[],documents:[],tasks:[{id:1,title:"Send the intake link",due:_rel(-1),status:"Pending",assignee:"Matt McCune",stage:"New Lead"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-22",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:5,firstName:"David",lastName:"Ortega",email:"dortega@email.com",phone:"(818) 555-0455",bankruptcyType:"Chapter 7",leadStage:"Intake Submitted",intakeSentDate:"2026-06-20",intakeSubmittedDate:"2026-06-28",createdDate:"2025-04-20",leadNotes:"Intake form completed. Waiting on pay stubs and bank statements.",contacts:[{id:1,name:"David Ortega",firstName:"David",middleName:"Luis",lastName:"Ortega",role:"Lead",email:"dortega@email.com",phone:"(818) 555-0455"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"approved",fileName:"ortega-license.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:2,docId:"ssn_proof",status:"approved",fileName:"ortega-ssc.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:3,docId:"bank_statements",status:"reason_given",reason:"will_send_later"},{id:4,docId:"unsecured_statements",status:"approved",fileName:"ortega-collections.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:5,docId:"tax_return_y1",status:"approved",fileName:"ortega-1040-2025.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:6,docId:"tax_return_y2",status:"approved",fileName:"ortega-1040-2024.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:7,docId:"counseling_certificate",status:"approved",fileName:"ortega-cc-cert.pdf",date:"2026-06-29",approvedDate:"2026-06-29"},{id:8,docId:"pay_stubs",status:"ai_accepted",aiNote:"6 months of stubs — consistent income, single employer",fileName:"ortega-stubs-jan-jun.pdf",date:"2026-06-28"},{id:9,docId:"zillow_valuation",status:"approved",fileName:"zillow-1422-elm.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:10,docId:"mortgage_statements",status:"ai_flagged",aiNote:"Only March uploaded — need all 6 months",fileName:"mortgage-statement-march.pdf",date:"2026-07-07"},{id:11,docId:"investment_statements",status:"reason_given",reason:"dont_have_copy"}],tasks:[{id:1,due:_rel(-2),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:3,title:"Review Documents — initial intake submission",due:_rel(-2),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true}],timeEntries:[],customFields:{upFrontFeeQuoted:"$1,500"},timeline:[{id:1,date:"2025-04-20",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
@@ -481,6 +481,7 @@ const BUILT_TASKS=[
 ];
 const BUILT_TASK_CATEGORIES=[...new Set(BUILT_TASKS.map(t=>t.category))];
 const BANKRUPTCY_TYPES=["Chapter 7","Chapter 13","Litigation","Other"];
+const CURRENT_USER="Matt McCune"; /* logged-in user \u2014 real auth in production */
 const LEAD_STAGES=["New Lead","Intake Sent","Intake Submitted","Ready for Petition Prep"]; /* system-driven — set by events, never edited by staff */
 
 /* ─── DOCUMENT CATALOG (32 doc types, fixed in v1) ─── */
@@ -692,8 +693,8 @@ const leadStageColors={
 };
 
 function useLocalLeads(){
-  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v19");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
-  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v19",JSON.stringify(leads));},[leads]);
+  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v20");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
+  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v20",JSON.stringify(leads));},[leads]);
   return [leads,setLeads];
 }
 
@@ -1195,7 +1196,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
       const _chaseN=_cl.filter(isChaseDoc).length;
       let _tks=m.tasks||[];
       if(_chaseN===0){
-        _tks=_tks.map(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request"?{...tk,status:"Completed",completedDate:_today}:tk);
+        _tks=_tks.map(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request"?{...tk,status:"Completed",completedDate:_today,completedBy:"System — chase list cleared"}:tk);
       }else if(docReviewDone(_cl)&&taskEnabled("Approve document follow-up request")&&!_tks.some(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request")){
         _tks=[{id:Date.now()+7,title:"Approve document follow-up request",due:_today,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},..._tks];
       }
@@ -1276,7 +1277,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             const _t=new Date().toISOString().split("T")[0];
             const _week=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
             const _tomorrow=new Date(Date.now()+86400000).toISOString().split("T")[0];
-            const closed=(lead.tasks||[]).map(tk=>tk.status!=="Completed"&&tk.stage==="Intake Sent"?{...tk,status:"Completed",completedDate:_t}:tk);
+            const closed=(lead.tasks||[]).map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.stage==="Intake Sent"?{...tk,status:"Completed",completedDate:_t,completedBy:"System — intake submitted"}:tk);
             const genChecklist=(lead.docChecklist&&lead.docChecklist.length)?lead.docChecklist:DOC_TYPES.filter(d=>d.group==="all"&&d.when==="Always"&&d.req!=="optional").map((d,i)=>d.req==="required"?(d.id==="bank_statements"?{id:i+1,docId:d.id,status:"ai_flagged",aiNote:"Only 3 of 6 months present",fileName:"bank-statements.pdf",date:_t}:{id:i+1,docId:d.id,status:"ai_accepted",aiNote:"Passed AI analysis",fileName:d.id.replace(/_/g,"-")+".pdf",date:_t}):{id:i+1,docId:d.id,status:"open"});
             const genPkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||{submitted:new Date().toLocaleString("en-US",{month:"numeric",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}),court:"Central District of California",goals:"(Demo submission — goals captured from the intake form)",concerns:"—",household:{maritalStatus:"—",jointFiling:"No",dependents:0,debtors:[{name:lead.firstName+" "+lead.lastName,dob:"—",ssn:"—",email:lead.email||"—",phone:lead.phone||"—",address:"—"}]},income:[],expenses:[],assets:[],debts:[],counseling:"—",sofa:{answers:{},events:[]},flags:[]};
             const _nrev=genChecklist.filter(d=>d.status==="ai_accepted"||d.status==="ai_flagged").length;
@@ -1353,7 +1354,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             let tk2=lead.tasks||[];
             if(remaining===0){
               const _d=new Date().toISOString().split("T")[0];
-              tk2=tk2.map(tk=>tk.status!=="Completed"&&tk.batchDigest?{...tk,status:"Completed",completedDate:_d}:tk);
+              tk2=tk2.map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.batchDigest?{...tk,status:"Completed",completedDate:_d,completedBy:CURRENT_USER}:tk);
             }
             update({docChecklist:next,tasks:tk2});
           };
@@ -1390,7 +1391,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             let tasks=(lead.tasks||[]);
             const openTask=tasks.find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
             if(openTask){
-              tasks=tasks.map(tk=>tk.id===openTask.id?{...tk,status:"Completed",completedDate:today}:tk);
+              tasks=tasks.map(tk=>tk.id===openTask.id?{...tk,status:"Completed",completedDate:today,completedBy:CURRENT_USER}:tk);
               tasks=[{...openTask,id:Date.now()+5,status:"Pending",due:next,completedDate:undefined},...tasks];
             }
             update({
@@ -1655,7 +1656,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               {filtered.length===0?<div style={{padding:40,textAlign:"center",color:"#999"}}>{taskFilter==="outstanding"?"No outstanding tasks.":taskFilter==="removed"?"No removed tasks.":"No completed tasks."}</div>:(
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
                 <thead><tr style={{background:"#FBFAF7",borderBottom:"1px solid #e0e0e0"}}>
-                  {["Review","Task","Assigned To","Status","Due","Remove"].map((h,i)=><th key={i} style={{textAlign:(h==="Due"||h==="Remove")?"right":"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5,width:h==="Review"?52:h==="Remove"?64:undefined}}>{h}</th>)}
+                  {["Review","Task","Completed By","Status","Due","Remove"].map((h,i)=><th key={i} style={{textAlign:(h==="Due"||h==="Remove")?"right":"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5,width:h==="Review"?52:h==="Remove"?64:undefined}}>{h}</th>)}
                 </tr></thead>
                 <tbody>{_.orderBy(filtered,[t=>t.due||"9999"],["asc"]).map(task=>{
                   const isOverdue=task.due&&task.status!=="Completed"&&task.due<new Date().toISOString().split("T")[0];
@@ -1678,7 +1679,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         {isClientTask&&task.status!=="Completed"&&<button onClick={e=>{e.stopPropagation();setTaskNotify(taskNotify===task.id?null:task.id);}} style={{fontSize:11,color:"#7A9C80",background:"none",border:"1px solid #7A9C80",borderRadius:4,padding:"2px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4}}><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#7A9C80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Send to Client</button>}
                       </div>
                     </td>
-                    <td style={{padding:"12px 14px",color:"#555"}}>{task.assignee||"—"}{isClientTask&&<div style={{fontSize:10,color:"#7A9C80",fontWeight:600}}>CLIENT</div>}</td>
+                    <td style={{padding:"12px 14px",color:"#555"}}>{task.status==="Completed"?(task.completedBy||"—"):"—"}</td>
                     <td style={{padding:"12px 14px"}}><span style={{fontSize:11,fontWeight:600,color:task.status==="Removed"?"#999":task.status==="Completed"?"#3d5c43":"#856404",background:task.status==="Removed"?"#f0f0ed":task.status==="Completed"?"#dce8de":"#fef3cd",padding:"2px 10px",borderRadius:4}}>{task.status}</span></td>
                     <td style={{padding:"12px 14px",whiteSpace:"nowrap",textAlign:"right"}}>
                       <div style={{color:isOverdue?"#dc3545":"#555",fontWeight:isOverdue?600:400}}>{formatDate(task.due)}{isOverdue&&<span style={{fontSize:10,marginLeft:6,color:"#dc3545",fontWeight:700}}>OVERDUE</span>}</div>
@@ -2739,7 +2740,7 @@ function buildApprovalPatch(l,t){
   const spec=EMAIL_TASKS[t.title];if(!spec)return null;
   const today=new Date().toISOString().split("T")[0];
   const comm={id:Date.now(),date:today,type:"Email",direction:"Outgoing",subject:spec.subject,body:spec.body(l),to:l.firstName+" "+l.lastName,email:l.email||""};
-  let tasks=(l.tasks||[]).map(tk=>tk.id===t.id?{...tk,status:"Completed",completedDate:today}:tk);
+  let tasks=(l.tasks||[]).map(tk=>tk.id===t.id?{...tk,status:"Completed",completedDate:today,completedBy:CURRENT_USER}:tk);
   const patch={communications:[comm,...(l.communications||[])],timeline:[{id:Date.now()+1,date:today,action:spec.tpl+" sent",detail:"Approved from the task queue",user:"Matt McCune"},...(l.timeline||[])]};
   if(t.title==="Send the intake link"){
     const _due=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
@@ -2841,8 +2842,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
     (leads||[]).forEach(l=>{(l.tasks||[]).filter(tk=>tk.status!=="Completed"&&tk.status!=="Removed").forEach(tk=>t.push({...tk,leadName:l.firstName+" "+l.lastName,leadId:l.id,leadStage:l.leadStage}));});
     return _.orderBy(t,"due","asc");
   },[leads]);
-  const [dashTaskFilter,setDashTaskFilter]=useState("All");
-  const tasks=dashTaskFilter==="All"?allTasks:allTasks.filter(t=>t.assignee===dashTaskFilter);
+  const tasks=allTasks;
   const runBatch=()=>{
     /* the 5:00 a.m. sweep: one open review task per lead, count refreshed, closed when nothing awaits review */
     const today2=new Date().toISOString().split("T")[0];
@@ -2854,7 +2854,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
         if(open){tasks=tasks.map(tk=>tk.id===open.id&&!tk.initialReview?{...tk,title:"Review Documents — follow-up uploads ("+n+")",due:today2}:tk);}
         else if(taskEnabled("Review Documents — follow-up uploads")){tasks=[{id:Date.now()+l.id,title:"Review Documents — follow-up uploads ("+n+")",due:today2,status:"Pending",assignee:"Angie Sullivan",stage:l.leadStage,batchDigest:true},...tasks];}
       }else if(open){
-        tasks=tasks.map(tk=>tk.id===open.id?{...tk,status:"Completed",completedDate:today2}:tk);
+        tasks=tasks.map(tk=>tk.id===open.id?{...tk,status:"Completed",completedDate:today2,completedBy:"System (5:00 a.m. batch)"}:tk);
       }
       return {...l,tasks};
     }));
@@ -2986,10 +2986,6 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
             </div>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
               <button onClick={runBatch} title="Runs the daily document-review sweep now" style={{padding:"4px 10px",fontSize:11,fontWeight:500,border:"1px dashed #bbb",borderRadius:5,background:"#fff",color:"#888",cursor:"pointer"}}>Run 5:00 AM Batch (dev)</button>
-              <select value={dashTaskFilter} onChange={e=>setDashTaskFilter(e.target.value)} style={{padding:"4px 10px",fontSize:11,fontWeight:500,border:"1px solid #d0d0d0",borderRadius:5,background:"#fff",color:"#555",cursor:"pointer"}}>
-                <option value="All">All Users</option>
-                {[...ATTORNEYS,...STAFF].map(m=><option key={m} value={m}>{m}</option>)}
-              </select>
             </div>
           </div>
           <div style={{padding:"8px 20px",borderBottom:"1px solid #f0f0f0",fontSize:11.5,color:"#999",fontStyle:"italic",background:"#FBFAF7"}}>Your approval queue — nothing is sent to a client without you.</div>
@@ -3008,7 +3004,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:12,fontWeight:500,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.title}</div>
-                  <div style={{fontSize:10,color:"#999"}}>{t.leadName} · <span style={{color:(leadStageColors[t.leadStage]||{}).text||"#999",fontWeight:600}}>{t.leadStage}</span> — {t.assignee}</div>
+                  <div style={{fontSize:10,color:"#999"}}>{t.leadName} · <span style={{color:(leadStageColors[t.leadStage]||{}).text||"#999",fontWeight:600}}>{t.leadStage}</span></div>
                 </div>
                 <div style={{width:78,flexShrink:0,textAlign:"right",fontSize:10,color:(t.due&&t.due<todayISO)?"#dc3545":"#888",fontWeight:(t.due&&t.due<todayISO)?700:400,whiteSpace:"nowrap"}}>{t.due?new Date(t.due+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}</div>
                 <div style={{width:56,flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
