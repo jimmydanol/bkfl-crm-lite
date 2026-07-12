@@ -1448,21 +1448,20 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",alignItems:"start"}}>
+              <div style={{display:"grid",gridTemplateColumns:"5fr 8fr 5fr",alignItems:"start"}}>
 
                 <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:380}}>
                   <div style={{padding:"10px 14px",borderBottom:"1px solid #f0f0ed",background:"#fdf6e7"}}>
                     <div style={{fontSize:12,fontWeight:700,color:"#856404",textTransform:"uppercase",letterSpacing:"0.5px"}}>Missing {"\u2014"} To Chase <span style={{background:"#F59E0B",color:"#fff",borderRadius:10,padding:"0px 7px",fontSize:10.5,marginLeft:4}}>{chase.length}</span></div>
-                    <div style={{fontSize:10.5,color:"#b8963e",marginTop:2}}>Not uploaded {"\u2014"} these build the follow-up email</div>
+                    <div style={{fontSize:10.5,color:"#b8963e",marginTop:2}}>Not uploaded {"\u2014"} we will request these in the follow-up email</div>
                   </div>
                   <div style={{flex:1,padding:"10px 12px",maxHeight:480,overflowY:"auto"}}>
                     {chase.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing to chase {"\u2014"} rejections and Keep Chasing rulings land here.</div>}
-                    {chase.map(d=>{const rb2=reqBadge[docMeta(d.docId).req]||reqBadge.optional;return(
+                    {chase.map(d=>{return(
                       <div key={d.id} style={{border:"1px solid #eee",borderRadius:8,padding:"9px 11px",marginBottom:7,background:"#fff"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
                           <span style={{width:12,flexShrink:0,display:"flex"}}><span style={{width:8,height:8,borderRadius:"50%",border:"2px solid "+(d.reason==="rejected"?"#dc3545":"#F59E0B"),display:"inline-block"}}/></span>
                           <span style={{fontSize:12,fontWeight:600,color:"#434343",minWidth:0}}>{dName(d)}</span>
-                          <span style={{padding:"1px 6px",borderRadius:4,fontSize:9.5,fontWeight:700,background:rb2.bg,color:rb2.text,border:"1px solid "+rb2.border}}>{rb2.label}</span>
                         </div>
                         <div style={{fontSize:10.5,color:"#999",margin:"3px 0 6px 18px",lineHeight:1.4}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
                         <div style={{display:"flex",gap:6,marginLeft:18}}>
@@ -1474,6 +1473,17 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   <div style={{borderTop:"1px solid #eee",padding:"10px 12px"}}>
                     {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
                     <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,width:"100%",marginBottom:6,padding:"7px 10px"}}>+ Request a Document</button>
+                    {addingRequest&&(
+                      <div style={{marginBottom:8}}>
+                        <select value={requestDocId} onChange={ev=>setRequestDocId(ev.target.value)} style={{width:"100%",padding:"7px 9px",fontSize:11.5,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",marginBottom:5}}>
+                          <option value="">Choose a document type...</option>
+                          {availableToRequest.map(dt=><option key={dt.id} value={dt.id}>{dt.name}</option>)}
+                          <option value="custom">Other (type it in)</option>
+                        </select>
+                        {requestDocId==="custom"&&<input value={requestCustom} onChange={ev=>setRequestCustom(ev.target.value)} placeholder="Name the document..." style={{width:"100%",boxSizing:"border-box",padding:"7px 9px",fontSize:11.5,border:"1px solid #d0d0d0",borderRadius:6,outline:"none",fontFamily:"inherit",marginBottom:5}}/>}
+                        <button onClick={addRequest} style={{...btn,width:"100%",background:"#7a9c80",color:"#fff",border:"none",padding:"7px 10px"}}>Add to Chase List</button>
+                      </div>
+                    )}
                     <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,width:"100%",background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                   </div>
                 </div>
@@ -1495,16 +1505,17 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         </div>
                       </div>
                     )}
-                    {queue.map(d=>{const st=deskStrip(d);const rb2=reqBadge[docMeta(d.docId).req]||reqBadge.optional;return(
+                    {queue.map(d=>{return(
                       <div key={d.id} style={{border:"1px solid #e4e4df",borderRadius:8,padding:"10px 12px",marginBottom:8,background:"#fff",transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===d.id?0:1,transform:leavingDoc===d.id?("translateX("+(leavingDir==="left"?"-60px":"60px")+")"):"none"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:4}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:3}}>
                           {railIcon(d)}
-                          <span style={{fontSize:12.5,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
-                          <span style={{padding:"1px 6px",borderRadius:4,fontSize:9.5,fontWeight:700,background:rb2.bg,color:rb2.text,border:"1px solid "+rb2.border}}>{rb2.label}</span>
+                          <span style={{fontSize:13,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
+                          {d.status==="ai_accepted"&&<span style={{fontSize:10.5,fontWeight:700,color:"#7a9c80"}}>AI accepted</span>}
                           {d.manual&&<span style={{fontSize:9.5,color:"#999"}}>(added by staff)</span>}
                         </div>
-                        <div style={{fontSize:11,borderRadius:5,padding:"6px 9px",marginBottom:6,lineHeight:1.45,...st.s}}>{st.t}</div>
-                        {d.fileName&&<div onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} style={{fontSize:11.5,color:"#3d5c43",fontWeight:600,textDecoration:"underline",cursor:"pointer",marginBottom:6}}>{d.fileName}</div>}
+                        {d.status==="ai_flagged"&&<div style={{fontSize:11,color:"#a94438",fontWeight:600,margin:"0 0 6px 18px",lineHeight:1.45}}>AI flagged {"\u2014"} {d.aiNote||"needs your review"}</div>}
+                        {isPendingRuling(d)&&<div style={{fontSize:11,color:"#856404",fontWeight:600,margin:"0 0 6px 18px",lineHeight:1.45}}>Debtor: {"\u201c"}{DOC_REASONS[d.reason]||d.reason}{"\u201d"} {"\u2014"} your ruling</div>}
+                        {d.fileName&&<div onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} style={{fontSize:13,color:"#3d5c43",fontWeight:700,textDecoration:"underline",cursor:"pointer",margin:"2px 0 7px 18px"}}>{d.fileName}</div>}
                         {previewDoc===d.id&&d.fileName&&(
                           <div style={{border:"1px dashed #ccc",borderRadius:6,padding:"14px 10px",textAlign:"center",background:"#fbfbf9",marginBottom:8}}>
                             <div style={{fontSize:11,fontWeight:600,color:"#666"}}>{d.fileName}</div>
@@ -1568,30 +1579,22 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                 </div>
               )}
               {followUpPreview&&followUpDraft&&(
-                <div style={{borderTop:"1px solid #eee",padding:"14px 20px",background:"#FBFAF7"}}>
-                  <div style={{fontSize:10.5,fontWeight:700,color:"#7a9c80",textTransform:"uppercase",letterSpacing:"0.6px",marginBottom:8}}>{followUpDraft.tpl} {"\u2014"} drafted by AI, waiting on you</div>
-                  <div style={{display:"grid",gridTemplateColumns:"64px 1fr",rowGap:4,columnGap:10,fontSize:12.5,marginBottom:10}}>
-                    <span style={{color:"#999",fontWeight:600}}>To</span><span style={{color:"#434343"}}>{lead.firstName} {lead.lastName} {"\u00b7"} {lead.email}</span>
-                    <span style={{color:"#999",fontWeight:600}}>Subject</span><span style={{color:"#434343",fontWeight:600}}>{followUpDraft.subject}</span>
-                  </div>
-                  <div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,whiteSpace:"pre-wrap",marginBottom:12}}>{followUpDraft.body}</div>
-                  <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-                    <button onClick={()=>setFollowUpPreview(false)} style={btn}>Cancel</button>
-                    <button onClick={sendFollowUp} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 16px",fontSize:12}}>Approve &amp; Send</button>
+                <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:60}} onClick={()=>setFollowUpPreview(false)}>
+                  <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:620,maxWidth:"92vw",maxHeight:"86vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 24px"}}>
+                    <div style={{fontSize:10.5,fontWeight:700,color:"#7a9c80",textTransform:"uppercase",letterSpacing:"0.6px",marginBottom:8}}>{followUpDraft.tpl} {"\u2014"} drafted by AI, waiting on you</div>
+                    <div style={{display:"grid",gridTemplateColumns:"64px 1fr",rowGap:4,columnGap:10,fontSize:12.5,marginBottom:10}}>
+                      <span style={{color:"#999",fontWeight:600}}>To</span><span style={{color:"#434343"}}>{lead.firstName} {lead.lastName} {"\u00b7"} {lead.email}</span>
+                      <span style={{color:"#999",fontWeight:600}}>Subject</span><span style={{color:"#434343",fontWeight:600}}>{followUpDraft.subject}</span>
+                    </div>
+                    <div style={{background:"#FBFAF7",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,whiteSpace:"pre-wrap",marginBottom:12}}>{followUpDraft.body}</div>
+                    <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+                      <button onClick={()=>setFollowUpPreview(false)} style={btn}>Cancel</button>
+                      <button onClick={sendFollowUp} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 16px",fontSize:12}}>Approve &amp; Send</button>
+                    </div>
                   </div>
                 </div>
               )}
-              {addingRequest&&(
-                <div style={{display:"flex",gap:8,alignItems:"center",padding:"12px 20px",background:"#FBFAF7",borderTop:"1px solid #eee"}}>
-                  <select value={requestDocId} onChange={ev=>setRequestDocId(ev.target.value)} style={{padding:"8px 10px",fontSize:12,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",maxWidth:320}}>
-                    <option value="">Choose a document type...</option>
-                    {availableToRequest.map(dt=><option key={dt.id} value={dt.id}>{dt.name}</option>)}
-                    <option value="custom">Other (type it in)</option>
-                  </select>
-                  {requestDocId==="custom"&&<input value={requestCustom} onChange={ev=>setRequestCustom(ev.target.value)} placeholder="Name the document..." style={{flex:1,padding:"8px 10px",fontSize:12,border:"1px solid #d0d0d0",borderRadius:6,outline:"none",fontFamily:"inherit"}}/>}
-                  <button onClick={addRequest} style={{...btn,background:"#7a9c80",color:"#fff",border:"none"}}>Add to Request List</button>
-                </div>
-              )}
+              
             </div>
           </div>);
         })()}
