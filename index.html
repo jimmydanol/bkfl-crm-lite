@@ -1430,6 +1430,16 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             }catch(err){}
           };
           const decide=(id,patch,dir)=>{flyGhost(id,dir||"right");setLeavingDir(dir||"right");animatePatch(id,patch);};
+          const PdfBtn=(d)=>{
+            const f=d.fileName||d.rejectedFile;
+            if(!f)return null;
+            const open=previewDoc===d.id;
+            return(
+            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f} style={{flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 13px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.6"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.6"/><text x="7" y="17.5" fontSize="6.5" fontWeight="800" fill="#c0392b" fontFamily="Inter,Arial">PDF</text></svg>
+              <span style={{fontSize:9.5,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
+            </button>);
+          };
           const railIcon=(d)=>{
             if(d.status==="approved")return <span style={{color:"#7a9c80",fontWeight:900,fontSize:12,width:14,flexShrink:0}}>{"\u2713"}</span>;
             if(d.status==="excused")return <span style={{color:"#bbb",fontWeight:900,fontSize:12,width:14,flexShrink:0}}>{"\u2014"}</span>;
@@ -1450,7 +1460,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           };
           const btn={padding:"4px 10px",fontSize:11,fontWeight:600,borderRadius:5,cursor:"pointer",border:"1px solid #d0d0d0",background:"#fff",color:"#555"};
           return(<div>
-            <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16}}>
+            <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16,maxWidth:1240,marginLeft:"auto",marginRight:"auto"}}>
               <div style={{padding:"13px 20px",borderBottom:"1px solid #eee",textAlign:"center",position:"relative"}}>
                 <span style={{fontSize:16,fontWeight:700,color:"#434343"}}>Document Review</span>
                 {queue.length>0
@@ -1461,7 +1471,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
-              <div style={{display:"grid",gridTemplateColumns:"minmax(0,5fr) minmax(0,8fr) minmax(0,5fr)",alignItems:"stretch",height:620}}>
+              <div style={{display:"grid",gridTemplateColumns:"minmax(0,4fr) minmax(0,5fr) minmax(0,5fr)",alignItems:"stretch",height:620}}>
 
                 <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:0}}>
                   <div id="col-chase" style={{height:64,boxSizing:"border-box",padding:"0 14px",display:"flex",flexDirection:"column",justifyContent:"center",borderBottom:"1px solid #f0f0ed",background:"#fdf0ef"}}>
@@ -1471,19 +1481,17 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
                     {chase.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing to chase {"\u2014"} rejections and Keep Chasing rulings land here.</div>}
                     {chase.map(d=>{return(
-                      <div key={d.id} id={"chasecard-"+d.id} style={{border:"1px solid #eee",borderRadius:8,padding:"9px 11px",marginBottom:7,background:"#fff"}}>
+                      <div key={d.id} id={"chasecard-"+d.id} style={{border:"1px solid #eee",borderRadius:8,padding:"10px 12px",marginBottom:7,background:"#fff"}}>
+                        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                        <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:600,color:"#434343",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</div>
                         <div title={d.note||""} style={{fontSize:11.5,color:"#999",margin:"3px 0 6px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
-                        {d.rejectedFile&&<div onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:"#3d5c43",fontWeight:600,cursor:"pointer",marginBottom:6}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{flexShrink:0}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.8"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.8"/></svg><span style={{textDecoration:"underline"}}>View rejected PDF</span></div>}
-                        {previewDoc===d.id&&d.rejectedFile&&(
-                          <div style={{border:"1px dashed #ccc",borderRadius:6,padding:"10px 8px",textAlign:"center",background:"#fbfbf9",marginBottom:6}}>
-                            <div style={{fontSize:10.5,fontWeight:600,color:"#666"}}>{d.rejectedFile}</div>
-                            <div style={{fontSize:9.5,color:"#aaa",marginTop:2}}>The upload your firm rejected {"\u2014"} kept for reference</div>
-                          </div>
-                        )}
                         <div style={{display:"flex",gap:6}}>
                           <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={btn}>Upload</button>
                           <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,note:undefined},"right")} style={btn}>Excuse</button>
+                        </div>
+                        </div>
+                        {PdfBtn(d)}
                         </div>
                       </div>);})}
                   </div>
@@ -1546,19 +1554,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                               </React.Fragment>}
                             </div>
                           </div>
-                          {d.fileName&&(
-                            <button onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} title={d.fileName} style={{flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"10px 16px",border:"1px solid "+(previewDoc===d.id?"#7a9c80":"#d8ded9"),borderRadius:8,background:previewDoc===d.id?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.6"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.6"/><text x="7" y="17.5" fontSize="6.5" fontWeight="800" fill="#c0392b" fontFamily="Inter,Arial">PDF</text></svg>
-                              <span style={{fontSize:10,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
-                            </button>
-                          )}
+                          {PdfBtn(d)}
                         </div>
-                        {previewDoc===d.id&&d.fileName&&(
-                          <div style={{border:"1px dashed #ccc",borderRadius:6,padding:"14px 10px",textAlign:"center",background:"#fbfbf9",marginTop:10}}>
-                            <div style={{fontSize:11,fontWeight:600,color:"#666"}}>{d.fileName}</div>
-                            <div style={{fontSize:10,color:"#aaa",marginTop:2}}>Inline preview {"\u2014"} in production this renders the PDF here, with an {"\u201c"}Open full size{"\u201d"} link to a new tab. Never a download.</div>
-                          </div>
-                        )}
                         {rejectingDoc===d.id&&(
                           <div style={{display:"flex",gap:6,alignItems:"center",marginTop:10}}>
                             <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
@@ -1577,32 +1574,49 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
                     {[...required,...others].map(d=>{
                       const doneA=d.status==="approved";const doneE=d.status==="excused";const done=doneA||doneE;
-                      const hint=done?null:(isPendingRuling(d)?{t:"your ruling",c:"#c0392b"}:isUploadedReview(d)?{t:"to review",c:"#b8963e"}:{t:"chasing",c:"#c07267"});
+                      const hint=done?null:(isPendingRuling(d)?{t:"awaiting your ruling",c:"#c0392b"}:isUploadedReview(d)?{t:"in To Review",c:"#b8963e"}:{t:"on the chase list",c:"#c07267"});
                       return(
-                      <React.Fragment key={d.id}>
-                      <div style={{display:"flex",alignItems:"center",gap:8,border:"1px solid "+(doneA?"#cfe3d2":"#eee"),borderRadius:8,padding:"7px 11px",marginBottom:previewDoc===d.id&&doneA?4:6,background:done?"#fcfefc":"#fafaf8"}}>
-                        <span style={{width:15,height:15,borderRadius:4,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:done?"none":"1.5px solid #ccc",background:doneA?"#7a9c80":doneE?"#b4b4ae":"transparent"}}>
-                          {done&&<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </span>
-                        <span style={{flex:1,fontSize:12.5,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:done?"#999":"#777",fontWeight:done?500:600,textDecoration:done?"line-through":"none"}}>{dName(d)}</span>
-                        {doneE&&<span style={{fontSize:9.5,fontWeight:700,color:"#aaa",border:"1px solid #ddd",borderRadius:4,padding:"0 5px",flexShrink:0}}>N/A</span>}
-                        {hint&&<span style={{fontSize:10,fontWeight:700,color:hint.c,flexShrink:0}}>{hint.t}</span>}
-                        {doneA&&d.fileName&&<button onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} title={"View PDF \u2014 "+d.fileName} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.8"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.8"/></svg></button>}
-                        {doneA&&<button onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined})} style={{background:"none",border:"none",color:"#bbb",fontSize:10,cursor:"pointer",flexShrink:0,padding:0}} title="Send back to To Review">re-review</button>}
-                        {doneE&&<button onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{background:"none",border:"none",color:"#bbb",fontSize:10,cursor:"pointer",flexShrink:0,padding:0}} title="Reopen \u2014 back to the chase list">reopen</button>}
-                      </div>
-                      {previewDoc===d.id&&d.fileName&&doneA&&(
-                        <div style={{border:"1px dashed #ccc",borderRadius:6,padding:"10px 8px",textAlign:"center",background:"#fbfbf9",marginBottom:6}}>
-                          <div style={{fontSize:10.5,fontWeight:600,color:"#666"}}>{d.fileName}</div>
-                          <div style={{fontSize:9.5,color:"#aaa",marginTop:2}}>Inline preview {"\u2014"} full PDF in production</div>
+                      <div key={d.id} style={{border:"1px solid "+(doneA?"#cfe3d2":"#eee"),borderRadius:8,padding:done?"10px 12px":"8px 12px",marginBottom:7,background:done?"#fcfefc":"#fafaf8"}}>
+                        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{display:"flex",alignItems:"center",gap:8}}>
+                              <span style={{width:15,height:15,borderRadius:4,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:done?"none":"1.5px solid #ccc",background:doneA?"#7a9c80":doneE?"#b4b4ae":"transparent"}}>
+                                {done&&<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                              </span>
+                              <span style={{fontSize:13,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:done?"#999":"#777",fontWeight:600,textDecoration:done?"line-through":"none"}}>{dName(d)}</span>
+                              {doneE&&<span style={{fontSize:9.5,fontWeight:700,color:"#aaa",border:"1px solid #ddd",borderRadius:4,padding:"0 5px",flexShrink:0}}>N/A</span>}
+                            </div>
+                            {doneA&&<div style={{fontSize:11,color:"#7a9c80",fontWeight:600,margin:"3px 0 0 23px"}}>Approved{d.approvedDate?" "+d.approvedDate:""}</div>}
+                            {doneE&&<div style={{fontSize:11,color:"#aaa",fontWeight:600,margin:"3px 0 0 23px"}}>Excused{d.reason&&DOC_REASONS[d.reason]?" \u2014 \u201c"+DOC_REASONS[d.reason]+"\u201d":""}</div>}
+                            {hint&&<div style={{fontSize:11,color:hint.c,fontWeight:600,margin:"3px 0 0 23px"}}>{hint.t}</div>}
+                            {doneA&&<div style={{margin:"7px 0 0 23px"}}><button onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined})} style={{...btn,color:"#999",fontSize:10.5}}>Re-review</button></div>}
+                            {doneE&&<div style={{margin:"7px 0 0 23px"}}><button onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{...btn,color:"#999",fontSize:10.5}}>Reopen</button></div>}
+                          </div>
+                          {doneA&&PdfBtn(d)}
                         </div>
-                      )}
-                      </React.Fragment>);})}
+                      </div>);})}
                   </div>
                 </div>
 
               </div>
               )}
+              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const f=d&&(d.fileName||d.rejectedFile);if(!f)return null;return(
+                <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:60}} onClick={()=>setPreviewDoc(null)}>
+                  <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:560,maxWidth:"92vw",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 22px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                      <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
+                      {d.rejectedFile&&!d.fileName&&<span style={{fontSize:10,fontWeight:700,color:"#a94438",background:"#fdf0ef",border:"1px solid #f0b9b1",borderRadius:4,padding:"1px 7px"}}>REJECTED UPLOAD</span>}
+                    </div>
+                    <div style={{border:"1px dashed #ccc",borderRadius:8,padding:"46px 20px",textAlign:"center",background:"#fbfbf9",marginBottom:12}}>
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
+                      <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
+                      <div style={{fontSize:11,color:"#aaa",marginTop:4}}>In production the PDF renders here, with {"\u201c"}Open full size{"\u201d"} in a new tab. Never a download.</div>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"flex-end"}}>
+                      <button onClick={()=>setPreviewDoc(null)} style={{...btn,padding:"6px 16px",fontSize:12}}>Close</button>
+                    </div>
+                  </div>
+                </div>);})()}
               {followUpSentAt&&!followUpPreview&&(
                 <div style={{padding:"10px 20px",background:"#eef6ef",borderTop:"1px solid #cfe3d2",fontSize:12.5,color:"#3d5c43",fontWeight:600}}>
                   Follow-up sent and logged to Communications. The completed Task is in the Task history, and the next {"\u201c"}Approve document follow-up request{"\u201d"} Task is due in one week.
