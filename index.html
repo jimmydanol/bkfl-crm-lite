@@ -446,7 +446,7 @@ const INITIAL_MATTERS=[
    ════════════════════════════════════════════════════════════════ */
 const _rel=(n)=>new Date(Date.now()+n*86400000).toISOString().split("T")[0]; /* demo due dates stay fresh relative to today */
 const INITIAL_LEADS=[
-  {id:2,firstName:"Linda",lastName:"Tran",email:"ltran@email.com",phone:"(310) 555-0244",bankruptcyType:"Chapter 13",leadStage:"Intake Submitted",intakeSentDate:"2026-06-24",intakeSubmittedDate:"2026-07-02",createdDate:"2025-04-25",leadNotes:"Wants to save home from foreclosure. Dual income household.",contacts:[{id:1,name:"Linda Tran",firstName:"Linda",middleName:"",lastName:"Tran",role:"Lead",email:"ltran@email.com",phone:"(310) 555-0244"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"approved",fileName:"tran-license.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:2,docId:"ssn_proof",status:"approved",fileName:"tran-w2-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:3,docId:"bank_statements",status:"ai_flagged",aiNote:"Statement pages 3–4 missing from two months",fileName:"tran-chase-jan-jun.pdf",date:"2026-07-06"},{id:4,docId:"unsecured_statements",status:"approved",fileName:"tran-cc-statements.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:5,docId:"tax_return_y1",status:"approved",fileName:"tran-1040-2025.pdf",date:"2026-07-02",approvedDate:"2026-07-02"},{id:6,docId:"tax_return_y2",status:"reason_given",reason:"didnt_file"},{id:7,docId:"counseling_certificate",status:"reason_given",reason:"not_taken_yet"},{id:8,docId:"pay_stubs",status:"reason_given",reason:"will_send_later"},{id:9,docId:"kbb_valuation",status:"ai_accepted",aiNote:"KBB report for 2019 Honda Civic — consistent with stated value",fileName:"kbb-2019-civic.pdf",date:"2026-07-06"},{id:10,docId:"vehicle_loan_statements",status:"approved",fileName:"tran-honda-finance.pdf",date:"2026-07-02",approvedDate:"2026-07-02"}],tasks:[{id:1,due:_rel(1),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:4,title:"Review Documents — initial intake submission",due:_rel(1),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true},{id:3,title:"Approve follow-up email — intake not completed",due:"2026-07-01",status:"Completed",completedDate:"2026-07-02",completedBy:"Matt McCune",assignee:"Matt McCune",stage:"Intake Sent"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-25",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
+  {id:2,firstName:"Linda",lastName:"Tran",email:"ltran@email.com",phone:"(310) 555-0244",bankruptcyType:"Chapter 13",leadStage:"Intake Submitted",intakeSentDate:"2026-06-24",intakeSubmittedDate:"2026-07-02",createdDate:"2025-04-25",leadNotes:"Wants to save home from foreclosure. Dual income household.",contacts:[{id:1,name:"Linda Tran",firstName:"Linda",middleName:"",lastName:"Tran",role:"Lead",email:"ltran@email.com",phone:"(310) 555-0244"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"ai_accepted",aiNote:"Matches debtor name and address",fileName:"tran-license.pdf",date:"2026-07-02"},{id:2,docId:"ssn_proof",status:"ai_accepted",aiNote:"W-2 shows full SSN and employer",fileName:"tran-w2-2025.pdf",date:"2026-07-02"},{id:3,docId:"bank_statements",status:"ai_flagged",aiNote:"Statement pages 3–4 missing from two months",fileName:"tran-chase-jan-jun.pdf",date:"2026-07-06"},{id:4,docId:"unsecured_statements",status:"ai_accepted",aiNote:"4 card statements, balances legible",fileName:"tran-cc-statements.pdf",date:"2026-07-02"},{id:5,docId:"tax_return_y1",status:"ai_accepted",aiNote:"Complete 1040 with schedules",fileName:"tran-1040-2025.pdf",date:"2026-07-02"},{id:6,docId:"tax_return_y2",status:"reason_given",reason:"didnt_file"},{id:7,docId:"counseling_certificate",status:"reason_given",reason:"not_taken_yet"},{id:8,docId:"pay_stubs",status:"reason_given",reason:"will_send_later"},{id:9,docId:"kbb_valuation",status:"ai_accepted",aiNote:"KBB report for 2019 Honda Civic — consistent with stated value",fileName:"kbb-2019-civic.pdf",date:"2026-07-06"},{id:10,docId:"vehicle_loan_statements",status:"ai_accepted",aiNote:"Current balance and payoff shown",fileName:"tran-honda-finance.pdf",date:"2026-07-02"}],tasks:[{id:1,due:_rel(1),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:4,title:"Review Documents — initial intake submission",due:_rel(1),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true},{id:3,title:"Approve follow-up email — intake not completed",due:"2026-07-01",status:"Completed",completedDate:"2026-07-02",completedBy:"Matt McCune",assignee:"Matt McCune",stage:"Intake Sent"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-25",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:3,firstName:"Marcus",lastName:"Washington",email:"mwashington@email.com",phone:"(213) 555-0377",bankruptcyType:"Chapter 7",leadStage:"New Lead",createdDate:"2025-04-30",leadNotes:"Called in from website. Medical debt and credit cards.",contacts:[{id:1,name:"Marcus Washington",firstName:"Marcus",middleName:"Dwayne",lastName:"Washington",role:"Lead",email:"mwashington@email.com",phone:"(213) 555-0377"}],calendarEvents:[],communications:[],notes:[],documents:[],tasks:[{id:1,title:"Send the intake link",due:_rel(0),status:"Pending",assignee:"Matt McCune",stage:"New Lead"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-30",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:4,firstName:"Jennifer",lastName:"Kim",email:"jkim@email.com",phone:"(714) 555-0128",bankruptcyType:"Litigation",leadStage:"New Lead",createdDate:"2025-04-22",leadNotes:"Creditor harassment issue. Possible FDCPA violation.",contacts:[{id:1,name:"Jennifer Kim",firstName:"Jennifer",middleName:"Sue",lastName:"Kim",role:"Lead",email:"jkim@email.com",phone:"(714) 555-0128"}],calendarEvents:[],communications:[],notes:[],documents:[],tasks:[{id:1,title:"Send the intake link",due:_rel(-1),status:"Pending",assignee:"Matt McCune",stage:"New Lead"}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-22",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
   {id:5,firstName:"David",lastName:"Ortega",email:"dortega@email.com",phone:"(818) 555-0455",bankruptcyType:"Chapter 7",leadStage:"Intake Submitted",intakeSentDate:"2026-06-20",intakeSubmittedDate:"2026-06-28",createdDate:"2025-04-20",leadNotes:"Intake form completed. Waiting on pay stubs and bank statements.",contacts:[{id:1,name:"David Ortega",firstName:"David",middleName:"Luis",lastName:"Ortega",role:"Lead",email:"dortega@email.com",phone:"(818) 555-0455"}],calendarEvents:[],communications:[],notes:[],documents:[],docChecklist:[{id:1,docId:"id_license",status:"approved",fileName:"ortega-license.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:2,docId:"ssn_proof",status:"approved",fileName:"ortega-ssc.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:3,docId:"bank_statements",status:"reason_given",reason:"will_send_later"},{id:4,docId:"unsecured_statements",status:"approved",fileName:"ortega-collections.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:5,docId:"tax_return_y1",status:"approved",fileName:"ortega-1040-2025.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:6,docId:"tax_return_y2",status:"approved",fileName:"ortega-1040-2024.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:7,docId:"counseling_certificate",status:"approved",fileName:"ortega-cc-cert.pdf",date:"2026-06-29",approvedDate:"2026-06-29"},{id:8,docId:"pay_stubs",status:"ai_accepted",aiNote:"6 months of stubs — consistent income, single employer",fileName:"ortega-stubs-jan-jun.pdf",date:"2026-06-28"},{id:9,docId:"zillow_valuation",status:"approved",fileName:"zillow-1422-elm.pdf",date:"2026-06-28",approvedDate:"2026-06-28"},{id:10,docId:"mortgage_statements",status:"ai_flagged",aiNote:"Only March uploaded — need all 6 months",fileName:"mortgage-statement-march.pdf",date:"2026-07-07"},{id:11,docId:"investment_statements",status:"reason_given",reason:"dont_have_copy"}],tasks:[{id:1,due:_rel(-2),title:"Review & approve AI Intake Summary email",status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"},{id:3,title:"Review Documents — initial intake submission",due:_rel(-2),status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true}],timeEntries:[],customFields:{upFrontFeeQuoted:"$1,500"},timeline:[{id:1,date:"2025-04-20",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
@@ -693,8 +693,8 @@ const leadStageColors={
 };
 
 function useLocalLeads(){
-  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v20");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
-  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v20",JSON.stringify(leads));},[leads]);
+  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v21");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
+  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v21",JSON.stringify(leads));},[leads]);
   return [leads,setLeads];
 }
 
@@ -1128,7 +1128,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const [docFilter,setDocFilter]=useState(()=>{const f0=window.__docFilter;window.__docFilter=null;return f0||"home";});
   const [previewDoc,setPreviewDoc]=useState(null);
   const [leavingDoc,setLeavingDoc]=useState(null);
-  const [focusDocId,setFocusDocId]=useState(null);
+  const [leavingDir,setLeavingDir]=useState("right");
   const [rejectingDoc,setRejectingDoc]=useState(null);
   const [rejectNote,setRejectNote]=useState("");
   const [addingRequest,setAddingRequest]=useState(false);
@@ -1366,7 +1366,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const pendingRulings=buckets.missing.filter(isPendingRuling).length;
           const toReview=buckets.required.length+buckets.requested.length;
           const availableToRequest=DOC_TYPES.filter(dt=>!checklist.some(c=>c.docId===dt.id));
-          const saveReject=(d)=>{setFocusDocId(null);animatePatch(d.id,{status:"open",reason:"rejected",note:rejectNote||"Needs to be re-uploaded",rejectedFile:d.fileName,fileName:undefined,date:undefined,aiNote:undefined});setRejectingDoc(null);setRejectNote("");};
+          const saveReject=(d)=>{setLeavingDir("left");animatePatch(d.id,{status:"open",reason:"rejected",note:rejectNote||"Needs to be re-uploaded",rejectedFile:d.fileName,fileName:undefined,date:undefined,aiNote:undefined});setRejectingDoc(null);setRejectNote("");};
           const addRequest=()=>{
             if(requestDocId==="custom"&&!requestCustom.trim())return;
             if(!requestDocId)return;
@@ -1407,9 +1407,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const others=checklist.filter(d=>docMeta(d.docId).req!=="required");
           const needsDecision=(d)=>isUploadedReview(d)||isPendingRuling(d);
           const queue=[...required,...others].filter(needsDecision);
-          const focus=checklist.find(d=>d.id===focusDocId)||queue[0]||null;
-          const frb=focus?(reqBadge[docMeta(focus.docId).req]||reqBadge.optional):null;
-          const decide=(id,patch)=>{setFocusDocId(null);animatePatch(id,patch);};
+          const decide=(id,patch,dir)=>{setLeavingDir(dir||"right");animatePatch(id,patch);};
           const railIcon=(d)=>{
             if(d.status==="approved")return <span style={{color:"#7a9c80",fontWeight:900,fontSize:12,width:14,flexShrink:0}}>{"\u2713"}</span>;
             if(d.status==="excused")return <span style={{color:"#bbb",fontWeight:900,fontSize:12,width:14,flexShrink:0}}>{"\u2014"}</span>;
@@ -1431,105 +1429,135 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const btn={padding:"4px 10px",fontSize:11,fontWeight:600,borderRadius:5,cursor:"pointer",border:"1px solid #d0d0d0",background:"#fff",color:"#555"};
           return(<div>
             <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16}}>
-              <div style={{padding:"12px 20px",borderBottom:"1px solid #eee",display:"flex",alignItems:"center",gap:10}}>
-                <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>Document Review</span>
+              <div style={{padding:"13px 20px",borderBottom:"1px solid #eee",textAlign:"center"}}>
+                <span style={{fontSize:15,fontWeight:700,color:"#434343"}}>Document Review</span>
                 {queue.length>0
-                  ?<span style={{background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700}}>{queue.length} to review</span>
-                  :checklist.length>0?<span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700}}>review complete</span>:null}
-                <span style={{marginLeft:"auto",fontSize:11.5,color:"#999"}}>{checklist.length-queue.length} of {checklist.length} resolved</span>
+                  ?<span style={{marginLeft:10,background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>{queue.length} to review</span>
+                  :checklist.length>0?<span style={{marginLeft:10,background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>review complete</span>:null}
               </div>
-              <div style={{height:3,background:"#f0f0ed"}}><div style={{height:3,width:(checklist.length?((checklist.length-queue.length)/checklist.length*100):0)+"%",background:"#7a9c80",transition:"width 0.3s"}}/></div>
+              {checklist.length>0&&<div style={{display:"flex",alignItems:"center",gap:16,padding:"7px 20px",borderBottom:"1px solid #f0f0ed",background:"#FBFAF7",fontSize:10.5,color:"#888",flexWrap:"wrap"}}>
+                <span style={{fontWeight:700,color:"#aaa",textTransform:"uppercase",letterSpacing:"0.5px"}}>Key</span>
+                <span><span style={{color:"#7a9c80",fontWeight:900}}>{"\u2713"}</span> approved by firm</span>
+                <span><span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:"#F59E0B"}}/> uploaded, awaiting your review</span>
+                <span><span style={{color:"#dc3545",fontWeight:900}}>!</span> AI flagged a problem</span>
+                <span><span style={{color:"#c0392b",fontWeight:900}}>?</span> your ruling needed</span>
+                <span><span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",border:"2px solid #F59E0B"}}/> awaiting upload</span>
+                <span><span style={{color:"#bbb",fontWeight:900}}>{"\u2014"}</span> excused</span>
+                <span style={{marginLeft:"auto",color:"#999"}}>{checklist.length-queue.length} of {checklist.length} resolved</span>
+              </div>}
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
-              <div style={{display:"grid",gridTemplateColumns:"216px minmax(0,1fr) 250px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",alignItems:"start"}}>
 
-                <div style={{borderRight:"1px solid #eee",padding:"10px 0 12px",maxHeight:560,overflowY:"auto"}}>
-                  {[["Required",required],["Requested",others]].map(([label,list])=>list.length>0?(
-                    <React.Fragment key={label}>
-                      <div style={{fontSize:10.5,fontWeight:700,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",padding:"7px 14px 4px"}}>{label}</div>
-                      {list.map(d=>{
-                        const focused=focus&&focus.id===d.id;
-                        return(
-                        <div key={d.id} onClick={()=>setFocusDocId(d.id)} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 14px 6px "+(focused?"11px":"14px"),fontSize:12,cursor:"pointer",background:focused?"#f2f3ef":"transparent",borderLeft:focused?"3px solid #7a9c80":"3px solid transparent",color:needsDecision(d)?"#434343":"#999",fontWeight:needsDecision(d)?600:400}}>
-                          {railIcon(d)}
-                          <span style={{minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</span>
-                        </div>);
-                      })}
-                    </React.Fragment>
-                  ):null)}
-                  <div style={{fontSize:11.5,color:"#7a9c80",fontWeight:700,padding:"10px 14px 0",borderTop:"1px solid #eee",marginTop:8}}>{"\u2713"} {buckets.home.length} in Home Base{buckets.excused.length>0?<span style={{color:"#aaa",fontWeight:600}}> {"\u00b7"} {buckets.excused.length} excused</span>:null}</div>
-                </div>
-
-                <div style={{padding:"16px 20px",minHeight:340}}>
-                  {focus?(()=>{const st=deskStrip(focus);return(
-                  <div style={{transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===focus.id?0:1,transform:leavingDoc===focus.id?"translateX(48px)":"none"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:2,flexWrap:"wrap"}}>
-                      <span style={{fontSize:15,fontWeight:700,color:"#434343"}}>{dName(focus)}</span>
-                      <span style={{padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:700,background:frb.bg,color:frb.text,border:"1px solid "+frb.border}}>{frb.label}</span>
-                      {focus.manual&&<span style={{fontSize:10,color:"#999"}}>(added by staff)</span>}
-                    </div>
-                    <div style={{fontSize:11.5,color:"#999",marginBottom:10}}>{focus.fileName?focus.fileName+(focus.date?" \u00b7 uploaded "+focus.date:""):(focus.requestedDate?"not uploaded \u00b7 requested "+focus.requestedDate:"not uploaded")}</div>
-                    <div style={{fontSize:12.5,borderRadius:6,padding:"9px 12px",marginBottom:12,lineHeight:1.55,...st.s}}>{st.t}</div>
-                    {focus.fileName&&(
-                      <div style={{border:"1px dashed #ccc",borderRadius:8,padding:"22px 16px",textAlign:"center",background:"#fbfbf9",marginBottom:14}}>
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
-                        <div style={{fontSize:12.5,fontWeight:600,color:"#666",marginTop:6}}>{focus.fileName}</div>
-                        <div style={{fontSize:11,color:"#aaa",marginTop:3}}>Inline PDF preview {"\u2014"} available in the production build</div>
-                      </div>
-                    )}
-                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                      {(focus.status==="ai_accepted"||focus.status==="ai_flagged")&&<React.Fragment>
-                        <button onClick={()=>decide(focus.id,{status:"approved",approvedDate:today})} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"8px 18px",fontSize:12.5}}>{focus.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
-                        <button onClick={()=>{setRejectingDoc(rejectingDoc===focus.id?null:focus.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"8px 16px",fontSize:12.5}}>Reject &amp; Re-request</button>
-                        <button onClick={()=>decide(focus.id,{status:"excused",reason:"doesnt_apply",excusedDate:today})} style={{...btn,padding:"8px 14px",fontSize:12.5}}>Not Needed</button>
-                      </React.Fragment>}
-                      {focus.status==="reason_given"&&<React.Fragment>
-                        <button onClick={()=>decide(focus.id,{status:"excused",excusedDate:today})} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"8px 16px",fontSize:12.5}}>Excuse {"\u2014"} Not Applicable</button>
-                        {REVIEW_REASONS.includes(focus.reason)&&<button onClick={()=>decide(focus.id,{status:"open",reason:undefined})} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"8px 16px",fontSize:12.5}}>Keep Chasing</button>}
-                        <button onClick={()=>pickFile(nm=>patchDoc(focus.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"8px 14px",fontSize:12.5}}>Upload</button>
-                      </React.Fragment>}
-                      {focus.status==="open"&&<React.Fragment>
-                        <button onClick={()=>pickFile(nm=>patchDoc(focus.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={{...btn,padding:"8px 16px",fontSize:12.5}}>Upload</button>
-                        <button onClick={()=>decide(focus.id,{status:"excused",reason:"doesnt_apply",excusedDate:today,note:undefined})} style={{...btn,padding:"8px 14px",fontSize:12.5}}>Excuse (N/A)</button>
-                      </React.Fragment>}
-                      {focus.status==="excused"&&<button onClick={()=>patchDoc(focus.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{...btn,color:"#999",padding:"8px 14px",fontSize:12.5}}>Reopen</button>}
-                      {focus.status==="approved"&&<button onClick={()=>patchDoc(focus.id,{status:"ai_accepted",approvedDate:undefined})} style={{...btn,color:"#999",padding:"8px 14px",fontSize:12.5}}>Re-review</button>}
-                    </div>
-                    {rejectingDoc===focus.id&&(
-                      <div style={{display:"flex",gap:8,alignItems:"center",marginTop:12}}>
-                        <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(focus);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"8px 10px",fontSize:12,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit"}}/>
-                        <button onClick={()=>saveReject(focus)} style={{...btn,background:"#dc3545",color:"#fff",border:"none"}}>Reject &amp; Re-request</button>
-                        <button onClick={()=>{setRejectingDoc(null);setRejectNote("");}} style={btn}>Cancel</button>
-                      </div>
-                    )}
-                  </div>);})():(
-                  <div style={{textAlign:"center",padding:"46px 16px"}}>
-                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    <div style={{fontSize:15,fontWeight:700,color:"#434343",marginTop:8}}>Review complete</div>
-                    <div style={{fontSize:12.5,color:"#777",marginTop:6,lineHeight:1.6,maxWidth:380,marginLeft:"auto",marginRight:"auto"}}>
-                      {chase.length>0
-                        ?<span>The chase list has {chase.length} item{chase.length===1?"":"s"} {"\u2014"} the {"\u201c"}Approve document follow-up request{"\u201d"} Task is open, and the draft is ready on the right.</span>
-                        :<span>Nothing left to chase {"\u2014"} every Document is Approved or Excused{lead.leadStage==="Ready for Petition Prep"?<span>, and this Lead is <strong>Ready for Petition Prep</strong></span>:null}.</span>}
-                    </div>
+                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:380}}>
+                  <div style={{padding:"10px 14px",borderBottom:"1px solid #f0f0ed",background:"#fdf6e7"}}>
+                    <div style={{fontSize:12,fontWeight:700,color:"#856404",textTransform:"uppercase",letterSpacing:"0.5px"}}>Missing {"\u2014"} To Chase <span style={{background:"#F59E0B",color:"#fff",borderRadius:10,padding:"0px 7px",fontSize:10.5,marginLeft:4}}>{chase.length}</span></div>
+                    <div style={{fontSize:10.5,color:"#b8963e",marginTop:2}}>Not uploaded {"\u2014"} these build the follow-up email</div>
                   </div>
-                  )}
+                  <div style={{flex:1,padding:"10px 12px",maxHeight:480,overflowY:"auto"}}>
+                    {chase.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing to chase {"\u2014"} rejections and Keep Chasing rulings land here.</div>}
+                    {chase.map(d=>{const rb2=reqBadge[docMeta(d.docId).req]||reqBadge.optional;return(
+                      <div key={d.id} style={{border:"1px solid #eee",borderRadius:8,padding:"9px 11px",marginBottom:7,background:"#fff"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                          <span style={{width:12,flexShrink:0,display:"flex"}}><span style={{width:8,height:8,borderRadius:"50%",border:"2px solid "+(d.reason==="rejected"?"#dc3545":"#F59E0B"),display:"inline-block"}}/></span>
+                          <span style={{fontSize:12,fontWeight:600,color:"#434343",minWidth:0}}>{dName(d)}</span>
+                          <span style={{padding:"1px 6px",borderRadius:4,fontSize:9.5,fontWeight:700,background:rb2.bg,color:rb2.text,border:"1px solid "+rb2.border}}>{rb2.label}</span>
+                        </div>
+                        <div style={{fontSize:10.5,color:"#999",margin:"3px 0 6px 18px",lineHeight:1.4}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
+                        <div style={{display:"flex",gap:6,marginLeft:18}}>
+                          <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={btn}>Upload</button>
+                          <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,note:undefined},"right")} style={btn}>Excuse</button>
+                        </div>
+                      </div>);})}
+                  </div>
+                  <div style={{borderTop:"1px solid #eee",padding:"10px 12px"}}>
+                    {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
+                    <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,width:"100%",marginBottom:6,padding:"7px 10px"}}>+ Request a Document</button>
+                    <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,width:"100%",background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
+                  </div>
                 </div>
 
-                <div style={{borderLeft:"1px solid #eee",padding:"12px 14px",display:"flex",flexDirection:"column",maxHeight:560,overflowY:"auto"}}>
-                  <div style={{fontSize:10.5,fontWeight:700,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8}}>Next Follow-Up Email</div>
-                  <div style={{flex:1}}>
-                    {chase.length===0&&<div style={{fontSize:11.5,color:"#bbb",lineHeight:1.5,marginBottom:8}}>Nothing to chase yet {"\u2014"} your rejections and Keep Chasing rulings build this list.</div>}
-                    {chase.map(d=>(
-                      <div key={d.id} onClick={()=>setFocusDocId(d.id)} style={{fontSize:11.5,padding:"7px 9px",border:"1px solid #eee",borderRadius:6,marginBottom:6,cursor:"pointer",lineHeight:1.45,background:"#fff"}}>
-                        <span style={{fontWeight:600,color:"#434343"}}>{dName(d)}</span><br/>
-                        <span style={{color:"#999"}}>{d.reason==="rejected"?(d.note||"rejected by firm"):(d.reason&&DOC_REASONS[d.reason]?DOC_REASONS[d.reason]:(d.requestedDate?"requested "+d.requestedDate:"still needed"))}</span>
+                <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:380}}>
+                  <div style={{padding:"10px 14px",borderBottom:"1px solid #f0f0ed",background:"#FBFAF7"}}>
+                    <div style={{fontSize:12,fontWeight:700,color:"#434343",textTransform:"uppercase",letterSpacing:"0.5px"}}>To Review <span style={{background:"#434343",color:"#fff",borderRadius:10,padding:"0px 7px",fontSize:10.5,marginLeft:4}}>{queue.length}</span> <span style={{marginLeft:6,background:"#7a9c80",color:"#fff",borderRadius:4,padding:"1px 7px",fontSize:9.5,fontWeight:700,letterSpacing:"0.5px"}}>START HERE</span></div>
+                    <div style={{fontSize:10.5,color:"#999",marginTop:2}}>Work down the list {"\u2014"} every Document needs a firm decision</div>
+                  </div>
+                  <div style={{flex:1,padding:"10px 12px",maxHeight:540,overflowY:"auto"}}>
+                    {queue.length===0&&(
+                      <div style={{textAlign:"center",padding:"34px 12px"}}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <div style={{fontSize:14,fontWeight:700,color:"#434343",marginTop:6}}>Review complete</div>
+                        <div style={{fontSize:12,color:"#777",marginTop:5,lineHeight:1.6}}>
+                          {chase.length>0
+                            ?<span>The chase list has {chase.length} item{chase.length===1?"":"s"} {"\u2014"} the {"\u201c"}Approve document follow-up request{"\u201d"} Task is open, and the draft is ready on the left.</span>
+                            :<span>Nothing left to chase {"\u2014"} every Document is Approved or Excused{lead.leadStage==="Ready for Petition Prep"?<span>, and this Lead is <strong>Ready for Petition Prep</strong></span>:null}.</span>}
+                        </div>
+                      </div>
+                    )}
+                    {queue.map(d=>{const st=deskStrip(d);const rb2=reqBadge[docMeta(d.docId).req]||reqBadge.optional;return(
+                      <div key={d.id} style={{border:"1px solid #e4e4df",borderRadius:8,padding:"10px 12px",marginBottom:8,background:"#fff",transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===d.id?0:1,transform:leavingDoc===d.id?("translateX("+(leavingDir==="left"?"-60px":"60px")+")"):"none"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:4}}>
+                          {railIcon(d)}
+                          <span style={{fontSize:12.5,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
+                          <span style={{padding:"1px 6px",borderRadius:4,fontSize:9.5,fontWeight:700,background:rb2.bg,color:rb2.text,border:"1px solid "+rb2.border}}>{rb2.label}</span>
+                          {d.manual&&<span style={{fontSize:9.5,color:"#999"}}>(added by staff)</span>}
+                        </div>
+                        <div style={{fontSize:11,borderRadius:5,padding:"6px 9px",marginBottom:6,lineHeight:1.45,...st.s}}>{st.t}</div>
+                        {d.fileName&&<div onClick={()=>setPreviewDoc(previewDoc===d.id?null:d.id)} style={{fontSize:11.5,color:"#3d5c43",fontWeight:600,textDecoration:"underline",cursor:"pointer",marginBottom:6}}>{d.fileName}</div>}
+                        {previewDoc===d.id&&d.fileName&&(
+                          <div style={{border:"1px dashed #ccc",borderRadius:6,padding:"14px 10px",textAlign:"center",background:"#fbfbf9",marginBottom:8}}>
+                            <div style={{fontSize:11,fontWeight:600,color:"#666"}}>{d.fileName}</div>
+                            <div style={{fontSize:10,color:"#aaa",marginTop:2}}>Inline PDF preview {"\u2014"} available in the production build</div>
+                          </div>
+                        )}
+                        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                          {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
+                            <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today},"right")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 14px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
+                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"6px 12px",fontSize:11.5}}>Reject</button>
+                            <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today},"right")} style={{...btn,padding:"6px 10px",fontSize:11.5}}>Not Needed</button>
+                          </React.Fragment>}
+                          {d.status==="reason_given"&&<React.Fragment>
+                            <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today},"right")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"6px 12px",fontSize:11.5}}>Excuse</button>
+                            <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"left")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"6px 12px",fontSize:11.5}}>Keep Chasing</button>
+                            <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"6px 10px",fontSize:11.5}}>Upload</button>
+                          </React.Fragment>}
+                        </div>
+                        {rejectingDoc===d.id&&(
+                          <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8}}>
+                            <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
+                            <button onClick={()=>saveReject(d)} style={{...btn,background:"#dc3545",color:"#fff",border:"none",fontSize:11}}>Reject</button>
+                          </div>
+                        )}
+                      </div>);})}
+                  </div>
+                </div>
+
+                <div style={{display:"flex",flexDirection:"column",minHeight:380}}>
+                  <div style={{padding:"10px 14px",borderBottom:"1px solid #f0f0ed",background:"#eef6ef"}}>
+                    <div style={{fontSize:12,fontWeight:700,color:"#3d5c43",textTransform:"uppercase",letterSpacing:"0.5px"}}>Home Base <span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"0px 7px",fontSize:10.5,marginLeft:4}}>{buckets.home.length}</span></div>
+                    <div style={{fontSize:10.5,color:"#5a7c60",marginTop:2}}>Uploaded, approved by your firm {"\u2014"} category closed</div>
+                  </div>
+                  <div style={{flex:1,padding:"10px 12px",maxHeight:540,overflowY:"auto"}}>
+                    {buckets.home.length===0&&<div style={{fontSize:11.5,color:"#ccc",textAlign:"center",padding:"18px 6px",lineHeight:1.5}}>Nothing approved yet {"\u2014"} every approval lands here.</div>}
+                    {buckets.home.map(d=>(
+                      <div key={d.id} style={{display:"flex",alignItems:"center",gap:7,border:"1px solid #e7efe8",borderRadius:8,padding:"8px 11px",marginBottom:6,background:"#fcfefc"}}>
+                        <span style={{color:"#7a9c80",fontWeight:900,fontSize:12,flexShrink:0}}>{"\u2713"}</span>
+                        <span onClick={()=>d.fileName&&setPreviewDoc(previewDoc===d.id?null:d.id)} style={{fontSize:12,fontWeight:600,color:"#434343",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:d.fileName?"pointer":"default"}}>{dName(d)}</span>
+                        <button onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined})} style={{marginLeft:"auto",background:"none",border:"none",color:"#bbb",fontSize:10.5,cursor:"pointer",flexShrink:0}} title="Send back to To Review">re-review</button>
                       </div>
                     ))}
+                    {buckets.excused.length>0&&<React.Fragment>
+                      <div style={{fontSize:10.5,fontWeight:700,color:"#aaa",textTransform:"uppercase",letterSpacing:"0.5px",margin:"10px 2px 6px"}}>Excused {"\u2014"} not applicable</div>
+                      {buckets.excused.map(d=>(
+                        <div key={d.id} style={{display:"flex",alignItems:"center",gap:7,border:"1px solid #eee",borderRadius:8,padding:"8px 11px",marginBottom:6,background:"#fafaf8"}}>
+                          <span style={{color:"#bbb",fontWeight:900,fontSize:12,flexShrink:0}}>{"\u2014"}</span>
+                          <span style={{fontSize:12,color:"#888",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={d.reason?("Debtor: "+(DOC_REASONS[d.reason]||d.reason)):""}>{dName(d)}</span>
+                          <button onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{marginLeft:"auto",background:"none",border:"none",color:"#bbb",fontSize:10.5,cursor:"pointer",flexShrink:0}} title="Reopen — back to the chase list">reopen</button>
+                        </div>
+                      ))}
+                    </React.Fragment>}
                   </div>
-                  {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,margin:"8px 0 6px"}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:<div style={{margin:"8px 0 0"}}/>;})()}
-                  <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,width:"100%",marginBottom:6,padding:"7px 10px"}}>+ Request a Document</button>
-                  <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,width:"100%",background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                 </div>
 
               </div>
