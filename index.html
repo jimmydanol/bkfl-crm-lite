@@ -18,6 +18,7 @@ body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
 input,select,textarea,button{font-family:inherit;}
 a{text-decoration:none;}
+@keyframes bkflPulse{0%{box-shadow:0 0 0 0 rgba(122,156,128,0.55);}70%{box-shadow:0 0 0 11px rgba(122,156,128,0);}100%{box-shadow:0 0 0 0 rgba(122,156,128,0);}}
 </style>
 </head>
 <body>
@@ -1578,7 +1579,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
                     <div style={{display:"flex",gap:8}}>
                       <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,flex:1,padding:"8px 10px"}}>+ Request a Document</button>
-                      <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,flex:2,background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
+                      <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,flex:2,background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default",animation:(queue.length===0&&chase.length>0)?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                     </div>
                     {addingRequest&&(
                       <div style={{marginTop:8}}>
