@@ -30,7 +30,8 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 ## 4. Decisions Already Made (make sure they're written down, not just built)
 - ✅ Email = identity key; dedupe rules; one contact ↔ one lead at intake
 - ✅ Joint filers: one intake, primary contact only; spouse doc rules
-- ✅ Stages are system-driven, never hand-edited; 3 stages in v1
+- ✅ Stages are system-driven, never hand-edited; 4 stages in v1: New Lead → Intake Sent → Intake Submitted → Ready for Petition Prep
+- ✅ Ready for Petition Prep = the v1 finish line. Auto-set when the Document checklist is complete (every applicable item Approved by Firm or Not Applicable; nothing awaiting upload, review, or chase). It REGRESSES to Intake Submitted if new Document activity reopens the checklist — the badge tells the truth about the file. prepReadyDate is stored and the UI shows days-in-stage everywhere the badge appears (dashboard pipeline "Days Ready" column, Leads table, Lead header)
 - ✅ Every AI email requires law-firm approval; every document requires firm approval (AI is a recommendation)
 - ✅ Universal task rules — apply to ALL six task types, and to every future one:
   1. Tasks are created by the system (events or the 5:00 a.m. batch), never by hand

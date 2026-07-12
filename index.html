@@ -480,7 +480,7 @@ const BUILT_TASKS=[
 ];
 const BUILT_TASK_CATEGORIES=[...new Set(BUILT_TASKS.map(t=>t.category))];
 const BANKRUPTCY_TYPES=["Chapter 7","Chapter 13","Litigation","Other"];
-const LEAD_STAGES=["New Lead","Intake Sent","Intake Submitted"]; /* system-driven — set by events, never edited by staff */
+const LEAD_STAGES=["New Lead","Intake Sent","Intake Submitted","Ready for Petition Prep"]; /* system-driven — set by events, never edited by staff */
 
 /* ─── DOCUMENT CATALOG (32 doc types, fixed in v1) ─── */
 const DOC_TYPES=[
@@ -687,6 +687,7 @@ const leadStageColors={
   "New Lead":{bg:"#e8f4fd",text:"#1a73e8",border:"#90caf9"},
   "Intake Sent":{bg:"#f3e8fd",text:"#6a1b9a",border:"#ce93d8"},
   "Intake Submitted":{bg:"#dce8de",text:"#3d5c43",border:"#7A9C80"},
+  "Ready for Petition Prep":{bg:"#e0f2f1",text:"#00695c",border:"#4db6ac"},
 };
 
 function useLocalLeads(){
@@ -730,6 +731,9 @@ function StatusBadge({status}){
   const c=statusColors[status]||statusColors.Pending;
   return <span style={{background:c.bg,color:c.text,border:"1px solid "+c.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{status}</span>;
 }
+
+const isPrepReady=(cl)=>!!(cl&&cl.length)&&cl.every(d=>d.status==="approved"||(d.status==="reason_given"&&!CHASE_REASONS.includes(d.reason)));
+const prepAge=(l)=>{if(!l.prepReadyDate)return"\u2014";const d=Math.floor((Date.now()-new Date(l.prepReadyDate+"T00:00:00").getTime())/86400000);return d<=0?"Ready today":d===1?"1 day":d+" days";};
 
 function StageBadge({stage}){
   if(!stage) return null;
@@ -1173,7 +1177,20 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
 
   if(!lead) return <div style={{padding:40,textAlign:"center",color:"#999"}}>Lead not found.</div>;
 
-  const update=(u)=>setLeads(prev=>prev.map(l=>l.id===lead.id?{...l,...u}:l));
+  const update=(u)=>setLeads(prev=>prev.map(l=>{
+    if(l.id!==lead.id)return l;
+    let m={...l,...u};
+    if(u.docChecklist&&(m.leadStage==="Intake Submitted"||m.leadStage==="Ready for Petition Prep")){
+      const _today=new Date().toISOString().split("T")[0];
+      const ready=isPrepReady(m.docChecklist);
+      if(ready&&m.leadStage==="Intake Submitted"){
+        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"Document checklist complete \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
+      }else if(!ready&&m.leadStage==="Ready for Petition Prep"){
+        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"New Document activity reopened the checklist \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
+      }
+    }
+    return m;
+  }));
   const openEdit=(ld)=>{
     const secondContact=(ld.contacts||[]).find(c=>c.role==="Lead (Spouse)"||c.role==="Client (Spouse)");
     const isJoint=!!secondContact;
@@ -1233,6 +1250,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           <button onClick={()=>{setPage("leads");setSelectedLead(null);}} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex"}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#7A9C80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
           <h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:0}}>{lead.firstName} {lead.lastName}</h1>
           <StageBadge stage={lead.leadStage}/>
+          {lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate&&<span style={{fontSize:12.5,color:"#00695c",fontWeight:700}}>{prepAge(lead)}</span>}
         </div>
         <div style={{display:"flex",gap:8,marginBottom:16,paddingLeft:32}}>
           {lead.leadStage==="Intake Sent"&&<button onClick={()=>{
@@ -1259,7 +1277,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             <DetailRow label="Last name" value={lead.lastName}/>
             <DetailRow label="Email" value={<span style={{userSelect:"all",cursor:"text"}}>{lead.email}</span>}/>
             <DetailRow label="Phone" value={<span style={{userSelect:"all",cursor:"text"}}>{lead.phone}</span>}/>
-            <DetailRow label="Stage" value={<span><StageBadge stage={lead.leadStage}/><span style={{fontSize:11,color:"#999",marginLeft:8,fontStyle:"italic"}}>set automatically</span></span>}/>
+            <DetailRow label="Stage" value={<span><StageBadge stage={lead.leadStage}/>{lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate?<span style={{fontSize:11,color:"#00695c",marginLeft:8,fontWeight:700}}>{prepAge(lead)}</span>:<span style={{fontSize:11,color:"#999",marginLeft:8,fontStyle:"italic"}}>set automatically</span>}</span>}/>
             <DetailRow label="Intake sent" value={lead.intakeSentDate?new Date(lead.intakeSentDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):"—"}/>
             <DetailRow label="Intake submitted" value={lead.intakeSubmittedDate?new Date(lead.intakeSubmittedDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):"—"}/>
             <DetailRow label="Created" value={lead.createdDate?new Date(lead.createdDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}/>
@@ -2399,6 +2417,7 @@ function SettingsPage(){
             {name:"New Lead",desc:"A Contact and Lead exist, but the intake form has not been sent. Created manually by staff after a phone call, or automatically when a debtor first enters the system.",tasks:[{t:"Send the intake link",w:"Created with the Lead when the link isn\u2019t sent at creation. Completes automatically the moment the link is sent."}]},
             {name:"Intake Sent",desc:"The intake form link has been emailed to the debtor. Set automatically when the link is sent — by approving the send-intake Task, or at Lead creation with the send box checked.",tasks:[{t:"Approve follow-up email — intake not completed",w:"Created 1 week after the link is sent and repeats weekly until the debtor submits. The law firm approves the AI-drafted reminder email before it goes to the Lead."}]},
             {name:"Intake Submitted",desc:"The debtor's intake has been received. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Lead, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created 1 week after submission and repeats weekly. The law firm approves the AI-drafted request for Documents the AI flagged as missing from the intake."}]},
+            {name:"Ready for Petition Prep",desc:"The finish line of this workflow. Every applicable Document is Approved by Firm or closed as Not Applicable \u2014 nothing is awaiting upload, review, or follow-up. Set automatically the moment the Document checklist is complete; if new Document activity reopens the checklist (a new request, upload, or rejection), the Lead moves back to Intake Submitted automatically. The Stage shows how many days the case has been ready.",tasks:[],empty:"No automatic Tasks \u2014 the case is ready for petition prep."},
           ].map(s=>{
             const sc=leadStageColors[s.name]||{bg:"#f5f5f5",border:"#999",text:"#555"};
             return(
@@ -2418,7 +2437,7 @@ function SettingsPage(){
                     </div>
                   </div>
                 ))}
-                {s.tasks.length===0&&<div style={{fontSize:12,color:"#aaa",fontStyle:"italic"}}>No automatic Tasks — the next step is sending the intake link.</div>}
+                {s.tasks.length===0&&<div style={{fontSize:12,color:"#aaa",fontStyle:"italic"}}>{s.empty||"No automatic Tasks \u2014 the next step is sending the intake link."}</div>}
               </div>
             </div>);
           })}
@@ -2826,9 +2845,9 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
 
       {/* Intake pipeline (moved from Leads page) */}
       <div style={{display:"flex",gap:12,marginBottom:18}}>
-        {["New Lead","Intake Sent"].map(stage=>{
+        {["New Lead","Intake Sent","Ready for Petition Prep"].map(stage=>{
           const sc=leadStageColors[stage]||{bg:"#f5f5f5",border:"#999",text:"#555"};
-          const dateField=stage==="New Lead"?"createdDate":"intakeSentDate";
+          const dateField=stage==="New Lead"?"createdDate":stage==="Intake Sent"?"intakeSentDate":"prepReadyDate";
           const stageLeads=_.orderBy(leads.filter(l=>l.leadStage===stage),dateField,"desc");
           return(
             <div key={stage} style={{flex:1,background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden"}}>
@@ -2837,14 +2856,14 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
                   <span style={{fontSize:12,fontWeight:700,color:sc.text,textTransform:"uppercase",letterSpacing:"0.5px"}}>{stage}</span>
                   <span style={{background:sc.border,color:"#fff",borderRadius:12,padding:"2px 8px",fontSize:11,fontWeight:700}}>{stageLeads.length}</span>
                 </span>
-                <span style={{fontSize:10,fontWeight:700,color:sc.text,textTransform:"uppercase",letterSpacing:"0.5px",opacity:0.75}}>{stage==="New Lead"?"Created":"Sent Date"}</span>
+                <span style={{fontSize:10,fontWeight:700,color:sc.text,textTransform:"uppercase",letterSpacing:"0.5px",opacity:0.75}}>{stage==="New Lead"?"Created":stage==="Intake Sent"?"Sent Date":"Days Ready"}</span>
               </div>
               <div style={{padding:"10px 12px",minHeight:80,maxHeight:220,overflowY:"auto"}}>
                 {stageLeads.map(l=>(
                   <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{padding:"8px 10px",marginBottom:6,borderRadius:6,border:"1px solid #eee",cursor:"pointer",transition:"all 0.15s"}} onMouseEnter={e=>e.currentTarget.style.background="#f9f9f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                       <span style={{fontSize:13,fontWeight:600,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l.firstName} {l.lastName}</span>
-                      <span style={{fontSize:11.5,color:"#666",whiteSpace:"nowrap"}}>{l[dateField]?new Date(l[dateField]+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"}):"—"}</span>
+                      <span style={{fontSize:11.5,color:"#666",whiteSpace:"nowrap"}}>{stage==="Ready for Petition Prep"?prepAge(l):(l[dateField]?new Date(l[dateField]+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"}):"—")}</span>
                     </div>
                   </div>
                 ))}
@@ -3030,7 +3049,7 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
                   <td style={{padding:"12px 14px",fontWeight:500,color:"#7A9C80"}}>{lead.firstName} {lead.lastName}</td>
                   <td style={{padding:"12px 14px",color:"#555",fontSize:14,userSelect:"all",cursor:"text"}} onClick={e=>e.stopPropagation()}>{lead.email}</td>
                   <td style={{padding:"12px 14px",color:"#555",fontSize:14,userSelect:"all",cursor:"text"}} onClick={e=>e.stopPropagation()}>{lead.phone}</td>
-                  <td style={{padding:"12px 14px"}}><span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{lead.leadStage}</span></td>
+                  <td style={{padding:"12px 14px"}}><span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{lead.leadStage}</span>{lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate&&<span style={{fontSize:11,color:"#00695c",fontWeight:700,marginLeft:8,whiteSpace:"nowrap"}}>{prepAge(lead)}</span>}</td>
                   <td style={{padding:"12px 14px",color:"#888"}}>{lead.createdDate?new Date(lead.createdDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}</td>
                 </tr>
               );
