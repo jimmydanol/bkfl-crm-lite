@@ -32,7 +32,7 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ✅ Joint filers: one intake, primary contact only; spouse doc rules
 - ✅ Stages are system-driven, never hand-edited; 3 stages in v1
 - ✅ Every AI email requires law-firm approval; every document requires firm approval (AI is a recommendation)
-- ✅ Universal task rules — apply to ALL five task types, and to every future one:
+- ✅ Universal task rules — apply to ALL six task types, and to every future one:
   1. Tasks are created by the system (events or the 5:00 a.m. batch), never by hand
   2. An outstanding task has exactly two exits: open it and do the work, or remove it — no mark-complete shortcut exists
   3. Opening a task always shows the actual work (email draft + attachment, or document review lanes)
@@ -42,7 +42,8 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
   7. Per-type differences are parameters only (trigger, cadence, doorway destination) — never rule exceptions
   8. Every Task type has a firm-level On/Off switch (Settings → Tasks). Off means off for everything: every open copy of that Task (all Leads) moves to Task history as Removed, and the system stops creating new ones — restorable individually per the history rule. Templates have no switch of their own — every email leaves the system through a Task, so the Task switch IS the email switch
 - ✅ Submission locks the intake: the Intake Package is an immutable point-in-time record (the AI Summary and attorney review are anchored to it). Post-submission documents and corrections enter ONLY through the document-upload doorway or a communication to the firm — never by re-entering the intake form
-- ✅ Document review is ONE Task type with two triggers (rule 7: parameters, not new types): created immediately at submission for the Documents that came in with the intake, and by the 5:00 a.m. batch for post-submission uploads; the dedupe rule keeps at most one open pile per Lead — the batch refreshes the count on an existing open Task
+- 🔶 PROVISIONAL (revisit once the document workflow is mapped): document review is TWO Task types, split for staff clarity about scope — "Review Documents — initial intake submission" (immediate on submission, never repeats, the big pile) and "Review Documents — follow-up uploads" (5:00 a.m. batch, the trickle; at most one open per Lead, count refreshed). SIX task types total now
+- 🔶 PROVISIONAL (same caveat): the document chase is ONE Task ("Approve document follow-up request") with TWO templates — "Document Request — Initial" on its first run, "Document Request — Reminder" on every repeat (first-vs-repeat is a parameter per rule 7)
 - 🔶 5:00 a.m. single batch window — stated in-app; put the one-clock rule in the spec explicitly
 - ✅ Communications come from the firm, not an individual; no custom template builder in v1
 - ✅ Templates own the words; Tasks own the timing — every schedule is stated in exactly one place (the Task card / task-creation rules); Communications templates have no schedule of their own and defer to their Task
