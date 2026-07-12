@@ -1381,8 +1381,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             const listText=chase.map(d=>"\u2022 "+dName(d)+(d.reason==="rejected"&&d.note?" \u2014 "+d.note:d.reason&&DOC_REASONS[d.reason]?" ("+DOC_REASONS[d.reason]+")":"")).join("\n");
             const isRepeatReq=(lead.communications||[]).some(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");
             return isRepeatReq
-              ?{tpl:"Document Request \u2014 Reminder",subject:"Still looking for a few documents",body:"Hi "+lead.firstName+",\n\nJust a quick reminder \u2014 we're still looking for a few additional documents to complete your file:\n\n"+listText+"\n\nYou can upload them through your secure portal.\n\nMcCune Legal"}
-              :{tpl:"Document Request \u2014 Initial",subject:"A few documents we still need",body:"Hi "+lead.firstName+",\n\nThanks again for submitting your intake. To keep your case moving, we still need the following:\n\n"+listText+"\n\nYou can upload these through your secure portal.\n\nMcCune Legal"};
+              ?{tpl:"Document Request \u2014 Reminder",subject:"Still looking for a few documents",body:"Hi "+lead.firstName+",\n\nJust a quick reminder \u2014 we're still looking for a few additional documents to complete your file:\n\n"+listText+"\n\nUpload them through your secure upload link \u2014 it takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"}
+              :{tpl:"Document Request \u2014 Initial",subject:"A few documents we still need",body:"Hi "+lead.firstName+",\n\nThanks again for submitting your intake. To keep your case moving, we still need the following:\n\n"+listText+"\n\nUpload these through your secure upload link \u2014 it takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"};
           })();
           const sendFollowUp=()=>{
             if(!followUpDraft)return;

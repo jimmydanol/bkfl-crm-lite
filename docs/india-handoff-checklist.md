@@ -15,7 +15,7 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - 🔶 Document pipeline rules — same: Settings → Documents (32-type catalog, requirement tiers, reason codes, follow-up rules, category lifecycle) is the source of truth; extract
 - ⬜ Data model reference — entities and fields: Lead, Contact, Task (statuses incl. Removed), docChecklist item states, intakePackage schema, communications, timeline
 - ⬜ Agent output contracts — the frozen JSON memo shape for each agent (pay stub analyzer, document classifier, intake analyst, follow-up drafter)
-- ⬜ API surface between the two windows — what the intake posts to the CRM backend on submit (packet shape, tokenized-link rules)
+- 🔶 API surface between the two windows — what the intake posts to the CRM backend on submit (packet shape, tokenized-link rules), PLUS the Upload Center pair (decided, see section 4): GET outstanding-items by upload token, POST file/reason per item
 
 ## 3. Content Assets
 - ✅ Email templates ×5, firm-voiced with merge fields (Settings → Communications)
@@ -50,6 +50,14 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ✅ Chase Task is event-driven, both directions: born the moment review completes with a non-empty chase list (due immediately — the old 1-week timer is dead), re-arms weekly while the chase holds, and auto-completes the instant the chase list empties. Triggers hang on checklist STATE, never on Task completion, so the On/Off switches can't break the chain
 - ✅ One Documents tab per Lead, no separate intake-documents section — at the Lead stage every document IS an intake requirement (this version ends at Ready for Petition Prep). Multi-section document management is a Matter concept (post-conversion, v2); the intake checklist becomes the Intake folder of that structure when conversion exists
 - ✅ Chase is ONE Task with TWO templates — "Document Request — Initial" first send, "Document Request — Reminder" on repeats (first-vs-repeat is a parameter per rule 7)
+- ✅ Upload Center (post-submission secure upload) — DECIDED:
+  - Lives in the INTAKE app as a second token-gated route (`/upload/{token}`), reusing the intake's upload components, AI screening hookup, and hosting — not a separate app, not a hidden page: gated exactly like a password-reset page
+  - The intake FORM stays locked at submission; the Upload Center is the only debtor doorway afterward. Debtor-facing wording: "your intake is submitted — your secure upload link stays open until we have everything"
+  - Auth: magic link + lightweight identity gate (DOB or SSN last-4, data given at intake). No passwords — mortgage-industry lesson: passwords kill completion. Forwarded email alone is not enough
+  - Tokens: random, signed, per-Lead, expiring; a fresh link rides every follow-up email; scope is upload-only (can read outstanding item names + firm notes, never intake answers); revoked at Ready for Petition Prep
+  - The page shows the CHASE LIST served live from the CRM — one upload slot per requested item (files arrive pre-categorized; the no-miscellaneous-pile rule applies to debtors too) plus per-item "I can't provide this" with the reason picker
+  - Safeguards: TLS, virus scan, type/size limits, private per-tenant Azure Blob, audit log, uploads stamp the Lead timeline
+  - Pipeline on upload: item → AI screen → ai_accepted/ai_flagged → 5:00 a.m. batch → "Review Documents — follow-up uploads" Task
 - 🔶 5:00 a.m. single batch window — stated in-app; put the one-clock rule in the spec explicitly
 - ✅ Communications come from the firm, not an individual; no custom template builder in v1
 - ✅ Templates own the words; Tasks own the timing — every schedule is stated in exactly one place (the Task card / task-creation rules); Communications templates have no schedule of their own and defer to their Task
