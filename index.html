@@ -1435,9 +1435,9 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             if(!f)return null;
             const open=previewDoc===d.id;
             return(
-            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f} style={{flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 13px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.6"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.6"/><text x="7" y="17.5" fontSize="6.5" fontWeight="800" fill="#c0392b" fontFamily="Inter,Arial">PDF</text></svg>
-              <span style={{fontSize:9.5,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
+            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,padding:"6px 11px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.8"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.8"/></svg>
+              <span style={{fontSize:10,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
             </button>);
           };
           const railIcon=(d)=>{
@@ -1477,7 +1477,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   <div style={{fontSize:13,fontWeight:700,color:"#856404",textTransform:"uppercase",letterSpacing:"0.5px"}}>To Review <span style={{background:"#F59E0B",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{queue.length}</span> <span style={{marginLeft:6,background:"#7a9c80",color:"#fff",borderRadius:4,padding:"1px 8px",fontSize:10,fontWeight:700,letterSpacing:"0.5px"}}>START HERE</span></div>
                   <div style={{fontSize:11.5,color:"#b8963e",marginTop:2}}>Work down the list {"\u2014"} approve, reject, or not needed closes each one. Approvals drop to Home Base below; everything to chase drops to the right.</div>
                 </div>
-                <div style={{maxHeight:420,overflowY:"auto",padding:"12px 18px"}}>
+                <div style={{maxHeight:212,overflowY:"auto",padding:"12px 18px"}}>
                   {queue.length===0&&(
                     <div style={{textAlign:"center",padding:"28px 12px"}}>
                       <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#7a9c80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1489,34 +1489,29 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       </div>
                     </div>
                   )}
-                  {queue.map(d=>{return(
-                    <div key={d.id} id={"doccard-"+d.id} style={{border:"1px solid #e4e4df",borderRadius:8,padding:"10px 14px",marginBottom:8,background:"#fff",transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===d.id?0:1,transform:leavingDoc===d.id?("translate("+(leavingDir==="chase"?"70px":"-70px")+",60px)"):"none"}}>
-                      <div style={{display:"flex",gap:14,alignItems:"center"}}>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
-                            <span style={{fontSize:13.5,fontWeight:700,color:"#434343",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</span>
-                            {d.manual&&<span style={{fontSize:9.5,color:"#999",flexShrink:0}}>(added by staff)</span>}
-                          </div>
-                          {d.status==="ai_accepted"&&<div style={{fontSize:12,color:"#7a9c80",fontWeight:600,margin:"0 0 8px",lineHeight:1.45}}>AI accepted {"\u2014"} waiting on your approval</div>}
-                          {d.status==="ai_flagged"&&<div style={{fontSize:12,color:"#a94438",fontWeight:600,margin:"0 0 8px",lineHeight:1.45}}>AI flagged {"\u2014"} {d.aiNote||"needs your review"}</div>}
-                          {isPendingRuling(d)&&<div style={{fontSize:12,color:"#856404",fontWeight:600,margin:"0 0 8px",lineHeight:1.45}}>Debtor: {"\u201c"}{DOC_REASONS[d.reason]||d.reason}{"\u201d"} {"\u2014"} your ruling</div>}
-                          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                            {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
-                              <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 14px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
-                              <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"6px 12px",fontSize:11.5}}>Reject</button>
-                              <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today},"home")} style={{...btn,padding:"6px 10px",fontSize:11.5}}>Not Needed</button>
-                            </React.Fragment>}
-                            {d.status==="reason_given"&&<React.Fragment>
-                              <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today},"home")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"6px 12px",fontSize:11.5}}>Excuse</button>
-                              <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"chase")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"6px 12px",fontSize:11.5}}>Keep Chasing</button>
-                              <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"6px 10px",fontSize:11.5}}>Upload</button>
-                            </React.Fragment>}
-                          </div>
+                  {queue.map(d=>{
+                    const stx=d.status==="ai_accepted"?{t:"AI accepted",c:"#7a9c80"}:d.status==="ai_flagged"?{t:"AI flagged \u2014 "+(d.aiNote||"needs your review"),c:"#a94438"}:{t:"Debtor: \u201c"+(DOC_REASONS[d.reason]||d.reason)+"\u201d \u2014 your ruling",c:"#856404"};
+                    return(
+                    <div key={d.id} id={"doccard-"+d.id} style={{border:"1px solid #e4e4df",borderRadius:8,padding:"8px 14px",marginBottom:7,background:"#fff",transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===d.id?0:1,transform:leavingDoc===d.id?("translate("+(leavingDir==="chase"?"70px":"-70px")+",60px)"):"none"}}>
+                      <div style={{display:"flex",gap:12,alignItems:"center"}}>
+                        <span style={{fontSize:13,fontWeight:700,color:"#434343",flexShrink:0,maxWidth:250,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}{d.manual&&<span style={{fontSize:9.5,color:"#999",fontWeight:400}}> (staff)</span>}</span>
+                        <span title={stx.t} style={{flex:1,minWidth:0,fontSize:11.5,fontWeight:600,color:stx.c,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stx.t}</span>
+                        <div style={{display:"flex",gap:6,flexShrink:0}}>
+                          {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
+                            <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
+                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
+                            <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today},"home")} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Not Needed</button>
+                          </React.Fragment>}
+                          {d.status==="reason_given"&&<React.Fragment>
+                            <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today},"home")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>
+                            <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"chase")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"5px 11px",fontSize:11.5}}>Keep Chasing</button>
+                            <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
+                          </React.Fragment>}
                         </div>
                         {PdfBtn(d)}
                       </div>
                       {rejectingDoc===d.id&&(
-                        <div style={{display:"flex",gap:6,alignItems:"center",marginTop:10}}>
+                        <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8}}>
                           <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
                           <button onClick={()=>saveReject(d)} style={{...btn,background:"#dc3545",color:"#fff",border:"none",fontSize:11}}>Reject</button>
                         </div>
@@ -1533,7 +1528,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     <div style={{fontSize:11.5,color:"#5a7c60",marginTop:2}}>Everything this case requires {"\u2014"} crossed off as approved or excused</div>
                   </div>
                   <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
-                    {[...required,...others].map(d=>{
+                    {[...required,...others].map((d,i)=>({d:d,i:i})).sort((a,b)=>{const ov=(x)=>x.d.status==="approved"?0:x.d.status==="excused"?1:2;return ov(a)-ov(b)||a.i-b.i;}).map(({d})=>{
                       const doneA=d.status==="approved";const doneE=d.status==="excused";const done=doneA||doneE;
                       const hint=done?null:(isPendingRuling(d)?{t:"awaiting your ruling",c:"#c0392b"}:isUploadedReview(d)?{t:"in To Review",c:"#b8963e"}:{t:"on the chase list",c:"#c07267"});
                       return(
