@@ -50,9 +50,9 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ✅ Chase Task is event-driven, both directions: born the moment review completes with a non-empty chase list (due immediately — the old 1-week timer is dead), re-arms weekly while the chase holds, and auto-completes the instant the chase list empties. Triggers hang on checklist STATE, never on Task completion, so the On/Off switches can't break the chain
 - ✅ One Documents tab per Lead, no separate intake-documents section — at the Lead stage every document IS an intake requirement (this version ends at Ready for Petition Prep). Multi-section document management is a Matter concept (post-conversion, v2); the intake checklist becomes the Intake folder of that structure when conversion exists
 - ✅ Chase is ONE Task with TWO templates — "Document Request — Initial" first send, "Document Request — Reminder" on repeats (first-vs-repeat is a parameter per rule 7)
-- ✅ Upload Center (post-submission secure upload) — DECIDED:
+- ✅ Client Portal (post-submission secure upload; working name was "Upload Center") — DECIDED:
   - Lives in the INTAKE app as a second token-gated route (`/upload/{token}`), reusing the intake's upload components, AI screening hookup, and hosting — not a separate app, not a hidden page: gated exactly like a password-reset page
-  - The intake FORM stays locked at submission; the Upload Center is the only debtor doorway afterward. Debtor-facing wording: "your intake is submitted — your secure upload link stays open until we have everything"
+  - The intake FORM stays locked at submission; the Client Portal is the only debtor doorway afterward. Debtor-facing wording: "your intake is submitted — your secure upload link stays open until we have everything"
   - Auth: magic link + lightweight identity gate (DOB or SSN last-4, data given at intake). No passwords — mortgage-industry lesson: passwords kill completion. Forwarded email alone is not enough
   - Tokens: random, signed, per-Lead, expiring; a fresh link rides every follow-up email; scope is upload-only (can read outstanding item names + firm notes, never intake answers); revoked at Ready for Petition Prep
   - The page shows the CHASE LIST served live from the CRM — one upload slot per requested item (files arrive pre-categorized; the no-miscellaneous-pile rule applies to debtors too) plus per-item "I can't provide this" with the reason picker
@@ -72,8 +72,9 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ⬜ Responsive pass: the bottom two-column grid needs a stacked layout under ~900px (the portal is desktop-first by design for v1)
 - ⬜ Batch approve for AI-accepted documents (approve-all-clean) — deliberately EXCLUDED from v1: one click per document is the review-first promise; revisit only with real usage data
 
-## 4c. Open question for Kelly (settle, then lock in both repos)
-- ⬜ Follow-up link model: CRM design = ONE secure link per email opening the Upload Center with every outstanding item (recommended — debtors lose per-item links in threads; one link always shows the full list). Intake DOC-LOGIC (7/10 note) = a single-item upload link per open item. Pick one, update the loser''s doc.
+## 4c. Settled 2026-07-13 (after Matt/Kelly discussion)
+- ✅ Follow-up link model: ONE secure link per email, opening the Client Portal with every outstanding item. The intake repo's DOC-LOGIC per-item-link note (7/10) is superseded and needs updating.
+- ✅ Naming: the debtor-facing feature is the CLIENT PORTAL (not "Upload Center" / "doc portal") — in emails: "your secure client portal."
 
 ## 5. Enterprise / Non-Functional (mostly undiscussed — decide before handoff)
 - ⬜ Security & compliance: encryption at rest/in transit, privilege considerations, data retention/deletion policy, audit logging

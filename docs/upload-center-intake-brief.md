@@ -1,4 +1,4 @@
-# Upload Center — Brief for the Intake Project
+# Client Portal — Brief for the Intake Project (formerly "Upload Center")
 
 Paste-ready prompt for the intake mockups project. Everything below reflects decisions
 already made on the CRM side (see india-handoff-checklist.md); the intake work should
@@ -8,7 +8,7 @@ implement them, not reopen them.
 
 ## PROMPT (copy from here down)
 
-We're adding the post-submission **Upload Center** to the intake window. Context: the CRM
+We're adding the post-submission **Client Portal** to the intake window (this is the settled name — use it everywhere; the working name was "Upload Center"). Context: the CRM
 side (bkfl-crm-lite) is done through the full document-review loop — when the law firm
 reviews a submitted intake, their rejections and rulings build a "chase list" of missing
 documents, and the firm's follow-up emails carry a secure upload link. That link opens the
@@ -17,10 +17,10 @@ components, and tone as the intake form pages).
 
 ### Decisions already made — do not redesign these
 
-1. The Upload Center lives in THIS app as a second token-gated route (`/upload/{token}`) —
+1. The Client Portal lives in THIS app as a second token-gated route (`/portal/{token}`) —
    not a separate app. It reuses the intake's upload components and styling. It behaves like
    a password-reset page: nothing renders without a valid token.
-2. The intake FORM locks permanently at submission. The Upload Center is the only debtor
+2. The intake FORM locks permanently at submission. The Client Portal is the only debtor
    doorway afterward. Never link back into the form.
 3. Auth = magic link + one lightweight identity check: date of birth OR SSN last-4 (data
    the debtor gave at intake). No passwords, no account login.
@@ -39,7 +39,7 @@ components, and tone as the intake form pages).
 "To protect your information, confirm your date of birth." Friendly error state for a
 mismatch. A reassurance line: "This is a secure, private link that only works for you."
 
-**2. Upload Center (main page)** — greeting: "Hi Linda — here's what we still need to keep
+**2. Client Portal (main page)** — greeting: "Hi Linda — here's what we still need to keep
 your case moving." Then the outstanding list, one card per item, each with:
 - Item name and the firm's note, verbatim (this is the firm's rejection note or the
   debtor's own earlier reason — see demo data)
@@ -65,7 +65,7 @@ emails. No promises of approval.
 
 Where the intake currently tells the debtor their intake is complete/locked, change to:
 "Your intake is submitted and locked — nothing more to fill out. If we need any documents,
-we'll email you a secure upload link, and it stays open until we have everything."
+we'll email you a secure link to your client portal, and it stays open until we have everything."
 
 ### API contract the mock should visually match (build later, not now)
 
@@ -95,3 +95,9 @@ they wait for a firm ruling in the CRM (Excuse closes the item; Keep Chasing put
 on the follow-up list). `will_send_later` and `not_taken_yet` still chase automatically.
 Debtor-facing behavior in the intake is unchanged; only the described downstream
 handling needs the correction.
+
+### Link model — settled 2026-07-13
+
+ONE secure link per follow-up email, opening the Client Portal with every outstanding
+item. DOC-LOGIC's per-item single-link note (7/10) is superseded — update it alongside
+the §4 correction above.
