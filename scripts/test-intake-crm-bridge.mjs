@@ -15,6 +15,8 @@ assert.equal(feed.packages.length, 10)
 assert.ok(!publicPageSource.includes('mailto:'))
 assert.ok(!publicPageSource.includes('@mccunelegal.com'))
 assert.ok(!publicPageSource.includes('@uscourts.gov'))
+assert.ok(publicPageSource.includes('intake-bridge.js?v=20260713-intake-completion-v3'))
+assert.ok(publicPageSource.includes('intake-submissions.js?v=20260713-intake-completion-v3'))
 
 const requiredTraitCoverage = [
   'chapter_7',

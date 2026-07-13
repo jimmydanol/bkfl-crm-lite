@@ -13,6 +13,8 @@ The workflow is matter-based. Staff review one incomplete debtor matter at a tim
 
 The Jimmy branch uses deterministic fake clients and `@example.test` recipients. Email scheduling is simulated in browser storage; it does not contact Gmail, an email provider, a background scheduler, or a real debtor.
 
+GitHub Pages script URLs carry a release version so a cached page cannot silently combine a newer reviewer UI with an older bridge or fake-data feed. Update the version on every public workflow release.
+
 Production requires authenticated firm roles, tenant isolation, matter-scoped client access, private document storage, durable scheduling, delivery events, immutable audit records, and conflict-safe APIs. The Jimmy branch does not provide any of those controls and must never hold real client data.
 
 ## End-to-end flow
