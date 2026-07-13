@@ -72,6 +72,9 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ⬜ Responsive pass: the bottom two-column grid needs a stacked layout under ~900px (the portal is desktop-first by design for v1)
 - ⬜ Batch approve for AI-accepted documents (approve-all-clean) — deliberately EXCLUDED from v1: one click per document is the review-first promise; revisit only with real usage data
 
+## 4c. Open question for Kelly (settle, then lock in both repos)
+- ⬜ Follow-up link model: CRM design = ONE secure link per email opening the Upload Center with every outstanding item (recommended — debtors lose per-item links in threads; one link always shows the full list). Intake DOC-LOGIC (7/10 note) = a single-item upload link per open item. Pick one, update the loser''s doc.
+
 ## 5. Enterprise / Non-Functional (mostly undiscussed — decide before handoff)
 - ⬜ Security & compliance: encryption at rest/in transit, privilege considerations, data retention/deletion policy, audit logging
 - ✅ Multi-tenancy: DECIDED — the existing v1 platform is multi-tenant and that model carries forward; this project changes the windows (intake + CRM), adds document upload, and new rules on top of it
