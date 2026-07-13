@@ -2653,7 +2653,20 @@ function SettingsPage(){
 
       {settingsTab==="docs"&&(
         <div style={{maxWidth:900}}>
-          <p style={{fontSize:13,color:"#888",marginBottom:16}}>The master document rulebook — set by the AI intake and mirrored here read-only. The tiers below control what the debtor must do before submitting over in the intake; they don't change your review — every Document gets the same Approve / Reject / Excuse treatment on the Lead's Documents tab. Every case uses the first list (All Cases — Every Filing); married cases add spouse Documents: filing jointly adds all 7, filing individually adds only the 3 income Documents (the spouse isn't a filer, but their income counts for the means test). To change a tier or trigger, change the intake — the document id and tier are the shared contract between the two windows.</p>
+          <div style={{fontSize:13,color:"#666",marginBottom:16,lineHeight:1.65}}>
+            <div style={{fontWeight:700,color:"#434343",marginBottom:6}}>The master document rulebook</div>
+            {["Set by the AI intake and mirrored here read-only. To change a tier or trigger, change the intake.",
+              "Tiers govern what the debtor must do before submitting. Your review is the same for every Document: Approve, Reject, or Excuse.",
+              "Every case uses the first list (All Cases — Every Filing).",
+              "Married, filing jointly: all 7 spouse Documents are added.",
+              "Married, filing individually: only the 3 spouse income Documents are added — the spouse isn't a filer, but their income counts for the means test."
+            ].map((r,i)=>(
+              <div key={i} style={{display:"flex",gap:10,marginBottom:4}}>
+                <span style={{fontWeight:700,color:"#7a9c80",flexShrink:0,width:16,textAlign:"right"}}>{i+1}.</span>
+                <span>{r}</span>
+              </div>
+            ))}
+          </div>
           <div style={{display:"flex",gap:16,flexWrap:"wrap",marginBottom:16,fontSize:12,color:"#666"}}>
             <span><span style={{padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:700,background:"#fde8e8",color:"#c0392b",border:"1px solid #f5b7b1",marginRight:6}}>Required to Submit</span>The intake will not let the debtor submit without it.</span>
             <span><span style={{padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:700,background:"#fef3cd",color:"#856404",border:"1px solid #ffc107",marginRight:6}}>Upload or Reason</span>The debtor uploads it or gives a reason — never blocks submission; reasons come to you for a ruling.</span>
