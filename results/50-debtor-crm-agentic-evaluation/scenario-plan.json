@@ -21,7 +21,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -47,7 +50,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -73,7 +79,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -99,7 +108,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -125,7 +137,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -151,7 +166,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -177,7 +195,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -203,7 +224,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -229,7 +253,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": true
+      "businessDebt": true,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -255,7 +282,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": true
     },
     "syntheticOnly": true
   },
@@ -281,7 +311,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -307,7 +340,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -333,7 +369,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": true,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -359,7 +398,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -385,7 +427,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -411,7 +456,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -437,7 +485,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -463,7 +514,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": true
+      "businessDebt": true,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -489,7 +543,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -515,7 +572,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": true
     },
     "syntheticOnly": true
   },
@@ -541,7 +601,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -567,7 +630,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -593,7 +659,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -619,7 +688,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -645,7 +717,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -671,7 +746,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": true,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -697,7 +775,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": true
+      "businessDebt": true,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -723,7 +804,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -749,7 +833,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -775,7 +862,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": true
     },
     "syntheticOnly": true
   },
@@ -801,7 +891,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -827,7 +920,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -853,7 +949,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -879,7 +978,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -905,7 +1007,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -931,7 +1036,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": true
+      "businessDebt": true,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -957,7 +1065,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -983,7 +1094,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1009,7 +1123,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": true,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1035,7 +1152,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": true
     },
     "syntheticOnly": true
   },
@@ -1061,7 +1181,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1087,7 +1210,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1113,7 +1239,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1139,7 +1268,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1165,7 +1297,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": true
+      "businessDebt": true,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1191,7 +1326,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1217,7 +1355,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1243,7 +1384,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": true,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1269,7 +1413,10 @@
       "bankAccount": false,
       "taxDebt": true,
       "studentLoans": false,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": false
     },
     "syntheticOnly": true
   },
@@ -1295,7 +1442,10 @@
       "bankAccount": true,
       "taxDebt": false,
       "studentLoans": true,
-      "businessDebt": false
+      "businessDebt": false,
+      "jointHousehold": false,
+      "urgentDeadline": false,
+      "unreadableDocument": true
     },
     "syntheticOnly": true
   }

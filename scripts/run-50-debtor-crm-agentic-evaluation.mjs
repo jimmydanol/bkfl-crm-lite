@@ -2,6 +2,10 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
+await import('../prototype-case-contract.js')
+
+const CASE_ENGINE = globalThis.BKFLPrototypeCase
+
 export const EVALUATION_ID = 'bkfl-50x-2026-07-13'
 export const CRM_URL = 'https://mmccune22.github.io/bkfl-crm-lite/'
 export const INTAKE_BASE_URL = 'https://mmccune22.github.io/mccune-legal-intake-mockups/Intake%20Pages/'
@@ -48,39 +52,7 @@ const hashText = (value) => createHash('sha256').update(value).digest('hex')
 const ratio = (numerator, denominator) => denominator ? numerator / denominator : 1
 
 export function generateScenarios(count = 50) {
-  return Array.from({ length: count }, (_, index) => {
-    const number = index + 1
-    const firstName = FIRST_NAMES[index % FIRST_NAMES.length]
-    const lastName = `Synthetic${pad(number, 3)}`
-    const completionTarget = Number((0.76 + ((number * 7) % 25) / 100).toFixed(2))
-    const tier2Uploads = completionTarget >= 0.96 ? 3 : completionTarget >= 0.86 ? 2 : 1
-    return {
-      scenarioId: `${EVALUATION_ID}-${pad(number, 3)}`,
-      number,
-      firstName,
-      lastName,
-      fullName: `${firstName} ${lastName}`,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.test`,
-      phone: `(303) 555-${pad(1000 + number, 4)}`,
-      password: `SyntheticOnly!${pad(number, 2)}`,
-      completionTarget,
-      tier2Uploads,
-      profile: {
-        employed: number % 5 !== 0,
-        otherIncome: number % 4 === 0,
-        dependents: number % 3 === 0,
-        priorBankruptcy: number % 11 === 0,
-        homeowner: number % 6 === 0,
-        vehicle: number % 3 !== 1,
-        cashOnHand: number % 2 === 0,
-        bankAccount: number % 7 !== 0,
-        taxDebt: number % 7 === 0,
-        studentLoans: number % 5 === 0,
-        businessDebt: number % 9 === 0,
-      },
-      syntheticOnly: true,
-    }
-  })
+  return CASE_ENGINE.generateScenarios(count)
 }
 
 async function countOne(locator, label) {
@@ -579,6 +551,7 @@ export function summarizeResults(results) {
   const failed = results.filter((item) => item.status !== 'completed')
   const avg = (values) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0
   const signatures = new Set(completed.map((item) => JSON.stringify(item.crmDocuments.initialMissing)))
+  const documentRequirementSignatures = new Set(completed.map((item) => item.crmDocuments.documentRequirementSignature).filter(Boolean))
   return {
     evaluationId: EVALUATION_ID,
     generatedAt: isoNow(),
@@ -598,8 +571,10 @@ export function summarizeResults(results) {
     totalSyntheticDocumentUploads: completed.reduce((sum, item) => sum + item.intake.documents.uploadedTotal, 0),
     totalMissingDocumentReasons: completed.reduce((sum, item) => sum + item.intake.documents.tier2Reasoned, 0),
     crmMissingSignatureVariants: signatures.size,
+    documentRequirementSignatureVariants: documentRequirementSignatures.size,
     crmMissingSignature: completed[0]?.crmDocuments.initialMissing || [],
     allCrmReviewsReachedReady: completed.length === 50 && completed.every((item) => item.crmDocuments.finalStage === 'Ready for Petition Prep'),
+    allCrmReviewsPassedExplicitReadinessGates: completed.length === 50 && completed.every((item) => item.crmDocuments.finalReadiness?.ready),
     actualFileBytesUploaded: false,
     externalMessagesSent: false,
     productionSystemsMutated: false,
@@ -670,6 +645,11 @@ export async function loadLiveSourceInventory() {
 }
 
 export function buildSourceBackedResult(scenario, inventory) {
+  const intakePackage = CASE_ENGINE.buildIntakePackage(scenario)
+  const importedLead = CASE_ENGINE.upsertLeadBySubmission([], intakePackage)[0]
+  const initialReadiness = CASE_ENGINE.evaluateReadiness(importedLead)
+  const resolvedLead = CASE_ENGINE.resolveForAcceptance(importedLead)
+  const finalReadiness = CASE_ENGINE.evaluateReadiness(resolvedLead)
   const pageMetrics = INTAKE_PAGES.map((pageName) => {
     const page = inventory.intakePages.find((item) => item.pageName === pageName)
     if (!page) throw new Error(`Missing source inventory for ${pageName}`)
@@ -688,9 +668,11 @@ export function buildSourceBackedResult(scenario, inventory) {
     acc.completed += page.modeledCompletedControls
     return acc
   }, { controls: 0, completed: 0 })
-  const requiredUploaded = 4
-  const tier2Uploaded = scenario.tier2Uploads
-  const tier2Reasoned = 3 - scenario.tier2Uploads
+  const uploadedRequirements = intakePackage.documentRequirements.filter((item) => ['ai_accepted', 'ai_flagged'].includes(item.status))
+  const reasonedRequirements = intakePackage.documentRequirements.filter((item) => item.status === 'reason_given')
+  const requiredUploaded = uploadedRequirements.filter((item) => item.requirementClass === 'required').length
+  const tier2Uploaded = uploadedRequirements.filter((item) => item.requirementClass !== 'required').length
+  const tier2Reasoned = reasonedRequirements.length
   const optionalUploaded = scenario.number % 4 === 0 ? 1 : 0
   const dashboardStages = [1, 2, 3, 4].map((stageNumber) => ({
     stageNumber,
@@ -715,31 +697,40 @@ export function buildSourceBackedResult(scenario, inventory) {
       observedControlCompletion: Number(ratio(totals.completed, totals.controls).toFixed(3)),
       documents: {
         requiredUploaded,
-        tier2Total: 3,
+        tier2Total: intakePackage.documentRequirements.filter((item) => item.requirementClass !== 'required').length,
         tier2Uploaded,
         tier2Reasoned,
         optionalUploaded,
         uploadedTotal: requiredUploaded + tier2Uploaded + optionalUploaded,
-        resolvedRequiredTotal: requiredUploaded + tier2Uploaded + tier2Reasoned,
+        resolvedRequiredTotal: intakePackage.documentRequirements.length,
         confirmed: true,
         actualFileBytesUploaded: false,
         evidenceType: 'deterministic replay of the mockup upload-button and missing-reason states',
       },
     },
     crmDocuments: {
-      initialToReviewCount: REVIEW_DOCUMENTS.length,
-      initialToReview: REVIEW_DOCUMENTS,
-      initialMissingCount: MISSING_DOCUMENTS.length,
-      initialMissing: MISSING_DOCUMENTS,
-      approvedCount: 4,
-      approveAnywayCount: 1,
-      excusedCount: 3,
-      finalStage: 'Ready for Petition Prep',
+      initialToReviewCount: uploadedRequirements.length,
+      initialToReview: uploadedRequirements.map((item) => `${item.requirementId}:${item.status}`),
+      initialMissingCount: intakePackage.documentRequirements.length,
+      initialMissing: intakePackage.documentRequirements.map((item) => `${item.requirementId}:${item.status}`),
+      documentRequirementSignature: intakePackage.documentRequirements.map((item) => item.requirementId).sort().join('|'),
+      approvedCount: resolvedLead.docChecklist.filter((item) => item.status === 'approved').length,
+      approveAnywayCount: resolvedLead.docChecklist.filter((item) => item.decision?.action === 'approve_anyway').length,
+      excusedCount: resolvedLead.docChecklist.filter((item) => item.status === 'excused').length,
+      initialReadiness,
+      finalReadiness,
+      finalStage: resolvedLead.leadStage,
       actualFileBytesUploaded: false,
-      evidenceType: 'deterministic replay of the fixed CRM simulated-submission package',
-      criticalObservation: 'The same four review items and three missing items appear regardless of Intake scenario data.',
+      evidenceType: 'deterministic replay of the versioned case-specific Intake Package contract',
+      criticalObservation: 'Document requirements, review states, and readiness blockers are derived from the synthetic case record.',
     },
-    handoffMode: 'CRM Simulate Submission (dev); no live Intake-to-CRM data bridge',
+    intakePackage: {
+      schemaVersion: intakePackage.schemaVersion,
+      submissionId: intakePackage.submissionId,
+      syntheticOnly: intakePackage.syntheticOnly,
+      triage: intakePackage.triage,
+    },
+    handoffMode: 'Versioned synthetic Intake Package imported idempotently into the CRM model',
     productionSystemsMutated: false,
     externalMessagesSent: false,
   }

@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<script src="./prototype-case-contract.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;}
@@ -19,6 +20,10 @@ body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#
 input,select,textarea,button{font-family:inherit;}
 a{text-decoration:none;}
 @keyframes bkflPulse{0%{box-shadow:0 0 0 0 rgba(122,156,128,0.55);}70%{box-shadow:0 0 0 11px rgba(122,156,128,0);}100%{box-shadow:0 0 0 0 rgba(122,156,128,0);}}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #214e5f;outline-offset:2px;}
+.prototype-badge{position:fixed;right:16px;bottom:14px;z-index:9998;background:#214e5f;color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:0 4px 16px rgba(0,0,0,.2);border-radius:999px;padding:7px 13px;font-size:11px;font-weight:700;letter-spacing:.2px;}
+.triage-grid{display:grid;grid-template-columns:minmax(180px,1.2fr) repeat(5,minmax(80px,.55fr));gap:8px;align-items:center;}
+@media(max-width:800px){aside{width:68px!important}.app-shell{margin-left:68px!important;min-width:0!important;width:calc(100vw - 68px)!important;max-width:calc(100vw - 68px)!important}.prototype-badge{right:8px;bottom:8px;max-width:210px;text-align:center}.triage-grid{grid-template-columns:1fr 1fr}.triage-grid .triage-name{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -26,6 +31,7 @@ a{text-decoration:none;}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
+const CASE_ENGINE=window.BKFLPrototypeCase;
 
 /* ════════════════════════════════════════════════════════════════
    DEMO DATA
@@ -735,11 +741,11 @@ function StatusBadge({status}){
   return <span style={{background:c.bg,color:c.text,border:"1px solid "+c.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{status}</span>;
 }
 
-const isPendingRuling=(d)=>d.status==="reason_given"&&REVIEW_REASONS.includes(d.reason);
+const isPendingRuling=(d)=>(d.status==="reason_given"&&REVIEW_REASONS.includes(d.reason))||d.status==="exception_pending_attorney";
 const isChaseDoc=(d)=>d.status==="open"||(d.status==="reason_given"&&CHASE_REASONS.includes(d.reason));
 const isUploadedReview=(d)=>d.status==="ai_accepted"||d.status==="ai_flagged";
 const docReviewDone=(cl)=>!!(cl&&cl.length)&&!cl.some(d=>isUploadedReview(d)||isPendingRuling(d));
-const isPrepReady=(cl)=>!!(cl&&cl.length)&&cl.every(d=>d.status==="approved"||d.status==="excused");
+const isPrepReady=(lead)=>!!(CASE_ENGINE&&CASE_ENGINE.evaluateReadiness(lead).ready);
 const prepAge=(l)=>{if(!l.prepReadyDate)return"\u2014";const d=Math.floor((Date.now()-new Date(l.prepReadyDate+"T00:00:00").getTime())/86400000);return d<=0?"Ready today":"Ready "+d+(d===1?" day":" days");};
 
 function StageBadge({stage}){
@@ -747,6 +753,28 @@ function StageBadge({stage}){
   const sc=leadStageColors[stage]||{bg:"#E7EAE5",text:"#7A9C80",border:"#9bba9f"};
   return <span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500}}>{stage}</span>;
 }
+
+function ReadinessPanel({lead,compact=false,onReviewUpdate}){
+  const readiness=CASE_ENGINE.evaluateReadiness(lead);
+  const pkg=lead&&lead.intakePackage;
+  const review=(lead&&lead.caseReview)||{};
+  return <div data-testid="readiness-panel" style={{background:readiness.ready?"#eef6ef":"#fffaf0",border:"1px solid "+(readiness.ready?"#9bba9f":"#e5cf8f"),borderRadius:8,padding:compact?"10px 12px":"14px 16px",marginBottom:compact?10:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",marginBottom:compact?6:10}}>
+      <strong style={{fontSize:13,color:readiness.ready?"#3d5c43":"#856404"}}>Readiness gates</strong>
+      <span style={{fontSize:11,fontWeight:700,color:readiness.ready?"#3d5c43":"#a06b00"}}>{readiness.ready?"All gates passed":readiness.blockerCount+" blocker"+(readiness.blockerCount===1?"":"s")}</span>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:compact?"1fr":"repeat(auto-fit,minmax(190px,1fr))",gap:6}}>
+      {readiness.gates.map(g=><div key={g.key} style={{display:"flex",alignItems:"flex-start",gap:7,fontSize:11.5,color:g.passed?"#3d5c43":"#76560a"}}><span aria-hidden="true" style={{fontWeight:900}}>{g.passed?"✓":"!"}</span><span><strong>{g.label}</strong><br/><span style={{color:"#777"}}>{g.detail}</span></span></div>)}
+    </div>
+    {onReviewUpdate&&pkg&&pkg.schemaVersion===CASE_ENGINE.SCHEMA_VERSION&&!readiness.ready&&<div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:10,paddingTop:9,borderTop:"1px solid rgba(133,100,4,.18)"}}>
+      {((pkg.missingAnswers||[]).some(x=>!(review.resolvedMissingAnswerIds||[]).includes(x.id))||(pkg.contradictions||[]).some(x=>!(review.resolvedContradictionIds||[]).includes(x.id)))&&<button onClick={()=>onReviewUpdate({...review,resolvedMissingAnswerIds:(pkg.missingAnswers||[]).map(x=>x.id),resolvedContradictionIds:(pkg.contradictions||[]).map(x=>x.id)})} style={{padding:"5px 9px",fontSize:10.5,fontWeight:700,border:"1px solid #e5cf8f",background:"#fff",color:"#76560a",borderRadius:5,cursor:"pointer"}}>Record answer/conflict resolution</button>}
+      {!review.staffReviewComplete&&<button onClick={()=>onReviewUpdate({...review,staffReviewComplete:true})} style={{padding:"5px 9px",fontSize:10.5,fontWeight:700,border:"1px solid #9bba9f",background:"#fff",color:"#3d5c43",borderRadius:5,cursor:"pointer"}}>Complete staff review</button>}
+      {!review.attorneyReviewComplete&&<button onClick={()=>onReviewUpdate({...review,attorneyReviewComplete:true})} style={{padding:"5px 9px",fontSize:10.5,fontWeight:700,border:"1px solid #214e5f",background:"#fff",color:"#214e5f",borderRadius:5,cursor:"pointer"}}>Complete attorney review</button>}
+    </div>}
+  </div>;
+}
+
+function PrototypeBadge(){return <div className="prototype-badge" role="status">Synthetic prototype — no real client data</div>;}
 
 /* ─── SIDEBAR ─── */
 const sidebarItems=[
@@ -1132,6 +1160,10 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const [leavingDir,setLeavingDir]=useState("home");
   const [rejectingDoc,setRejectingDoc]=useState(null);
   const [rejectNote,setRejectNote]=useState("");
+  const [rulingDoc,setRulingDoc]=useState(null);
+  const [rulingAction,setRulingAction]=useState("");
+  const [rulingReason,setRulingReason]=useState("");
+  const [decisionError,setDecisionError]=useState("");
   const [addingRequest,setAddingRequest]=useState(false);
   const [requestDocId,setRequestDocId]=useState("");
   const [requestCustom,setRequestCustom]=useState("");
@@ -1203,11 +1235,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
         _tks=[{id:Date.now()+7,title:"Approve document follow-up request",due:_today,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},..._tks];
       }
       m={...m,tasks:_tks};
-      const ready=isPrepReady(m.docChecklist);
+      const ready=isPrepReady(m);
       if(ready&&m.leadStage==="Intake Submitted"){
-        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"Document checklist complete \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"All Intake, document, staff, and attorney readiness gates passed \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
       }else if(!ready&&m.leadStage==="Ready for Petition Prep"){
-        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"New Document activity reopened the checklist \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"A readiness gate reopened \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
       }
     }
     return m;
@@ -1275,16 +1307,15 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           {lead.dashHidden&&<button onClick={()=>update({dashHidden:false})} title="This Lead is hidden from the Dashboard. Click to show it there again." style={{fontSize:11,fontWeight:600,color:"#888",background:"#f5f5f5",border:"1px solid #ddd",borderRadius:5,padding:"3px 10px",cursor:"pointer"}}>Hidden from Dashboard {"\u2014"} click to restore</button>}
         </div>
         <div style={{display:"flex",gap:8,marginBottom:16,paddingLeft:32}}>
-          {lead.leadStage==="Intake Sent"&&<button onClick={()=>{
+          {lead.leadStage==="Intake Sent"&&<span style={{display:"inline-flex",alignItems:"center",gap:8,padding:"5px 7px",border:"1px dashed #b8963e",borderRadius:7,background:"#fffaf0"}}><span style={{fontSize:10,fontWeight:800,color:"#856404",textTransform:"uppercase"}}>Prototype tools</span><button onClick={()=>{
             const _t=new Date().toISOString().split("T")[0];
-            const _week=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
-            const _tomorrow=new Date(Date.now()+86400000).toISOString().split("T")[0];
-            const closed=(lead.tasks||[]).map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.stage==="Intake Sent"?{...tk,status:"Completed",completedDate:_t,completedBy:"System — intake submitted"}:tk);
-            const genChecklist=(lead.docChecklist&&lead.docChecklist.length)?lead.docChecklist:DOC_TYPES.filter(d=>d.group==="all"&&d.when==="Always"&&d.req!=="optional").map((d,i)=>d.req==="required"?(d.id==="bank_statements"?{id:i+1,docId:d.id,status:"ai_flagged",aiNote:"Only 3 of 6 months present",fileName:"bank-statements.pdf",date:_t}:{id:i+1,docId:d.id,status:"ai_accepted",aiNote:"Passed AI analysis",fileName:d.id.replace(/_/g,"-")+".pdf",date:_t}):{id:i+1,docId:d.id,status:"open"});
-            const genPkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||{submitted:new Date().toLocaleString("en-US",{month:"numeric",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}),court:"Central District of California",goals:"(Demo submission — goals captured from the intake form)",concerns:"—",household:{maritalStatus:"—",jointFiling:"No",dependents:0,debtors:[{name:lead.firstName+" "+lead.lastName,dob:"—",ssn:"—",email:lead.email||"—",phone:lead.phone||"—",address:"—"}]},income:[],expenses:[],assets:[],debts:[],counseling:"—",sofa:{answers:{},events:[]},flags:[]};
-            const _nrev=genChecklist.filter(d=>d.status==="ai_accepted"||d.status==="ai_flagged").length;
-            update({leadStage:"Intake Submitted",intakeSubmittedDate:_t,intakePackage:genPkg,docChecklist:genChecklist,tasks:[...(taskEnabled("Review & approve AI Intake Summary email")?[{id:Date.now()+2,title:"Review & approve AI Intake Summary email",due:_t,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"}]:[]),...(taskEnabled("Review Documents — initial intake submission")&&_nrev>0?[{id:Date.now()+4,title:"Review Documents — initial intake submission",due:_t,status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true}]:[]),...closed],timeline:[{id:Date.now()+1,date:_t,action:"Intake submitted",detail:"Status: Intake Sent → Intake Submitted",user:"System"},...(lead.timeline||[])]});
-          }} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#fff",color:"#888",border:"1px dashed #bbb"}}>Simulate Submission (dev)</button>}
+            const scenario=CASE_ENGINE.scenarioForLead(lead);
+            const pkg=CASE_ENGINE.buildIntakePackage(scenario);
+            const imported=CASE_ENGINE.importPackageToLead(lead,pkg);
+            const importedReviewCount=imported.docChecklist.filter(d=>d.status==="ai_accepted"||d.status==="ai_flagged").length;
+            const importedClosed=(lead.tasks||[]).map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.stage==="Intake Sent"?{...tk,status:"Completed",completedDate:_t,completedBy:"Synthetic prototype import"}:tk);
+            update({...imported,tasks:[...(taskEnabled("Review & approve AI Intake Summary email")?[{id:Date.now()+2,title:"Review & approve AI Intake Summary email",due:_t,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"}]:[]),...(taskEnabled("Review Documents — initial intake submission")&&importedReviewCount>0?[{id:Date.now()+4,title:"Review Documents — initial intake submission",due:_t,status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true}]:[]),...importedClosed],timeline:[{id:Date.now()+1,date:_t,action:"Synthetic Intake Package imported",detail:pkg.submissionId+" — version "+pkg.schemaVersion,user:"Prototype"},...(lead.timeline||[])]});
+          }} style={{padding:"5px 11px",borderRadius:6,fontSize:11.5,fontWeight:700,cursor:"pointer",background:"#fff",color:"#856404",border:"1px solid #e5cf8f"}}>Generate Synthetic Intake Package</button></span>}
           <button onClick={()=>openEdit(lead)} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#7A9C80",color:"#fff",border:"none"}}>Edit Lead</button>
         </div>
         <div style={{display:"flex",gap:0,overflowX:"auto",paddingLeft:32}}>
@@ -1294,6 +1325,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
 
       <div style={{padding:"20px 28px",flex:1,background:"#FBFAF7",overflowY:"auto"}}>
         {tab==="dashboard"&&(<div>
+          <ReadinessPanel lead={lead} onReviewUpdate={caseReview=>update({caseReview,docChecklist:lead.docChecklist||[]})}/>
           <Widget title="Lead Details">
             <DetailRow label="First name" value={lead.firstName}/>
             <DetailRow label="Last name" value={lead.lastName}/>
@@ -1333,11 +1365,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
 
         {tab==="documents"&&(()=>{
           const checklist=lead.docChecklist||[];
-          const dName=(d)=>d.customName||docMeta(d.docId).name;
+          const dName=(d)=>d.name||d.customName||docMeta(d.docId).name;
           const buckets={
             home:checklist.filter(d=>d.status==="approved"),
-            required:checklist.filter(d=>isUploadedReview(d)&&docMeta(d.docId).req==="required"),
-            requested:checklist.filter(d=>isUploadedReview(d)&&docMeta(d.docId).req!=="required"),
+            required:checklist.filter(d=>isUploadedReview(d)&&(d.requirementClass==="required"||(!d.requirementClass&&docMeta(d.docId).req==="required"))),
+            requested:checklist.filter(d=>isUploadedReview(d)&&(d.requirementClass!=="required"||(!d.requirementClass&&docMeta(d.docId).req!=="required"))),
             missing:checklist.filter(d=>isChaseDoc(d)||isPendingRuling(d)),
             excused:checklist.filter(d=>d.status==="excused"),
             total:checklist,
@@ -1362,13 +1394,30 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             update({docChecklist:next,tasks:tk2});
           };
           const animatePatch=(id,patch)=>{setLeavingDoc(id);setTimeout(()=>{setLeavingDoc(null);patchDoc(id,patch);},240);};
+          const contractDecision=(d,action,options,dir)=>{
+            try{
+              setDecisionError("");
+              if(!lead.intakePackage||lead.intakePackage.schemaVersion!==CASE_ENGINE.SCHEMA_VERSION){
+                const legacyPatch=action==="approve"||action==="approve_anyway"?{status:"approved",approvedDate:new Date().toISOString().split("T")[0]}:action==="reject"?{status:"open",reason:"rejected",note:options.reason,fileName:undefined}:action==="excuse"||action==="approve_exception"?{status:"excused",reason:options.reason,excusedDate:new Date().toISOString().split("T")[0]}:{};
+                decide(d.id,legacyPatch,dir||"home");return;
+              }
+              const decided=CASE_ENGINE.applyDocumentDecision({...lead,docChecklist:checklist},d.requirementId||d.docId,action,options);
+              flyGhost(d.id,dir||"home");
+              setLeavingDir(dir||"home");setLeavingDoc(d.id);
+              setTimeout(()=>{setLeavingDoc(null);update({docChecklist:decided.docChecklist});},240);
+            }catch(err){setDecisionError(err.message||String(err));}
+          };
+          const contractUpload=(d,fileName)=>{
+            if(!lead.intakePackage||lead.intakePackage.schemaVersion!==CASE_ENGINE.SCHEMA_VERSION){patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName,date:today,reason:undefined,note:undefined});return;}
+            try{const uploaded=CASE_ENGINE.applyDocumentDecision({...lead,docChecklist:checklist},d.requirementId||d.docId,"upload",{fileName,reviewer:CURRENT_USER,role:"Staff"});update({docChecklist:uploaded.docChecklist});}catch(err){setDecisionError(err.message||String(err));}
+          };
           const pickFile=(cb)=>{const el=document.createElement("input");el.type="file";el.onchange=()=>{const fl=el.files&&el.files[0];if(fl)cb(fl.name);};el.click();};
           const today=new Date().toISOString().split("T")[0];
           const chase=buckets.missing.filter(d=>!isPendingRuling(d));
           const pendingRulings=buckets.missing.filter(isPendingRuling).length;
           const toReview=buckets.required.length+buckets.requested.length;
           const availableToRequest=DOC_TYPES.filter(dt=>!checklist.some(c=>c.docId===dt.id));
-          const saveReject=(d)=>{flyGhost(d.id,"chase");setLeavingDir("chase");animatePatch(d.id,{status:"open",reason:"rejected",note:rejectNote||"Needs to be re-uploaded",rejectedFile:d.fileName,fileName:undefined,date:undefined,aiNote:undefined});setRejectingDoc(null);setRejectNote("");};
+          const saveReject=(d)=>{if(!rejectNote.trim()){setDecisionError("Reject requires a debtor-facing reason.");return;}contractDecision(d,"reject",{reason:rejectNote.trim(),reviewer:CURRENT_USER,role:"Staff"},"chase");setRejectingDoc(null);setRejectNote("");};
           const addRequest=()=>{
             if(requestDocId==="custom"&&!requestCustom.trim())return;
             if(!requestDocId)return;
@@ -1405,10 +1454,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             setFollowUpPreview(false);
             setFollowUpSentAt(today);
           };
-          const required=checklist.filter(d=>docMeta(d.docId).req==="required");
-          const others=checklist.filter(d=>docMeta(d.docId).req!=="required");
+          const required=checklist.filter(d=>d.requirementClass==="required"||(!d.requirementClass&&docMeta(d.docId).req==="required"));
+          const others=checklist.filter(d=>d.requirementClass!=="required"&&(!d.requirementClass?docMeta(d.docId).req!=="required":true));
           const needsDecision=(d)=>isUploadedReview(d)||isPendingRuling(d);
           const queue=[...required,...others].filter(needsDecision);
+          const bulkEligible=CASE_ENGINE.bulkApprovableDocuments(checklist);
           const flyGhost=(docId,dir)=>{
             try{
               const card=document.getElementById("doccard-"+docId)||document.getElementById("chasecard-"+docId);
@@ -1461,12 +1511,21 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           };
           const btn={padding:"4px 10px",fontSize:11,fontWeight:600,borderRadius:5,cursor:"pointer",border:"1px solid #d0d0d0",background:"#fff",color:"#555"};
           return(<div>
+            <ReadinessPanel lead={lead} onReviewUpdate={caseReview=>update({caseReview,docChecklist:lead.docChecklist||[]})}/>
+            {decisionError&&<div role="alert" style={{background:"#fde8e8",color:"#a94438",border:"1px solid #f5b7b1",borderRadius:7,padding:"9px 12px",fontSize:12,marginBottom:10}}>{decisionError}</div>}
+            {rulingDoc&&<div role="dialog" aria-label="Document decision rationale" style={{background:"#fff",border:"2px solid #214e5f",borderRadius:8,padding:14,marginBottom:12,boxShadow:"0 4px 18px rgba(0,0,0,.08)"}}>
+              <div style={{fontSize:13,fontWeight:800,color:"#214e5f",marginBottom:5}}>{rulingAction==="approve_anyway"?"Approve AI-flagged item":rulingAction==="approve_exception"?"Attorney exception approval":"Excuse case-specific requirement"}</div>
+              <div style={{fontSize:11.5,color:"#666",marginBottom:8}}>{dName(rulingDoc)} · a recorded rationale and reviewer role are required.</div>
+              <textarea autoFocus value={rulingReason} onChange={e=>setRulingReason(e.target.value)} rows={2} placeholder="Enter the case-specific rationale…" style={{width:"100%",padding:9,border:"1px solid #9aa",borderRadius:6,fontSize:12,resize:"vertical"}}/>
+              <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginTop:8}}><button onClick={()=>{setRulingDoc(null);setRulingReason("");}} style={btn}>Cancel</button><button onClick={()=>{if(!rulingReason.trim()){setDecisionError("A recorded rationale is required.");return;}const attorney=rulingAction!=="excuse";contractDecision(rulingDoc,rulingAction,{reason:rulingReason.trim(),reviewer:attorney?"Synthetic Attorney":CURRENT_USER,role:attorney?"Attorney":"Staff"},"home");setRulingDoc(null);setRulingReason("");}} style={{...btn,background:"#214e5f",color:"#fff",border:"none"}}>Record decision</button></div>
+            </div>}
             <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16,maxWidth:1240,marginLeft:"auto",marginRight:"auto"}}>
               <div style={{padding:"13px 20px",borderBottom:"1px solid #eee",textAlign:"center",position:"relative"}}>
                 <span style={{fontSize:16,fontWeight:700,color:"#434343"}}>Document Review</span>
                 {queue.length>0
                   ?<span style={{marginLeft:10,background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>{queue.length} to review</span>
                   :checklist.length>0?<span style={{marginLeft:10,background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>review complete</span>:null}
+                {bulkEligible.length>0&&<button onClick={()=>{let next={...lead,docChecklist:checklist};bulkEligible.forEach(d=>{next=CASE_ENGINE.applyDocumentDecision(next,d.requirementId||d.docId,"approve",{reason:"Guarded low-risk bulk approval.",reviewer:CURRENT_USER,role:"Staff"});});update({docChecklist:next.docChecklist});}} title="Only low-risk AI-accepted items are eligible. Flagged, rejected, high-risk, and attorney-review items are excluded." style={{marginLeft:10,padding:"4px 9px",fontSize:10.5,fontWeight:700,border:"1px solid #9bba9f",borderRadius:5,background:"#eef6ef",color:"#3d5c43",cursor:"pointer"}}>Approve {bulkEligible.length} low-risk</button>}
               </div>
               {checklist.length>0&&<span style={{marginLeft:10,fontSize:12,color:"#999",whiteSpace:"nowrap"}}>{"\u00b7"} {checklist.length-queue.length} of {checklist.length} resolved</span>}
               {checklist.length===0?(
@@ -1500,17 +1559,24 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         {PdfBtn(d)}
                         <div style={{display:"flex",gap:6,flexShrink:0}}>
                           {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
-                            <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now()},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
+                            <button onClick={()=>d.status==="ai_flagged"?(setRulingDoc(d),setRulingAction("approve_anyway"),setRulingReason("")):contractDecision(d,"approve",{reason:"Reviewed synthetic document fixture.",reviewer:CURRENT_USER,role:"Staff"},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
                             <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
-                            <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Excuse</button>
+                            {d.waivable&&<button onClick={()=>{setRulingDoc(d);setRulingAction("excuse");setRulingReason("");}} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Excuse</button>}
                           </React.Fragment>}
                           {d.status==="reason_given"&&<React.Fragment>
-                            <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>
+                            {d.waivable?<button onClick={()=>{setRulingDoc(d);setRulingAction("excuse");setRulingReason("");}} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>:<span title="This requirement cannot be excused under the prototype contract." style={{fontSize:10.5,fontWeight:700,color:"#a94438"}}>Required</span>}
                             <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"chase")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"5px 11px",fontSize:11.5}}>Keep Chasing</button>
-                            <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
+                            <button onClick={()=>pickFile(nm=>contractUpload(d,nm))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
                           </React.Fragment>}
+                          {d.status==="exception_pending_attorney"&&<button onClick={()=>{setRulingDoc(d);setRulingAction("approve_exception");setRulingReason((d.decision&&d.decision.reason)||"");}} style={{...btn,background:"#214e5f",color:"#fff",border:"none",padding:"5px 11px",fontSize:11.5}}>Attorney approve exception</button>}
                         </div>
                       </div>
+                      {d.requirementClass&&<div style={{marginTop:7,paddingTop:7,borderTop:"1px solid #f0f0ed",fontSize:10.5,color:"#666",lineHeight:1.45}}>
+                        <span style={{fontWeight:800,textTransform:"uppercase",color:d.riskLevel==="high"?"#a94438":d.riskLevel==="medium"?"#856404":"#3d5c43"}}>{d.requirementClass} · {d.riskLevel} risk · {d.waivable?"waivable under review":"non-waivable"}</span>
+                        <div>{d.whyRequired}</div>
+                        <button onClick={()=>setTab("intake")} title={(d.sourceRefs||[]).map(s=>s.section+" · "+s.path).join("; ")} style={{border:"none",background:"none",padding:0,color:"#5a7c60",fontSize:10.5,fontWeight:700,cursor:"pointer",textDecoration:"underline",textAlign:"left"}}>View Intake source: {(d.sourceRefs||[]).map(s=>s.section+" · "+s.path).join("; ")||"No source reference"}</button>
+                        {d.ai&&<div style={{color:"#777"}}>AI: {d.ai.provider} / {d.ai.model} · confidence {Math.round((d.ai.confidence||0)*100)}% · {d.ai.uncertainty}</div>}
+                      </div>}
                       {rejectingDoc===d.id&&(
                         <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8}}>
                           <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
@@ -1567,8 +1633,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         <div style={{fontSize:13,fontWeight:600,color:"#434343",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</div>
                         <div title={d.note||""} style={{fontSize:11.5,color:"#999",margin:"3px 0 6px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={btn}>Upload</button>
-                          <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now(),note:undefined},"home")} style={btn}>Excuse</button>
+                          <button onClick={()=>pickFile(nm=>contractUpload(d,nm))} style={btn}>Upload</button>
+                          {d.waivable?<button onClick={()=>{setRulingDoc(d);setRulingAction("excuse");setRulingReason("");}} style={btn}>Excuse</button>:<span title="Non-waivable requirement" style={{fontSize:10.5,fontWeight:700,color:"#a94438",padding:"5px 0"}}>Required</span>}
                         </div>
                         </div>
                         {PdfBtn(d)}
@@ -1813,6 +1879,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const totAssets=(pkg.assets||[]).reduce((a,x)=>a+(x.value||0),0);
           const totDebt=(pkg.debts||[]).reduce((a,x)=>a+(x.balance||0),0);
           const sevColor={HIGH:"#dc3545",MEDIUM:"#F59E0B",INFO:"#7a9c80"};
+          const readiness=CASE_ENGINE.evaluateReadiness(lead);
+          const triage=pkg.triage||lead.triage||{completionPercentage:"—",complexity:["Legacy package"],missingAnswerCount:(pkg.missingAnswers||[]).length,contradictionCount:(pkg.contradictions||[]).length,urgentDeadlineCount:(pkg.urgentDeadlines||[]).length,highFlagCount:(pkg.flags||[]).filter(x=>x.severity==="HIGH").length,documentBlockerCount:cl.filter(d=>d.status!=="approved"&&d.status!=="excused").length,nextAction:"Review legacy package",responsibleRole:"Staff"};
           return(<div>
             {/* header band */}
             <div style={{background:"#dce8de",border:"1px solid #9bba9f",borderRadius:8,padding:"16px 24px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}>
@@ -1823,10 +1891,21 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                 {cl.length>0&&<span style={{background:"#fff",color:"#3d5c43",border:"1px solid #9bba9f",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>{docsIn} of {cl.length} documents</span>}
                 {(pkg.flags||[]).length>0&&<span style={{background:"#fef3cd",color:"#856404",border:"1px solid #ffc107",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>{pkg.flags.length} review flag{pkg.flags.length===1?"":"s"}</span>}
-                <span style={{background:"#7A9C80",color:"#fff",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>Ready for law firm review</span>
+                <span style={{background:readiness.ready?"#7A9C80":"#F59E0B",color:"#fff",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>{readiness.ready?"Ready for Petition Prep":readiness.blockerCount+" readiness blocker"+(readiness.blockerCount===1?"":"s")}</span>
                 <button onClick={printIntakePackage} style={{background:"#7a9c80",color:"#fff",border:"none",borderRadius:6,padding:"7px 16px",fontSize:12.5,fontWeight:700,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#5a7c60"} onMouseLeave={e=>e.currentTarget.style.background="#7a9c80"}>Save as PDF</button>
               </div>
             </div>
+
+            <ReadinessPanel lead={lead} onReviewUpdate={caseReview=>update({caseReview,docChecklist:lead.docChecklist||[]})}/>
+
+            <Sec title="Attorney / Paralegal Triage" right={(pkg.schemaVersion||"legacy package")+(pkg.submissionId?" · "+pkg.submissionId:"")}>
+              <div style={{padding:"14px 20px",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10}}>
+                {[['Completion',triage.completionPercentage+"%"],['Complexity',(triage.complexity||[]).join(', ')],['Missing answers',triage.missingAnswerCount],['Contradictions',triage.contradictionCount],['Urgent deadlines',triage.urgentDeadlineCount],['Document blockers',triage.documentBlockerCount]].map(([label,value])=><div key={label} style={{background:"#FBFAF7",border:"1px solid #eee",borderRadius:7,padding:"9px 11px"}}><div style={{fontSize:9.5,fontWeight:800,color:"#888",textTransform:"uppercase"}}>{label}</div><div style={{fontSize:13,fontWeight:700,color:"#434343",marginTop:3}}>{value}</div></div>)}
+              </div>
+              <div style={{padding:"12px 20px",borderTop:"1px solid #eee",fontSize:12.5,lineHeight:1.6}}><strong>Next action:</strong> {triage.nextAction} <span style={{marginLeft:8,padding:"2px 8px",borderRadius:10,background:"#e7eae5",fontSize:10.5,fontWeight:700}}>{triage.responsibleRole}</span></div>
+              {((pkg.missingAnswers||[]).length>0||(pkg.contradictions||[]).length>0||(pkg.urgentDeadlines||[]).length>0)&&<div style={{padding:"0 20px 14px",fontSize:11.5,color:"#666"}}>{[...(pkg.missingAnswers||[]),...(pkg.contradictions||[]),...(pkg.urgentDeadlines||[])].map(item=><div key={item.id} style={{marginTop:5}}>• {item.label} <span style={{color:"#7A9C80",fontWeight:600}}>Source: {(item.source||{}).section||"Intake"} · {(item.source||{}).path||"submitted field"}</span></div>)}</div>}
+              <div style={{padding:"9px 20px",background:"#fffaf0",borderTop:"1px solid #f0e2b6",fontSize:10.5,color:"#76560a"}}>Triage candidates are synthetic decision support, not legal conclusions. Source and uncertainty remain visible for human review.</div>
+            </Sec>
 
             <Sec title="Submission Summary" right={"Submitted "+(pkg.submitted||"—")}>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
@@ -2550,7 +2629,7 @@ function SettingsPage(){
             {name:"New Lead",desc:"A Contact and Lead exist, but the intake form has not been sent. Created manually by staff after a phone call, or automatically when a debtor first enters the system.",tasks:[{t:"Send the intake link",w:"Created with the Lead when the link isn\u2019t sent at creation. Completes automatically the moment the link is sent."}]},
             {name:"Intake Sent",desc:"The intake form link has been emailed to the debtor. Set automatically when the link is sent — by approving the send-intake Task, or at Lead creation with the send box checked.",tasks:[{t:"Approve follow-up email — intake not completed",w:"Created 1 week after the link is sent and repeats weekly until the debtor submits. The law firm approves the AI-drafted reminder email before it goes to the Lead."}]},
             {name:"Intake Submitted",desc:"The debtor's intake has been received. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Lead, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created the moment the initial Document review is complete and Documents are still missing. Repeats weekly until the chase list is empty — the law firm approves every request email before it goes out."}]},
-            {name:"Ready for Petition Prep",desc:"The finish line of this workflow. Every requested Document is Approved or Excused by your firm \u2014 nothing is awaiting upload, review, ruling, or follow-up. Set automatically the moment the Document checklist is complete; if new Document activity reopens the checklist (a new request, upload, or rejection), the Lead moves back to Intake Submitted automatically. The Stage shows how many days the case has been ready.",tasks:[],empty:"No automatic Tasks \u2014 the case is ready for petition prep."},
+            {name:"Ready for Petition Prep",desc:"The finish line of this workflow. Required Intake answers and contradictions are resolved, every applicable Document is approved or excused under the allowed rule, AI flags and high-risk exceptions are dispositioned, and staff plus attorney review gates are complete. Reopening any gate automatically returns the Lead to Intake Submitted. The Stage shows how many days the case has been ready.",tasks:[],empty:"No automatic Tasks \u2014 the case passed every readiness gate."},
           ].map(s=>{
             const sc=leadStageColors[s.name]||{bg:"#f5f5f5",border:"#999",text:"#555"};
             return(
@@ -2895,6 +2974,9 @@ function TaskApprovalModal({task,lead,onClose,onApprove,onOpenLead}){
 function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
   const [confirm,confirmModal]=useConfirm();
   const [taskModal,setTaskModal]=useState(null); /* an email-approval task opened as a draft */
+  const [inboxSort,setInboxSort]=useState("priority");
+  const [inboxFilter,setInboxFilter]=useState("all");
+  const triageFor=(l)=>l.triage||(l.intakePackage&&l.intakePackage.schemaVersion===CASE_ENGINE.SCHEMA_VERSION?CASE_ENGINE.buildTriage({...l.intakePackage,documentRequirements:l.docChecklist||l.intakePackage.documentRequirements||[]}):{completionPercentage:"—",complexity:["Legacy"],missingAnswerCount:0,contradictionCount:0,urgentDeadlineCount:0,highFlagCount:0,documentBlockerCount:(l.docChecklist||[]).filter(d=>d.status!=="approved"&&d.status!=="excused").length,nextAction:"Review legacy package",responsibleRole:"Staff"});
   const openTask=(t)=>{
     if(t.batchDigest){window.__leadTab="documents";setSelectedLead(t.leadId);setPage("lead-detail");return;}
     if(t.title==="Approve document follow-up request"){window.__leadTab="documents";window.__docFilter="missing";window.__openFollowUp=true;setSelectedLead(t.leadId);setPage("lead-detail");return;}
@@ -3008,7 +3090,8 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
 
       {/* ── Intake Inbox — submitted packages ready for review ── */}
       {(()=>{
-        const submitted=_.orderBy(leads.filter(l=>l.leadStage==="Intake Submitted"&&!l.dashHidden),"intakeSubmittedDate","desc");
+        const filtered=leads.filter(l=>l.leadStage==="Intake Submitted"&&!l.dashHidden).filter(l=>{const t=triageFor(l);return inboxFilter==="all"||(inboxFilter==="missing"&&t.missingAnswerCount>0)||(inboxFilter==="deadline"&&t.urgentDeadlineCount>0)||(inboxFilter==="flags"&&t.highFlagCount>0);});
+        const submitted=[...filtered].sort((a,b)=>{const ta=triageFor(a),tb=triageFor(b);if(inboxSort==="completion")return Number(ta.completionPercentage||0)-Number(tb.completionPercentage||0);if(inboxSort==="submitted")return String(b.intakeSubmittedDate||"").localeCompare(String(a.intakeSubmittedDate||""));const pa=ta.urgentDeadlineCount*100+ta.highFlagCount*20+ta.contradictionCount*10+ta.missingAnswerCount*5+ta.documentBlockerCount;const pb=tb.urgentDeadlineCount*100+tb.highFlagCount*20+tb.contradictionCount*10+tb.missingAnswerCount*5+tb.documentBlockerCount;return pb-pa;});
         return(
         <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:18}}>
           <div style={{padding:"14px 20px",background:"#dce8de",borderBottom:"2px solid #7A9C80",display:"flex",alignItems:"center",gap:10}}>
@@ -3019,12 +3102,24 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
             <span style={{marginLeft:"auto",width:120,color:"#3d5c43",fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px",opacity:0.85}}>Submitted Date</span>
             <span style={{width:22}}/>
           </div>
-          <div style={{maxHeight:172,overflowY:"auto"}}>
+          <div style={{display:"flex",gap:8,alignItems:"center",padding:"9px 20px",borderBottom:"1px solid #eee",background:"#fbfbf9",flexWrap:"wrap"}}>
+            <label style={{fontSize:10.5,fontWeight:700,color:"#666"}}>Filter <select aria-label="Filter Intake Inbox" value={inboxFilter} onChange={e=>setInboxFilter(e.target.value)} style={{marginLeft:5,padding:"4px 7px",border:"1px solid #ccc",borderRadius:5,fontSize:11}}><option value="all">All submitted</option><option value="missing">Missing answers</option><option value="deadline">Urgent deadlines</option><option value="flags">High flags</option></select></label>
+            <label style={{fontSize:10.5,fontWeight:700,color:"#666"}}>Sort <select aria-label="Sort Intake Inbox" value={inboxSort} onChange={e=>setInboxSort(e.target.value)} style={{marginLeft:5,padding:"4px 7px",border:"1px solid #ccc",borderRadius:5,fontSize:11}}><option value="priority">Review priority</option><option value="completion">Lowest completion</option><option value="submitted">Newest submitted</option></select></label>
+            <span style={{fontSize:10.5,color:"#777"}}>Case-specific triage from one versioned synthetic Intake Package.</span>
+          </div>
+          <div style={{maxHeight:320,overflowY:"auto"}}>
           {submitted.length===0&&<div style={{fontSize:12,color:"#ccc",textAlign:"center",padding:"16px 0"}}>No submitted intakes waiting for review</div>}
           {submitted.map(l=>{
+            const t=triageFor(l);
             return(
-            <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 20px",borderBottom:"1px solid #f5f5f5",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f9f9f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+            <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 20px",borderBottom:"1px solid #f5f5f5",cursor:"pointer",flexWrap:"wrap"}} onMouseEnter={e=>e.currentTarget.style.background="#f9f9f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
               <span style={{flex:1,fontSize:13,fontWeight:600,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l.firstName} {l.lastName}</span>
+              <span title="Intake completion" style={{padding:"3px 7px",borderRadius:10,background:Number(t.completionPercentage)<85?"#fef3cd":"#eef6ef",color:Number(t.completionPercentage)<85?"#856404":"#3d5c43",fontSize:10.5,fontWeight:700}}>{typeof t.completionPercentage==="number"?t.completionPercentage+"% complete":"Completion unavailable"}</span>
+              <span title="Case complexity indicators" style={{padding:"3px 7px",borderRadius:10,background:"#e8f4fd",color:"#1a5f8a",fontSize:10.5,fontWeight:700}}>{(t.complexity||["Consumer debt"]).join(" · ")}</span>
+              {(t.missingAnswerCount>0||t.contradictionCount>0)&&<span style={{padding:"3px 7px",borderRadius:10,background:"#fdf0ef",color:"#a94438",fontSize:10.5,fontWeight:700}}>{t.missingAnswerCount} missing · {t.contradictionCount} conflict</span>}
+              <span style={{padding:"3px 7px",borderRadius:10,background:"#f5f5f2",color:"#666",fontSize:10.5,fontWeight:700}}>{t.documentBlockerCount} doc blockers</span>
+              {(t.urgentDeadlineCount>0||t.highFlagCount>0)&&<span style={{padding:"3px 7px",borderRadius:10,background:"#fde8e8",color:"#a94438",fontSize:10.5,fontWeight:800}}>{t.urgentDeadlineCount} deadline · {t.highFlagCount} high flag</span>}
+              <span title={t.nextAction} style={{maxWidth:190,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:10.5,color:"#214e5f",fontWeight:700}}>{t.responsibleRole}: {t.nextAction}</span>
               <span style={{width:120,fontSize:12.5,color:"#666",whiteSpace:"nowrap"}}>{l.intakeSubmittedDate?new Date(l.intakeSubmittedDate+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"}):"—"}</span>
               <span style={{width:22,display:"flex",justifyContent:"flex-end"}}><button title="Remove from Dashboard" onClick={async e=>{e.stopPropagation();if(await confirm({title:"Remove from Dashboard",message:"Remove this Lead from the Dashboard? Nothing is deleted — the Lead and all of its information stay in the CRM. To bring it back, open the Lead and click Restore.",confirmLabel:"Remove"}))setLeads(prev=>prev.map(x=>x.id===l.id?{...x,dashHidden:true}:x));}} style={{border:"none",background:"transparent",color:"#bbb",fontSize:16,cursor:"pointer",padding:"0 2px",lineHeight:1,flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.color="#c0392b"} onMouseLeave={e=>e.currentTarget.style.color="#bbb"}>{"\u00d7"}</button></span>
             </div>);
@@ -3043,13 +3138,13 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
             <span style={{background:"#fff",color:sc.text,border:"1px solid "+sc.border,borderRadius:10,padding:"1px 7px",fontSize:9.5,fontWeight:800,letterSpacing:"0.5px"}}>STAGE 4</span>
             <span style={{fontSize:13,fontWeight:700,color:sc.text,textTransform:"uppercase",letterSpacing:"0.5px"}}>Ready for Petition Prep</span>
             <span style={{background:sc.border,color:"#fff",borderRadius:12,padding:"2px 8px",fontSize:11,fontWeight:700}}>{ready.length}</span>
-            <span style={{fontSize:11.5,color:sc.text,fontStyle:"italic",opacity:0.85}}>The finish line — Document checklist complete, case ready to prep</span>
+            <span style={{fontSize:11.5,color:sc.text,fontStyle:"italic",opacity:0.85}}>The finish line — all Intake, document, staff, and attorney gates passed</span>
             <span style={{marginLeft:"auto",width:130,textAlign:"center",color:sc.text,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px",opacity:0.85}}>Days Ready</span>
             <span style={{width:120,color:sc.text,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px",opacity:0.85}}>Ready Date</span>
             <span style={{width:22}}/>
           </div>
           <div style={{maxHeight:172,overflowY:"auto"}}>
-            {ready.length===0&&<div style={{fontSize:12,color:"#ccc",textAlign:"center",padding:"16px 0"}}>No cases ready yet — a Lead lands here the moment its Document checklist is complete</div>}
+            {ready.length===0&&<div style={{fontSize:12,color:"#ccc",textAlign:"center",padding:"16px 0"}}>No cases ready yet — a Lead lands here only after every readiness gate passes</div>}
             {ready.map(l=>(
               <div key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 20px",borderBottom:"1px solid #f5f5f5",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f7f6"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                 <span style={{flex:1,fontSize:13,fontWeight:600,color:"#434343",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l.firstName} {l.lastName}</span>
@@ -3071,7 +3166,7 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
               <span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700}}>{tasks.length}</span>
             </div>
             <div style={{display:"flex",gap:8,alignItems:"center"}}>
-              <button onClick={runBatch} title="Runs the daily document-review sweep now" style={{padding:"4px 10px",fontSize:11,fontWeight:500,border:"1px dashed #bbb",borderRadius:5,background:"#fff",color:"#888",cursor:"pointer"}}>Run 5:00 AM Batch (dev)</button>
+              <button onClick={runBatch} title="Synthetic prototype tool: runs the local daily document-review sweep" style={{padding:"4px 10px",fontSize:11,fontWeight:700,border:"1px dashed #b8963e",borderRadius:5,background:"#fffaf0",color:"#856404",cursor:"pointer"}}>Prototype tools · Run 5:00 AM Batch</button>
             </div>
           </div>
           <div style={{padding:"8px 20px",borderBottom:"1px solid #f0f0f0",fontSize:11.5,color:"#999",fontStyle:"italic",background:"#FBFAF7"}}>Your approval queue — nothing is sent to a client without you.</div>
@@ -3594,8 +3689,9 @@ function App(){
 
   return(
     <React.Fragment>
+      <PrototypeBadge/>
       <Sidebar page={page} setPage={setPage} setSelectedMatter={setSelectedMatter} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed}/>
-      <div style={{marginLeft:sidebarCollapsed?68:250,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh",transition:"margin-left 0.25s ease"}}>
+      <div className="app-shell" style={{marginLeft:sidebarCollapsed?68:250,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh",transition:"margin-left 0.25s ease"}}>
         {page!=="lead-detail"&&page!=="contact-detail"&&<TopBar leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="dashboard"&&<DashboardPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}

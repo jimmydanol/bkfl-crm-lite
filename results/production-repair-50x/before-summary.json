@@ -1,0 +1,9 @@
+{
+  "evaluationId": "bkfl-50x-2026-07-13",
+  "completedCount": 50,
+  "crmMissingSignatureVariants": 45,
+  "allCrmReviewsReachedReady": true,
+  "source": "results/50-debtor-crm-agentic-evaluation/run-summary.json",
+  "productionSystemsMutated": false,
+  "externalMessagesSent": false
+}
