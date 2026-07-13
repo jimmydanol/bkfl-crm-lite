@@ -1,7 +1,7 @@
 # BK FastLane CRM Lite - Document Review Workflow
 
-Status: branch prototype specification  
-Audience: product, design, frontend, backend, QA, and bankruptcy-workflow reviewers  
+Status: branch prototype specification
+Audience: product, design, frontend, backend, QA, and bankruptcy-workflow reviewers
 Scope: law-firm review of client document submissions after intake
 
 ## 1. Outcome
@@ -255,4 +255,3 @@ This compatibility layer is for the demo only; production should use the separat
 - Which deficiency details may be shown to the client versus kept internal?
 - What follow-up cadence, channel, escalation, and stop rules should the firm use?
 - How long should rejected and superseded versions remain available?
-
