@@ -42,7 +42,7 @@ P0/P1 items materially resolved in the prototype:
 
 - Static browser app with localStorage; no server-side tenancy, authentication, authorization, audit service, or concurrent-update controls.
 - Synthetic rule engine and metadata only. No document bytes are analyzed or stored by this CRM.
-- File upload injection in the browser acceptance pass was blocked by the Chrome extension's file-URL permission; upload/reject/reopen behavior is covered by the deterministic contract suite.
+- Browser upload acceptance uses a local synthetic fixture and stores simulated metadata only; production object storage and byte handling remain absent.
 - No private object storage, retention controls, malware scanning, production API, notification delivery, or real Intake-to-CRM transport.
 - Document applicability, waiver, risk, and attorney-review rules are review candidates, not legal policy.
 
@@ -60,7 +60,7 @@ P0/P1 items materially resolved in the prototype:
 - Contract test: 50 scenarios; 25 document-requirement signatures; 45 CRM missing/review signatures; all 50 explicitly resolved cases Ready.
 - Full source-backed evaluation: 50 completed, 0 failed, 200 Dashboard stage observations, 500 Intake page visits, 45 CRM review signatures, 25 requirement signatures, all explicit readiness gates passed.
 - Before/after: 1 to 45 CRM review signatures; 0 Ready on import; 50 Ready after explicit resolution; no file bytes stored; no production mutations or external messages.
-- Local browser: contract import, Dashboard triage, Intake Package schema/triage, provenance, guarded bulk approval, non-waivable block, staff-to-attorney exception escalation, review gates, focus outline, and 390px layout verified. At 390px, document width matched the viewport with no page-level horizontal overflow.
+- Local browser: contract import, Dashboard triage, Intake Package schema/triage, provenance, guarded bulk approval, non-waivable block, staff-to-attorney exception escalation, review gates, synthetic file upload, automatic transition to Ready for Petition Prep, focus outline, and 390px layout verified. At 390px, document width matched the viewport with no page-level horizontal overflow.
 - Browser console: zero runtime errors after the final responsive repair reload.
 
 ## Files
