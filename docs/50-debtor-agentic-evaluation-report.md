@@ -224,6 +224,7 @@ Complete security, privacy, accessibility, performance, backup/recovery, observa
 - `results/50-debtor-crm-agentic-evaluation/live-browser-calibration.json` - truth boundary and live calibration record.
 - `scripts/run-50-debtor-source-backed-model.mjs` - reproducible 50-scenario run.
 - `scripts/run-50-debtor-crm-agentic-evaluation.mjs` - live-browser loop plus source-backed model.
+- `docs/50-debtor-production-repair-prompt.md` - paste-ready implementation prompt based on this report.
 
 Rerun from the branch worktree:
 
