@@ -44,3 +44,9 @@ The demo feed is generated from completed canonical Intake `Matter` records. To 
 node scripts/build-intake-demo-feed.mjs <path-to-debtor-agent-index.json>
 node scripts/test-intake-crm-bridge.mjs
 ```
+
+To run the complete ten-client parity loop in one command (agent entry, feed generation, bridge verification, and attorney Document Review routing):
+
+```powershell
+node scripts/run-10-client-document-review-parity.mjs
+```

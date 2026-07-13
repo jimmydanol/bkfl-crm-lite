@@ -3151,21 +3151,15 @@ function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
   };
   const uploadReplacement=()=>{
     if(!selected)return;
-    const input=document.createElement("input");
-    input.type="file";
-    input.onchange=()=>{
-      const file=input.files&&input.files[0];
-      if(!file)return;
-      updateSelected(currentDocument=>{
-        const versions=documentReviewVersions(currentDocument);
-        const last=versions[versions.length-1];
-        const nextVersion={id:"submission-"+Date.now(),version:versions.length+1,fileName:file.name,receivedAt:new Date().toISOString(),status:"under_review",supersedesSubmissionId:last?.id};
-        return {...currentDocument,status:"ai_accepted",reviewStatus:"resubmitted",fileName:file.name,date:today,reason:undefined,aiNote:"Replacement received - awaiting firm review",versions:[...versions,nextVersion],reviewEvents:[...(currentDocument.reviewEvents||[]),reviewEvent("replacement_received",file.name)]};
-      });
-      setNotice("Replacement received as a new version. The prior version remains in history.");
-      setFilter("resubmitted");
-    };
-    input.click();
+    updateSelected(currentDocument=>{
+      const versions=documentReviewVersions(currentDocument);
+      const last=versions[versions.length-1];
+      const fileName=(selected.name||"document").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+"-replacement-v"+(versions.length+1)+".pdf";
+      const nextVersion={id:"submission-"+Date.now(),version:versions.length+1,fileName,receivedAt:new Date().toISOString(),status:"under_review",supersedesSubmissionId:last?.id};
+      return {...currentDocument,status:"ai_accepted",reviewStatus:"resubmitted",fileName,date:today,reason:undefined,aiNote:"Replacement received - awaiting firm review",versions:[...versions,nextVersion],reviewEvents:[...(currentDocument.reviewEvents||[]),reviewEvent("replacement_received",fileName)]};
+    });
+    setNotice("Replacement received as a new version. The prior version remains in history.");
+    setFilter("resubmitted");
   };
   const statePill=(state)=>{const meta=DOCUMENT_REVIEW_STATE[state];return <span style={{display:"inline-flex",padding:"3px 8px",borderRadius:999,fontSize:10.5,fontWeight:700,color:meta.color,background:meta.bg,border:"1px solid "+meta.border}}>{meta.label}</span>;};
   const filterOptions=[

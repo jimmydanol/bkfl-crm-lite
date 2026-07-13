@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-13 - Ten-client Intake-to-attorney-review parity
+
+- Expanded the canonical fake-debtor run and CRM feed contract from three to ten completed fake clients.
+- Routed each completed fake document into the CRM Document Review queue as `pending_review`, with an initial immutable submission version and receipt event.
+- Added a one-command parity runner that executes fake-client generation, rebuilds the feed, and verifies the bridge and attorney-review contract.
+
 ## 2026-07-13 - Branch-only document review workflow
 
 - Added a global **Document Review** navigation tab for the law-firm queue.

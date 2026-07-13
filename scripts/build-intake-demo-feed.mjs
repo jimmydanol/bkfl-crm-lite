@@ -93,8 +93,8 @@ const buildPackage = (report, sourceData, generatedAt) => {
 const index = await readJson(path.resolve(inputIndexPath))
 const reports = Array.isArray(index.reports) ? index.reports : []
 
-if (index.status !== 'passed' || reports.length !== 3) {
-  throw new Error('Expected one passed debtor-agent run with exactly three reports.')
+if (index.status !== 'passed' || reports.length !== 10) {
+  throw new Error('Expected one passed debtor-agent run with exactly ten reports.')
 }
 
 const packages = []

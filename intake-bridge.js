@@ -117,6 +117,12 @@
     return 'open'
   }
 
+  const documentReviewStatus = (status) => {
+    if (status === 'reviewed') return 'approved'
+    if (status === 'received') return 'pending_review'
+    return 'awaiting_upload'
+  }
+
   const packageToLead = (candidate) => {
     const intakePackage = normalizePackage(candidate)
     const matter = intakePackage.matter
@@ -150,14 +156,46 @@
         intakeReadiness: 'Ready for attorney',
         intakeSubmittedDate: submittedDate,
       },
-      docChecklist: asArray(matter.documents).map((document, index) => ({
-        aiNote: clean(document.notes),
-        date: dateOnly(document.receivedAt) || submittedDate,
-        docId: clean(document.id) || `intake-document-${index + 1}`,
-        fileName: `${clean(document.name) || `Intake document ${index + 1}`} (fake demo)`,
-        id: index + 1,
-        status: checklistStatus(document.status),
-      })),
+      docChecklist: asArray(matter.documents).map((document, index) => {
+        const documentId = clean(document.id) || `intake-document-${index + 1}`
+        const documentName = clean(document.name) || `Intake document ${index + 1}`
+        const receivedAt = clean(document.receivedAt) || intakePackage.submittedAt
+        const reviewStatus = documentReviewStatus(document.status)
+        const hasSubmission = reviewStatus !== 'awaiting_upload'
+
+        return {
+          aiNote: clean(document.notes),
+          customName: documentName,
+          date: dateOnly(receivedAt) || submittedDate,
+          docId: documentId,
+          fileName: `${documentName} (fake demo)`,
+          id: index + 1,
+          reviewEvents: hasSubmission
+            ? [
+                {
+                  action: 'submission_received',
+                  actor: 'BK FastLane Intake',
+                  date: receivedAt,
+                  detail: 'Completed fake-client submission entered the bankruptcy-attorney review queue.',
+                  id: `${stableId}-${documentId}-received`,
+                },
+              ]
+            : [],
+          reviewStatus,
+          status: checklistStatus(document.status),
+          versions: hasSubmission
+            ? [
+                {
+                  fileName: `${documentName} (fake demo)`,
+                  id: `${stableId}-${documentId}-v1`,
+                  receivedAt,
+                  status: reviewStatus === 'approved' ? 'approved' : 'under_review',
+                  version: 1,
+                },
+              ]
+            : [],
+        }
+      }),
       documents: [],
       email: clean(primary.email),
       firstName: clean(primary.firstName),
@@ -208,6 +246,31 @@
 
     if (existingIndex < 0) return [incoming, ...list]
 
+    const existingChecklist = asArray(list[existingIndex]?.docChecklist)
+    const incomingDocumentIds = new Set(incoming.docChecklist.map((document) => document.docId))
+    const mergedChecklist = incoming.docChecklist.map((document) => {
+      const existingDocument = existingChecklist.find(
+        (candidateDocument) => candidateDocument?.docId === document.docId,
+      )
+
+      if (!existingDocument) return document
+
+      // Once Intake creates the review item, the CRM owns its attorney decision,
+      // replacement history, follow-up state, and resubmission versions. A feed
+      // refresh may update the surrounding Intake package, but must not erase that
+      // law-firm work.
+      return {
+        ...document,
+        ...existingDocument,
+        docId: document.docId,
+        id: document.id,
+      }
+    })
+
+    existingChecklist.forEach((document) => {
+      if (!incomingDocumentIds.has(document?.docId)) mergedChecklist.push(document)
+    })
+
     return list.map((lead, index) =>
       index === existingIndex
         ? {
@@ -215,7 +278,7 @@
             ...lead,
             bankruptcyType: incoming.bankruptcyType,
             contacts: incoming.contacts,
-            docChecklist: incoming.docChecklist,
+            docChecklist: mergedChecklist,
             email: incoming.email,
             firstName: incoming.firstName,
             intakePackage: incoming.intakePackage,
