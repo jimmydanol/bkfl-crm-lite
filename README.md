@@ -10,7 +10,7 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 
 - **Dashboard** — intake pipeline cards (New Lead → Intake Sent → Intake Submitted), outstanding tasks (the attorney approval queue), quick links
 - **Leads** — list + detail with Dashboard, Communications (email tracking log), Notes, Documents, Tasks, and AI tabs
-- **Document Review** — global law-firm queue for approving, excusing, rejecting/re-requesting, following up, and reviewing immutable replacement versions
+- **Document Review** — matter-level completion queue that shows missing essential fields/documents and lets staff approve a simulated scheduled reminder with an Intake return link
 - **Contacts** — one contact per debtor; email is the unique identity key; contacts and leads always exist in pairs
 - **Documents** — 32-type checklist per lead: AI accepted/flagged review lanes, firm approval as home base, debtor "not applicable" reasons, and the approve-and-send follow-up email flow
 - **Settings** — read-only v1 rule documentation: organization, users, lead stages, tasks, communications templates, document catalog
@@ -26,7 +26,7 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 
 `docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.
 
-`docs/document-review-workflow.md` — the developer-facing request/submission/decision state machine, role boundaries, follow-up flow, production API contract, audit requirements, and acceptance scenarios for law-firm document review.
+`docs/document-review-workflow.md` — the developer-facing incomplete-intake contract, missing-item model, scheduled-email approval state machine, ownership boundaries, and production follow-ons.
 
 ## Change log
 
@@ -38,7 +38,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for dated CRM behavior and deployment changes
 - Fake debtor Intake: `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html`
 - Scope: fake data only. The browser-local handoff is for Matt/Jimmy workflow review, not real client data.
 
-The demo feed is generated from completed canonical Intake `Matter` records. To rebuild it after running the Intake fake-debtor agent:
+The demo feed is generated from canonical Intake `Matter` records that are intentionally 85-95% complete. To rebuild it after running the Intake debtor-entry agent:
 
 ```powershell
 node scripts/build-intake-demo-feed.mjs <path-to-debtor-agent-index.json>
@@ -48,5 +48,5 @@ node scripts/test-intake-crm-bridge.mjs
 To run the complete ten-client parity loop in one command (agent entry, feed generation, bridge verification, and attorney Document Review routing):
 
 ```powershell
-node scripts/run-10-client-document-review-parity.mjs
+node scripts/run-10-client-completion-review-parity.mjs
 ```

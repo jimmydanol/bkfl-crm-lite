@@ -106,12 +106,12 @@ function IntakeInboxPage({leads,setPage,setSelectedLead}){
   const openPackage=(lead)=>{setSelectedLead(lead.id);setPage("lead-detail");};
   return <div style={{flex:1,background:"#FBFAF7",minHeight:"100vh"}} data-testid="intake-inbox">
     <div style={{padding:"24px 28px 18px",background:"#fff",borderBottom:"1px solid #dedfdc",display:"flex",justifyContent:"space-between",gap:20,alignItems:"center",flexWrap:"wrap"}}>
-      <div><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#6f7d78",marginBottom:5}}>BK FastLane handoff</div><h1 style={{fontSize:22,margin:0,color:"#3f4945"}}>Intake Inbox</h1><p style={{fontSize:12,color:"#6d7672",margin:"6px 0 0"}}>{intakeLeads.length} fake debtor packages ready for attorney review</p></div>
+      <div><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#6f7d78",marginBottom:5}}>BK FastLane handoff</div><h1 style={{fontSize:22,margin:0,color:"#3f4945"}}>Intake Inbox</h1><p style={{fontSize:12,color:"#6d7672",margin:"6px 0 0"}}>{intakeLeads.length} fake debtor packages in the Intake workflow</p></div>
       <a href="./intake-demo.html" style={{display:"inline-flex",alignItems:"center",gap:7,padding:"9px 13px",borderRadius:4,background:"#315f57",color:"#fff",fontSize:12,fontWeight:700,textDecoration:"none"}}>Run fake debtor intake</a>
     </div>
     <div style={{padding:"20px 28px"}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",border:"1px solid #d9dedb",background:"#fff",marginBottom:16}}>
-        <div style={{padding:"12px 14px",borderRight:"1px solid #e1e5e2"}}><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#7b8581"}}>Ready packages</div><div style={{fontSize:20,fontWeight:700,color:"#315f57",marginTop:3}}>{intakeLeads.length}</div></div>
+        <div style={{padding:"12px 14px",borderRight:"1px solid #e1e5e2"}}><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#7b8581"}}>Intake packages</div><div style={{fontSize:20,fontWeight:700,color:"#315f57",marginTop:3}}>{intakeLeads.length}</div></div>
         <div style={{padding:"12px 14px",borderRight:"1px solid #e1e5e2"}}><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#7b8581"}}>Required fields</div><div style={{fontSize:20,fontWeight:700,color:"#315f57",marginTop:3}}>{intakeLeads.reduce((sum,lead)=>sum+(lead.intakePackage.readiness?.fieldsFilled||0),0)}</div></div>
         <div style={{padding:"12px 14px"}}><div style={{fontSize:10,textTransform:"uppercase",fontWeight:700,color:"#7b8581"}}>Documents received</div><div style={{fontSize:20,fontWeight:700,color:"#9b6a1c",marginTop:3}}>{intakeLeads.reduce((sum,lead)=>sum+(lead.intakePackage.readiness?.documentsReady||0),0)}</div></div>
       </div>

@@ -31,55 +31,100 @@ const asciiSafe = (value) => {
   )
 }
 
-const markDemoDocumentsReceived = (documents = [], submittedAt) =>
-  documents.map((document) => ({
-    ...document,
-    notes: 'Fake demo document received with completed intake.',
-    receivedAt: submittedAt,
-    status: 'received',
-  }))
-
 const buildPackage = (report, sourceData, generatedAt) => {
-  const requiredCoverage = sourceData.requiredCoverage
   const matter = structuredClone(sourceData.matter)
+  const packageId = `bkfl-demo-${report.scenarioId}`
+  const coverage = Array.isArray(sourceData.coverage) ? sourceData.coverage : []
+  const requiredCoverage = coverage.filter(
+    (item) => item?.definition?.requiredForClientStep,
+  )
+  const fieldsRequired = requiredCoverage.length
+  const fieldsFilled = requiredCoverage.filter((item) => item.filled).length
+  const documentsRequired = Array.isArray(matter?.documents)
+    ? matter.documents.length
+    : 0
+  const documentsReady = (matter?.documents || []).filter(
+    (document) => document.status === 'received' || document.status === 'reviewed',
+  ).length
+  const missingItems = (sourceData.reminder?.items || []).map((item) => ({
+    canonicalPath: item.canonicalPath,
+    clientInstruction: item.debtorPrompt,
+    essential: true,
+    id: item.id,
+    kind: item.source === 'documents' ? 'document' : 'field',
+    label: item.title,
+    priority: item.priority,
+  }))
+  const missingFields = missingItems.filter((item) => item.kind === 'field')
+  const missingDocuments = missingItems.filter((item) => item.kind === 'document')
+  const completionPercent = Number(sourceData.completionPercent)
 
-  if (!matter?.id || matter.status !== 'ready-for-attorney') {
-    throw new Error(`${report.scenarioId} is not a ready-for-attorney Matter.`)
+  if (!matter?.id || matter.status !== 'review') {
+    throw new Error(`${report.scenarioId} is not an incomplete review Matter.`)
   }
-
+  if (completionPercent < 85 || completionPercent > 95) {
+    throw new Error(`${report.scenarioId} is not realistically 85-95% complete.`)
+  }
+  if (!missingFields.length || !missingDocuments.length) {
+    throw new Error(`${report.scenarioId} must omit both fields and documents.`)
+  }
+  if (!String(sourceData.reminder?.to || '').endsWith('@example.test')) {
+    throw new Error(`${report.scenarioId} reminder recipient is not fake-safe.`)
+  }
   if (
-    !requiredCoverage ||
-    requiredCoverage.filled !== requiredCoverage.required ||
-    requiredCoverage.missing?.length
+    !missingItems.every((item) =>
+      sourceData.reminder.body.includes(item.clientInstruction),
+    )
   ) {
-    throw new Error(`${report.scenarioId} is missing required Intake fields.`)
+    throw new Error(`${report.scenarioId} reminder omitted a missing item.`)
   }
 
   const submittedAt = matter.personalInfoSubmittedAt || generatedAt
-  matter.documents = markDemoDocumentsReceived(matter.documents, submittedAt)
-
-  const reviewFlags = (sourceData.reviewFlags || []).filter(
-    (flag) =>
-      !(
-        flag.sectionId === 'documents' &&
-        /open|still needed|request/i.test(`${flag.title} ${flag.detail}`)
-      ),
+  const intakeResumeUrl = `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html?packageId=${encodeURIComponent(packageId)}`
+  const emailBodySnapshot = sourceData.reminder.body.replace(
+    sourceData.reminder.intakeUrl,
+    intakeResumeUrl,
   )
 
   return asciiSafe({
+    completion: {
+      documentCompletion: {
+        applicableRequired: documentsRequired,
+        receivedRequired: documentsReady,
+      },
+      emailDraft: {
+        bodySnapshot: emailBodySnapshot,
+        deliveryMode: 'simulation',
+        intakeResumeUrl,
+        recipient: sourceData.reminder.to,
+        status: 'pending_approval',
+        subject: sourceData.reminder.subject,
+      },
+      events: [],
+      fieldCompletion: {
+        applicableRequired: fieldsRequired,
+        enteredRequired: fieldsFilled,
+        percent: fieldsRequired ? Math.round((fieldsFilled / fieldsRequired) * 100) : 0,
+      },
+      intakeResumeUrl,
+      missingItems,
+      percent: completionPercent,
+      revision: 1,
+      status: 'needs_client_action',
+    },
     demo: true,
     generatedAt,
     matter,
-    packageId: `bkfl-demo-${report.scenarioId}`,
+    packageId,
     readiness: {
-      documentsReady: matter.documents.length,
-      documentsRequired: matter.documents.length,
-      fieldsFilled: requiredCoverage.filled,
-      fieldsRequired: requiredCoverage.required,
-      reviewFlagCount: reviewFlags.length,
-      status: 'ready-for-attorney',
+      documentsReady,
+      documentsRequired,
+      fieldsFilled,
+      fieldsRequired,
+      reviewFlagCount: (sourceData.reviewFlags || []).length,
+      status: 'needs-client-action',
     },
-    reviewFlags,
+    reviewFlags: sourceData.reviewFlags || [],
     schemaVersion: 1,
     source: {
       branch: 'Jimmy',
@@ -109,7 +154,7 @@ const feed = {
   generatedAt: index.generatedAt,
   packages,
   schemaVersion: 1,
-  source: 'BK FastLane Intake fake debtor agent',
+  source: 'BK FastLane Intake incomplete debtor entry agent',
 }
 
 await mkdir(outputDirectory, { recursive: true })

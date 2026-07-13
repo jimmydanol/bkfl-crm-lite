@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-13 - Incomplete-intake completion management
+
+- Reframed Document Review as one matter-level completion queue instead of one row per uploaded document.
+- Generated ten realistic fake matters at 85-95% completion, each missing at least one essential field and two documents.
+- Added consolidated missing-item email previews with Intake return links, schedule selection, attorney/paralegal approval, cancellation, and simulated-only delivery state.
+- Routed each reminder to the matching editable fake Intake record; completing it cancels the simulated reminder and advances the matter to attorney review.
+- Preserved approved schedules and audit events across feed re-imports when the missing-item signature is unchanged.
+- Replaced the completed-package parity loop with an incomplete debtor-entry parity loop and developer contract.
+
 ## 2026-07-13 - Ten-client Intake-to-attorney-review parity
 
 - Expanded the canonical fake-debtor run and CRM feed contract from three to ten completed fake clients.

@@ -3074,6 +3074,92 @@ function documentReviewName(document){
   return (document.fileName||document.rejectedFile||"Intake document").replace(/\s*\(fake demo\)$/i,"");
 }
 
+function CompletionReviewPage({leads,setLeads,setPage,setSelectedLead}){
+  const [filter,setFilter]=useState("pending_approval");
+  const [selectedKey,setSelectedKey]=useState(null);
+  const [scheduledFor,setScheduledFor]=useState("");
+  const [notice,setNotice]=useState("");
+  const today=new Date().toISOString().split("T")[0];
+  const defaultScheduledFor=useMemo(()=>{const date=new Date();date.setDate(date.getDate()+1);date.setHours(9,0,0,0);const pad=value=>String(value).padStart(2,"0");return date.getFullYear()+"-"+pad(date.getMonth()+1)+"-"+pad(date.getDate())+"T"+pad(date.getHours())+":"+pad(date.getMinutes());},[]);
+  const items=useMemo(()=>leads.filter(lead=>lead.intakeCompletion&&lead.intakeCompletion.status!=="complete").map(lead=>({
+    key:String(lead.id),
+    lead,
+    completion:lead.intakeCompletion,
+    followUp:lead.intakeCompletion.followUp||lead.intakeCompletion.emailDraft,
+  })),[leads]);
+  const filtered=items.filter(item=>filter==="all"||item.followUp.status===filter);
+  const selected=filtered.find(item=>item.key===selectedKey)||filtered[0]||null;
+  const counts=items.reduce((result,item)=>({...result,[item.followUp.status]:(result[item.followUp.status]||0)+1}),{});
+  const missingFields=selected?selected.completion.missingItems.filter(item=>item.kind==="field"):[];
+  const missingDocuments=selected?selected.completion.missingItems.filter(item=>item.kind==="document"):[];
+  const scheduleValue=scheduledFor||selected?.followUp?.scheduledFor||defaultScheduledFor;
+  const stateMeta={
+    pending_approval:{label:"Needs approval",color:"#855f12",bg:"#fff8df",border:"#ead28b"},
+    approved_scheduled:{label:"Approved & scheduled",color:"#315c39",bg:"#e7f2e9",border:"#a6c6ac"},
+    simulated_sent:{label:"Simulated sent",color:"#285c72",bg:"#e9f5fa",border:"#afd1df"},
+    canceled:{label:"Canceled",color:"#6b7280",bg:"#f3f4f6",border:"#d1d5db"},
+    stale:{label:"Needs refresh",color:"#92352d",bg:"#fdf2f1",border:"#efc0bc"},
+  };
+  const statePill=state=>{const meta=stateMeta[state]||stateMeta.pending_approval;return <span style={{display:"inline-flex",padding:"3px 8px",borderRadius:999,fontSize:10.5,fontWeight:700,color:meta.color,background:meta.bg,border:"1px solid "+meta.border}}>{meta.label}</span>;};
+  const eventFor=(action,detail)=>({id:"completion-event-"+Date.now()+"-"+Math.random(),action,detail,date:new Date().toISOString(),actor:"Matt McCune"});
+  const approveSchedule=()=>{
+    if(!selected||!scheduleValue){setNotice("Choose a scheduled time before approval.");return;}
+    if(selected.followUp.status==="approved_scheduled"){setNotice("This reminder is already approved and scheduled.");return;}
+    const approvedAt=new Date().toISOString();
+    setLeads(current=>current.map(lead=>{
+      if(String(lead.id)!==selected.key)return lead;
+      const completion=lead.intakeCompletion;
+      const followUp={...completion.followUp,approvedAt,approvedBy:"Matt McCune",bodySnapshot:completion.followUp.bodySnapshot||completion.emailDraft.bodySnapshot,deliveryMode:"simulation",matterRevision:completion.revision,missingItemIds:completion.missingItems.map(item=>item.id),recipient:completion.followUp.recipient||completion.emailDraft.recipient,scheduledFor:scheduleValue,status:"approved_scheduled",subject:completion.followUp.subject||completion.emailDraft.subject,timezone:"America/Denver"};
+      const communication={id:"scheduled-reminder-"+Date.now(),date:today,type:"Email",direction:"Scheduled",status:"Scheduled",subject:followUp.subject,body:followUp.bodySnapshot,to:lead.clientFullName||lead.firstName+" "+lead.lastName,email:followUp.recipient,scheduledFor:scheduleValue,deliveryMode:"simulation",approvedBy:"Matt McCune",approvedAt};
+      const task={id:"scheduled-reminder-task-"+Date.now(),title:"Simulated intake reminder scheduled",due:scheduleValue.slice(0,10),status:"Pending",assignee:"Matt McCune",stage:"Intake completion"};
+      return {...lead,intakeCompletion:{...completion,followUp,events:[...(completion.events||[]),eventFor("reminder_approved",scheduleValue)]},communications:[communication,...(lead.communications||[])],tasks:[task,...(lead.tasks||[])],timeline:[{id:"scheduled-reminder-timeline-"+Date.now(),date:today,action:"Incomplete intake reminder approved",detail:"Simulation scheduled for "+scheduleValue,user:"Matt McCune"},...(lead.timeline||[])]};
+    }));
+    setFilter("approved_scheduled");setScheduledFor("");setNotice("Reminder approved and scheduled in simulation mode. No email was sent.");
+  };
+  const cancelSchedule=()=>{
+    if(!selected)return;
+    setLeads(current=>current.map(lead=>String(lead.id)!==selected.key?lead:{...lead,intakeCompletion:{...lead.intakeCompletion,followUp:{...lead.intakeCompletion.followUp,status:"canceled",canceledAt:new Date().toISOString(),canceledBy:"Matt McCune"},events:[...(lead.intakeCompletion.events||[]),eventFor("reminder_canceled","Scheduled reminder canceled before simulated delivery.")]}}));
+    setFilter("canceled");setNotice("Scheduled reminder canceled. No email was sent.");
+  };
+  const filterOptions=[["pending_approval","Needs approval"],["approved_scheduled","Scheduled"],["simulated_sent","Simulated sent"],["canceled","Canceled"],["all","All"]];
+  const button={padding:"8px 13px",borderRadius:6,border:"1px solid #d0d0d0",background:"#fff",color:"#4b5563",fontSize:12,fontWeight:650,cursor:"pointer"};
+  return <div data-testid="document-review-page" style={{padding:"24px 28px",flex:1,background:"#FBFAF7"}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",marginBottom:18,flexWrap:"wrap"}}>
+      <div><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>INTAKE COMPLETION MANAGEMENT</p><h1 style={{fontSize:24,fontWeight:750,color:"#2f3b34",margin:0}}>Document Review</h1><p style={{fontSize:13,color:"#69726d",marginTop:6,maxWidth:760,lineHeight:1.55}}>See exactly what each debtor still owes, review one consolidated reminder, and approve when the simulated email should be scheduled.</p></div>
+      <a href="./docs/document-review-workflow.md" target="_blank" rel="noreferrer" style={{...button,display:"inline-flex",alignItems:"center",color:"#214e5f"}}>Developer workflow spec</a>
+    </div>
+    <div style={{padding:"10px 13px",borderRadius:8,background:"#fff8df",border:"1px solid #ead28b",fontSize:12,color:"#6d5712",marginBottom:16}}>Jimmy-branch fake-data prototype. Scheduling is simulated and recipients use <strong>@example.test</strong>; this page never sends an external message.</div>
+    <div className="document-review-process" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:10,marginBottom:16}}>
+      {[["1","Identify","Intake calculates missing essential fields and uploads."],["2","Review","Staff sees one debtor-safe email with every missing item and the Intake link."],["3","Approve schedule","Attorney or paralegal approves the time; the exact snapshot is logged."]].map(step=><div key={step[0]} style={{background:"#fff",border:"1px solid #e2e6e2",borderRadius:8,padding:13}}><div style={{width:24,height:24,borderRadius:"50%",background:"#dce8de",color:"#3d5c43",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:7}}>{step[0]}</div><strong style={{fontSize:12.5,color:"#37433b"}}>{step[1]}</strong><p style={{fontSize:11,color:"#7b837e",lineHeight:1.45,marginTop:4}}>{step[2]}</p></div>)}
+    </div>
+    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}}>{filterOptions.map(([key,label])=><button key={key} onClick={()=>{setFilter(key);setSelectedKey(null);setScheduledFor("");setNotice("");}} style={{...button,background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863",borderColor:filter===key?"#214e5f":"#d8ddd9"}}>{label} ({key==="all"?items.length:counts[key]||0})</button>)}</div>
+    {notice&&<div aria-live="polite" style={{padding:"9px 12px",borderRadius:7,background:"#e7f2e9",border:"1px solid #a6c6ac",color:"#315c39",fontSize:12,marginBottom:12}}>{notice}</div>}
+    <div className="document-review-grid" style={{display:"grid",gridTemplateColumns:"minmax(310px,.9fr) minmax(460px,1.5fr)",gap:14,alignItems:"start"}}>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:9,overflow:"hidden"}}>
+        <div style={{padding:"12px 15px",borderBottom:"1px solid #edf0ed",fontSize:12,fontWeight:750,color:"#3d4941"}}>Incomplete matters - {filtered.length}</div>
+        <div style={{maxHeight:690,overflowY:"auto"}}>{filtered.map(item=><button data-testid={"completion-review-row-"+item.lead.intakePackage.source.scenarioId} key={item.key} onClick={()=>{setSelectedKey(item.key);setScheduledFor("");setNotice("");}} style={{display:"block",width:"100%",textAlign:"left",padding:"13px 15px",border:"none",borderBottom:"1px solid #f0f2f0",background:selected?.key===item.key?"#eef4ef":"#fff",cursor:"pointer"}}><div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}><strong style={{fontSize:12.5,color:"#37433b"}}>{item.lead.clientFullName||item.lead.firstName+" "+item.lead.lastName}</strong>{statePill(item.followUp.status)}</div><div style={{fontSize:11.5,color:"#7b837e",marginTop:5}}>{item.lead.bankruptcyType} - {item.completion.percent}% complete</div><div style={{fontSize:10.5,color:"#9a6a33",marginTop:3}}>{item.completion.missingItems.filter(missing=>missing.kind==="field").length} fields + {item.completion.missingItems.filter(missing=>missing.kind==="document").length} documents still needed</div></button>)}</div>
+        {!filtered.length&&<div style={{padding:32,textAlign:"center",fontSize:12,color:"#99a09b"}}>Nothing in this queue.</div>}
+      </section>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:9,overflow:"hidden"}}>
+        {!selected?<div style={{padding:48,textAlign:"center",fontSize:13,color:"#99a09b"}}>Select an incomplete matter.</div>:<React.Fragment>
+          <div style={{padding:"16px 18px",borderBottom:"1px solid #edf0ed",display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start"}}><div><p style={{fontSize:11,color:"#89918c",marginBottom:4}}>{selected.lead.bankruptcyType}</p><h2 style={{fontSize:17,color:"#344038",margin:0}}>{selected.lead.clientFullName||selected.lead.firstName+" "+selected.lead.lastName}</h2><p style={{fontSize:11.5,color:"#89918c",marginTop:5}}>Intake revision {selected.completion.revision} - {selected.completion.percent}% complete</p></div>{statePill(selected.followUp.status)}</div>
+          <div style={{padding:18}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8,marginBottom:15}}>{[["Completion",selected.completion.percent+"%"],["Missing fields",String(missingFields.length)],["Missing documents",String(missingDocuments.length)]].map(row=><div key={row[0]} style={{padding:10,background:"#f8faf8",borderRadius:7,border:"1px solid #edf0ed"}}><small style={{display:"block",fontSize:9.5,fontWeight:800,letterSpacing:".05em",color:"#939b96",textTransform:"uppercase",marginBottom:5}}>{row[0]}</small><div style={{fontSize:16,fontWeight:750,color:"#455149"}}>{row[1]}</div></div>)}</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+              <div style={{padding:12,border:"1px solid #e7eae7",borderRadius:8}}><h3 style={{fontSize:12.5,color:"#3d4941",marginBottom:8}}>Missing essential information</h3>{missingFields.map(item=><div key={item.id} style={{padding:"7px 0",borderBottom:"1px solid #f0f2f0"}}><strong style={{display:"block",fontSize:11.5,color:"#4a554e"}}>{item.label}</strong><span style={{fontSize:10.5,color:"#7b837e",lineHeight:1.4}}>{item.clientInstruction}</span></div>)}</div>
+              <div style={{padding:12,border:"1px solid #e7eae7",borderRadius:8}}><h3 style={{fontSize:12.5,color:"#3d4941",marginBottom:8}}>Missing documents</h3>{missingDocuments.map(item=><div key={item.id} style={{padding:"7px 0",borderBottom:"1px solid #f0f2f0"}}><strong style={{display:"block",fontSize:11.5,color:"#4a554e"}}>{item.label}</strong><span style={{fontSize:10.5,color:"#7b837e",lineHeight:1.4}}>{item.clientInstruction}</span></div>)}</div>
+            </div>
+            <div style={{padding:14,border:"1px solid #dce3dd",borderRadius:8,background:"#fafcfa",marginBottom:16}}><div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center",marginBottom:10}}><h3 style={{fontSize:13,color:"#3d4941",margin:0}}>Scheduled email preview</h3><span style={{fontSize:10.5,color:"#7b837e"}}>Simulation only</span></div><div style={{fontSize:11.5,color:"#59635d",marginBottom:4}}><strong>To:</strong> {selected.followUp.recipient}</div><div style={{fontSize:11.5,color:"#59635d",marginBottom:10}}><strong>Subject:</strong> {selected.followUp.subject}</div><pre style={{whiteSpace:"pre-wrap",fontFamily:"inherit",fontSize:11.5,lineHeight:1.5,color:"#4c5750",background:"#fff",border:"1px solid #edf0ed",borderRadius:6,padding:11,maxHeight:270,overflowY:"auto"}}>{selected.followUp.bodySnapshot}</pre><a href={selected.completion.intakeResumeUrl} target="_blank" rel="noreferrer" style={{display:"inline-flex",marginTop:10,fontSize:11.5,fontWeight:700,color:"#214e5f"}}>Open debtor Intake link</a></div>
+            {selected.followUp.status==="pending_approval"&&<div style={{display:"flex",gap:10,alignItems:"flex-end",flexWrap:"wrap",padding:12,background:"#fff8df",border:"1px solid #ead28b",borderRadius:8}}><div style={{flex:"1 1 240px"}}><label htmlFor="completion-email-schedule" style={{display:"block",fontSize:11.5,fontWeight:700,color:"#5f532e",marginBottom:6}}>Schedule reminder for</label><input id="completion-email-schedule" type="datetime-local" value={scheduleValue} onChange={event=>setScheduledFor(event.target.value)} style={{width:"100%",padding:9,border:"1px solid #d8c681",borderRadius:6,fontSize:12,background:"#fff"}}/></div><button data-testid="approve-scheduled-reminder" onClick={approveSchedule} style={{...button,background:"#214e5f",color:"#fff",borderColor:"#214e5f"}}>Approve & schedule reminder</button></div>}
+            {selected.followUp.status==="approved_scheduled"&&<div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",padding:12,background:"#e7f2e9",border:"1px solid #a6c6ac",borderRadius:8}}><div><strong style={{fontSize:12,color:"#315c39"}}>Approved for {String(selected.followUp.scheduledFor).replace("T"," ")}</strong><p style={{fontSize:11,color:"#507458",marginTop:3}}>Approved by {selected.followUp.approvedBy} - exact email snapshot and missing-item list are preserved.</p></div><button onClick={cancelSchedule} style={button}>Cancel schedule</button></div>}
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}><button onClick={()=>{setSelectedLead(selected.lead.id);setPage("lead-detail");}} style={{...button,color:"#214e5f"}}>Open lead record</button></div>
+          </div>
+        </React.Fragment>}
+      </section>
+    </div>
+  </div>;
+}
+
 function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
   const [filter,setFilter]=useState("pending_review");
   const [selectedKey,setSelectedKey]=useState(null);
@@ -3258,7 +3344,7 @@ function App(){
         {page==="dashboard"&&<DashboardPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="intake-inbox"&&<IntakeInboxPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
-        {page==="document-review"&&<DocumentReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
+        {page==="document-review"&&<CompletionReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="lead-detail"&&<LeadDetail lead={currentLead} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead} matters={matters} setMatters={setMatters} setSelectedMatter={setSelectedMatter} setSelectedContact={setSelectedContact} msgTemplates={msgTemplates} seqTemplates={seqTemplates} commAutomations={autoTemplates}/>}
         {page==="contacts"&&<ContactsPage matters={matters} leads={leads} standaloneContacts={standaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
         {page==="contact-detail"&&selectedContact&&<ContactDetailPage contactId={selectedContact.id} contactSource={selectedContact.source} sourceId={selectedContact.sourceId} matters={matters} setMatters={setMatters} leads={leads} setLeads={setLeads} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}

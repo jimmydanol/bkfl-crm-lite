@@ -84,7 +84,7 @@ button,a{touch-action:manipulation;}
   <div class="brand">
     <div class="brand-mark" id="organizationInitials">ML</div>
     <img class="brand-logo" id="organizationLogo" data-testid="organization-logo-header" alt="" hidden>
-    <div><div class="brand-name" id="organizationName" data-testid="organization-name-header">McCune Legal</div><div class="brand-sub">BK FastLane Intake - completed debtor package demo</div></div>
+    <div><div class="brand-name" id="organizationName" data-testid="organization-name-header">McCune Legal</div><div class="brand-sub">BK FastLane Intake - incomplete debtor follow-up demo</div></div>
   </div>
   <div class="demo-badge">FAKE DATA ONLY</div>
 </header>
@@ -123,8 +123,10 @@ button,a{touch-action:manipulation;}
   'use strict';
   const bridge=window.BKFLIntakeBridge;
   const packages=(window.BKFL_INTAKE_SUBMISSIONS&&window.BKFL_INTAKE_SUBMISSIONS.packages)||[];
-  let selectedIndex=0;
-  let current=packages.length?JSON.parse(JSON.stringify(packages[0])):null;
+  const requestedPackageId=new URLSearchParams(window.location.search).get('packageId');
+  const requestedIndex=packages.findIndex(item=>item.packageId===requestedPackageId);
+  let selectedIndex=requestedIndex>=0?requestedIndex:0;
+  let current=packages.length?JSON.parse(JSON.stringify(packages[selectedIndex])):null;
 
   const renderOrganizationBrand=()=>{
     const organization=bridge.readOrganization(window.localStorage);
@@ -164,7 +166,7 @@ button,a{touch-action:manipulation;}
   const section=(id,title,count,body)=>`<section class="section" id="${id}"><div class="section-header"><h2>${escapeHtml(title)}</h2><span class="section-count">${escapeHtml(count||'')}</span></div>${body}</section>`;
 
   const renderProfiles=()=>{
-    document.getElementById('profileStrip').innerHTML=`<span class="profile-strip-label">Completed fake debtor</span>${packages.map((item,index)=>`<button class="profile-button ${index===selectedIndex?'active':''}" type="button" data-profile="${index}">${escapeHtml(bridge.matterClientName(item.matter))}</button>`).join('')}`;
+    document.getElementById('profileStrip').innerHTML=`<span class="profile-strip-label">Incomplete fake debtor</span>${packages.map((item,index)=>`<button class="profile-button ${index===selectedIndex?'active':''}" type="button" data-profile="${index}">${escapeHtml(bridge.matterClientName(item.matter))}</button>`).join('')}`;
   };
 
   const render=()=>{
@@ -173,10 +175,10 @@ button,a{touch-action:manipulation;}
     const primary=matter.debtors[0]||{};
     document.getElementById('clientHeading').textContent=bridge.matterClientName(matter);
     document.getElementById('clientSubtitle').textContent=`Chapter ${matter.chapter} - ${matter.filingState} - ${matter.district}`;
-    document.getElementById('readiness').innerHTML=`<div class="metric"><div class="metric-label">Required fields</div><div class="metric-value">${current.readiness.fieldsFilled}/${current.readiness.fieldsRequired}</div></div><div class="metric"><div class="metric-label">Documents</div><div class="metric-value">${current.readiness.documentsReady}/${current.readiness.documentsRequired}</div></div><div class="metric"><div class="metric-label">Status</div><div class="metric-value">Ready</div></div>`;
+    document.getElementById('readiness').innerHTML=`<div class="metric"><div class="metric-label">Required fields</div><div class="metric-value">${current.readiness.fieldsFilled}/${current.readiness.fieldsRequired}</div></div><div class="metric"><div class="metric-label">Documents</div><div class="metric-value">${current.readiness.documentsReady}/${current.readiness.documentsRequired}</div></div><div class="metric"><div class="metric-label">Status</div><div class="metric-value">Needs client</div></div>`;
     document.getElementById('railStatus').textContent=`${current.readiness.fieldsFilled}/${current.readiness.fieldsRequired} required field groups ready`;
 
-    const debtorFields=matter.debtors.map((debtor,index)=>`<div class="subsection"><div class="subsection-title">${index===0?'Primary debtor':'Joint debtor'}</div><div class="field-grid">${input('First name',`matter.debtors.${index}.firstName`)}${input('Middle name',`matter.debtors.${index}.middleName`)}${input('Last name',`matter.debtors.${index}.lastName`)}${input('Date of birth',`matter.debtors.${index}.dateOfBirth`)}${input('Social Security number',`matter.debtors.${index}.socialSecurityNumber`)}${input('Email',`matter.debtors.${index}.email`,'email')}${input('Phone',`matter.debtors.${index}.phone`)}${input('Street address',`matter.debtors.${index}.address`,'text','wide')}${input('City',`matter.debtors.${index}.city`)}${input('County',`matter.debtors.${index}.county`)}${input('State',`matter.debtors.${index}.state`)}${input('ZIP code',`matter.debtors.${index}.zipCode`)}</div></div>`).join('');
+    const debtorFields=matter.debtors.map((debtor,index)=>`<div class="subsection"><div class="subsection-title">${index===0?'Primary debtor':'Joint debtor'}</div><div class="field-grid">${input('First name',`matter.debtors.${index}.firstName`)}${input('Middle name',`matter.debtors.${index}.middleName`)}${input('Last name',`matter.debtors.${index}.lastName`)}${input('Other names used',`matter.debtors.${index}.otherNames`,'text','wide')}${input('Date of birth',`matter.debtors.${index}.dateOfBirth`)}${input('Social Security number',`matter.debtors.${index}.socialSecurityNumber`)}${input('Email',`matter.debtors.${index}.email`,'email')}${input('Phone',`matter.debtors.${index}.phone`)}${input('Street address',`matter.debtors.${index}.address`,'text','wide')}${input('City',`matter.debtors.${index}.city`)}${input('County',`matter.debtors.${index}.county`)}${input('State',`matter.debtors.${index}.state`)}${input('ZIP code',`matter.debtors.${index}.zipCode`)}</div></div>`).join('');
     const incomes=matter.income.map((item,index)=>`<tr><td>${cell(`matter.income.${index}.source`,item.source)}</td><td>${cell(`matter.income.${index}.employer`,item.employer)}</td><td>${cell(`matter.income.${index}.frequency`,item.frequency)}</td><td>${cell(`matter.income.${index}.amount`,item.amount,'number')}</td><td>${cell(`matter.income.${index}.sixMonthTotal`,item.sixMonthTotal,'number')}</td></tr>`);
     const expenses=matter.expenses.map((item,index)=>`<tr><td>${cell(`matter.expenses.${index}.category`,item.category)}</td><td>${cell(`matter.expenses.${index}.monthlyAmount`,item.monthlyAmount,'number')}</td><td>${cell(`matter.expenses.${index}.notes`,item.notes)}</td></tr>`);
     const assets=matter.assets.map((item,index)=>`<tr><td>${cell(`matter.assets.${index}.description`,item.description)}</td><td>${cell(`matter.assets.${index}.category`,item.category)}</td><td>${cell(`matter.assets.${index}.estimatedValue`,item.estimatedValue,'number')}</td><td>${cell(`matter.assets.${index}.lienAmount`,item.lienAmount,'number')}</td><td>${cell(`matter.assets.${index}.keepIntent`,item.keepIntent)}</td></tr>`);
@@ -194,7 +196,7 @@ button,a{touch-action:manipulation;}
       section('income','Income and expenses',`${money(bridge.total(matter.income,'amount'))} income / ${money(bridge.total(matter.expenses,'monthlyAmount'))} expenses`,`<div class="subsection"><div class="subsection-title">Income</div>${table(['Source','Employer','Frequency','Monthly amount','Six-month total'],incomes,'No income entered.')}</div><div class="subsection"><div class="subsection-title">Monthly expenses</div>${table(['Category','Amount','Notes'],expenses,'No expenses entered.')}</div>`),
       section('property','Property and debts',`${money(bridge.total(matter.assets,'estimatedValue'))} assets / ${money(bridge.total(matter.debts,'amount'))} debt`,`<div class="subsection"><div class="subsection-title">Assets</div>${table(['Description','Category','Value','Lien','Intent'],assets,'No assets entered.')}</div><div class="subsection"><div class="subsection-title">Debts</div>${table(['Creditor','Type','Balance','Arrears','Collateral'],debts,'No debts entered.')}</div>`),
       section('affairs','Financial affairs',`${affairs.length} answers`,`<div class="subsection">${table(['Question','Answer','Entries','Selections'],affairs,'No financial affairs answers entered.')}</div><div class="subsection"><div class="subsection-title">SOFA events</div>${table(['Type','Date','Amount','Description'],sofa,'No SOFA events entered.')}</div><div class="subsection"><div class="subsection-title">Chapter ${matter.chapter} details</div>${table(['Field','Value'],chapterRows,'No chapter details entered.')}</div>`),
-      section('documents','Documents',`${matter.documents.length} of ${matter.documents.length} received`,table(['Document','Category','Status','Notes'],documents,'No documents entered.')),
+      section('documents','Documents',`${current.readiness.documentsReady} of ${current.readiness.documentsRequired} received`,table(['Document','Category','Status','Notes'],documents,'No documents entered.')),
     ].join('');
     updateValidation();
   };
@@ -220,6 +222,7 @@ button,a{touch-action:manipulation;}
     document.getElementById('submitButton').disabled=!ready;
     document.querySelectorAll('.metric-value')[0].textContent=`${current.readiness.fieldsFilled}/${current.readiness.fieldsRequired}`;
     document.querySelectorAll('.metric-value')[1].textContent=`${current.readiness.documentsReady}/${current.readiness.documentsRequired}`;
+    document.querySelectorAll('.metric-value')[2].textContent=ready?'Ready to submit':'Needs client';
     document.getElementById('railStatus').textContent=`${current.readiness.fieldsFilled}/${current.readiness.fieldsRequired} required field groups ready`;
   };
 
@@ -228,6 +231,9 @@ button,a{touch-action:manipulation;}
     if(!button)return;
     selectedIndex=Number(button.dataset.profile);
     current=JSON.parse(JSON.stringify(packages[selectedIndex]));
+    const url=new URL(window.location.href);
+    url.searchParams.set('packageId',current.packageId);
+    window.history.replaceState({},'',url);
     renderProfiles();
     render();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -257,7 +263,29 @@ button,a{touch-action:manipulation;}
     current.matter.personalInfoSubmittedAt=submittedAt;
     current.matter.updatedAt=submittedAt;
     current.matter.status='ready-for-attorney';
+    current.matter.documents=current.matter.documents.map(document=>({
+      ...document,
+      notes:document.status==='received'&&/^Still needed\./i.test(document.notes||'')
+        ?'Received in the fake debtor completion run.'
+        :document.notes,
+      receivedAt:document.status==='received'?(document.receivedAt||submittedAt):document.receivedAt,
+    }));
+    current.reviewFlags=(current.reviewFlags||[]).filter(flag=>!(flag.sectionId==='documents'&&/requests? (?:are )?still open|still needed/i.test(`${flag.title||''} ${flag.detail||''}`)));
     current.readiness.status='ready-for-attorney';
+    current.readiness.fieldsFilled=current.readiness.fieldsRequired;
+    current.readiness.documentsReady=current.readiness.documentsRequired;
+    current.readiness.reviewFlagCount=current.reviewFlags.length;
+    current.completion={
+      ...current.completion,
+      documentCompletion:{applicableRequired:current.readiness.documentsRequired,receivedRequired:current.readiness.documentsRequired},
+      emailDraft:{...current.completion.emailDraft,status:'canceled'},
+      events:[...(current.completion.events||[]),{action:'intake_completed',actor:'Fake debtor',date:submittedAt,id:`intake-completed-${Date.now()}`}],
+      fieldCompletion:{applicableRequired:current.readiness.fieldsRequired,enteredRequired:current.readiness.fieldsRequired,percent:100},
+      missingItems:[],
+      percent:100,
+      revision:Number(current.completion.revision||1)+1,
+      status:'complete',
+    };
     bridge.enqueuePackage(window.localStorage,current);
     window.location.href=`./?view=intake-inbox&packageId=${encodeURIComponent(current.packageId)}`;
   });

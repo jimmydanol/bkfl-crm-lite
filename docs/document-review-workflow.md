@@ -1,257 +1,200 @@
-# BK FastLane CRM Lite - Document Review Workflow
+# BK FastLane CRM Lite - Intake Completion Review Workflow
 
-Status: branch prototype specification
-Audience: product, design, frontend, backend, QA, and bankruptcy-workflow reviewers
-Scope: law-firm review of client document submissions after intake
+## Purpose
 
-## 1. Outcome
+Debtors usually submit an Intake that is mostly, but not entirely, complete. This workflow helps a bankruptcy attorney or paralegal answer two questions quickly:
 
-The workflow gives law-firm staff and attorneys one queue for deciding whether each requested document is usable, needs replacement, or is excused for the matter. Client uploads never become final merely because a file was received or passed automated analysis.
+1. What essential information and documents are still missing?
+2. Is the consolidated reminder email accurate, and when should it be scheduled?
 
-The prototype remains fake/demo-data-only. The production version requires authenticated firm roles, matter authorization, private file storage, immutable audit history, retention rules, and conflict-safe APIs.
+The workflow is matter-based. Staff review one incomplete debtor matter at a time rather than sorting through one queue row per document.
 
-## 2. Actors and authority
+## Prototype boundary
 
-| Actor | Allowed actions |
+The Jimmy branch uses deterministic fake clients and `@example.test` recipients. Email scheduling is simulated in browser storage; it does not contact Gmail, an email provider, a background scheduler, or a real debtor.
+
+Production requires authenticated firm roles, matter-scoped client access, durable scheduling, delivery events, immutable audit records, and conflict-safe APIs.
+
+## End-to-end flow
+
+```mermaid
+flowchart LR
+  A["Debtor enters about 90% of Intake"] --> B["Intake derives missing fields and documents"]
+  B --> C["One completion bundle enters CRM"]
+  C --> D["Attorney or paralegal reviews missing items"]
+  D --> E["Review email body, recipient, Intake link, and scheduled time"]
+  E --> F["Approve and schedule simulated reminder"]
+  F --> G["Debtor returns to Intake and completes items"]
+  G --> B
+```
+
+## Ownership
+
+| Owner | Responsibilities |
 | --- | --- |
-| Client | Upload an initial submission, see client-safe deficiency instructions, upload a replacement, see whether the firm is still reviewing. |
-| Firm staff | Triage received files, preview/download, approve administratively sufficient files when firm policy permits, request replacements, draft/send approved follow-up, and assign review work. |
-| Attorney | Perform every staff action plus excuse a requirement, override a recommendation, and make legal/workflow decisions reserved by firm policy. |
-| Automated analysis | Classify, extract, and recommend. It never approves, rejects, excuses, or makes a filing-readiness decision. |
+| BK FastLane Intake | Canonical debtor data, document-request states, completion calculation, missing-item derivation, Intake return URL, and matter revision. |
+| CRM | Staff-facing completion queue, schedule selection, approval record, exact email snapshot, communication/task entry, and workflow events. |
+| Attorney/paralegal | Confirm the missing requests are appropriate and approve the schedule. |
+| Email service (production only) | Deliver an approved immutable snapshot at its scheduled time and return delivery status. |
 
-Matt must approve which document types and outcomes are staff-authorized versus attorney-only.
-
-## 3. Separate domain objects
-
-Do not represent the entire lifecycle with one mutable `status` field.
-
-### DocumentRequest
-
-One requirement for one matter.
+## Completion bundle
 
 ```ts
-type DocumentRequestStatus =
-  | 'awaiting_upload'
-  | 'pending_review'
-  | 'replacement_requested'
-  | 'satisfied'
-  | 'excused'
-
-interface DocumentRequest {
-  id: string
-  firmId: string
-  matterId: string
-  documentType: string
-  status: DocumentRequestStatus
-  requiredByPolicy: boolean
-  assignedReviewerId?: string
-  dueAt?: string
-  activeSubmissionId?: string
+interface IntakeCompletionBundle {
   revision: number
+  status: 'needs_client_action' | 'complete'
+  percent: number
+
+  fieldCompletion: {
+    applicableRequired: number
+    enteredRequired: number
+    percent: number
+  }
+
+  documentCompletion: {
+    applicableRequired: number
+    receivedRequired: number
+  }
+
+  missingItems: CompletionItem[]
+  intakeResumeUrl: string
+  emailDraft: CompletionEmailDraft
+  events: CompletionEvent[]
 }
-```
 
-### DocumentSubmission
-
-One immutable uploaded version. A replacement creates a new submission; it does not overwrite the rejected file.
-
-```ts
-type DocumentSubmissionStatus =
-  | 'received'
-  | 'under_review'
-  | 'approved'
-  | 'rejected'
-  | 'superseded'
-
-interface DocumentSubmission {
+interface CompletionItem {
   id: string
-  requestId: string
-  version: number
-  storageObjectId: string
-  fileName: string
-  receivedAt: string
-  status: DocumentSubmissionStatus
-  supersedesSubmissionId?: string
+  kind: 'field' | 'document'
+  label: string
+  clientInstruction: string
+  canonicalPath: string
+  essential: true
+  priority: 'high' | 'medium' | 'low'
 }
-```
 
-### DocumentDecision
-
-An immutable adjudication event.
-
-```ts
-type DocumentDecisionAction =
-  | 'approve'
-  | 'request_replacement'
-  | 'excuse'
-  | 'reopen'
-
-interface DocumentDecision {
-  id: string
-  requestId: string
-  submissionId?: string
-  actorId: string
-  actorRole: 'staff' | 'attorney'
-  action: DocumentDecisionAction
-  reasonCode?: string
-  internalNote?: string
-  clientInstruction?: string
-  createdAt: string
-  requestRevision: number
-}
-```
-
-### DocumentCommunication
-
-The exact approved follow-up that was sent.
-
-```ts
-interface DocumentCommunication {
-  id: string
-  requestId: string
-  channel: 'email' | 'sms' | 'portal'
+interface CompletionEmailDraft {
   recipient: string
-  subject?: string
+  subject: string
   bodySnapshot: string
-  status: 'draft' | 'approved' | 'sent' | 'failed'
-  approvedBy?: string
-  sentAt?: string
-  dueAt?: string
+  intakeResumeUrl: string
+  status: 'pending_approval'
+  deliveryMode: 'simulation'
 }
 ```
 
-## 4. State machine
+The Intake agent excludes legal review flags from the debtor email. A review flag may matter to the attorney without being a question the debtor should answer.
+
+## Scheduled email record
+
+The CRM creates this record only after approval:
+
+```ts
+interface ScheduledCompletionEmail {
+  id: string
+  matterRevision: number
+  missingItemIds: string[]
+  recipient: string
+  subject: string
+  bodySnapshot: string
+  intakeResumeUrl: string
+  scheduledFor: string
+  timezone: 'America/Denver'
+  status:
+    | 'pending_approval'
+    | 'approved_scheduled'
+    | 'simulated_sent'
+    | 'canceled'
+    | 'stale'
+    | 'failed'
+  deliveryMode: 'simulation' | 'production'
+  approvedBy?: string
+  approvedAt?: string
+  canceledBy?: string
+  canceledAt?: string
+}
+```
+
+## State transitions
 
 ```mermaid
 stateDiagram-v2
-  [*] --> AwaitingUpload: request created
-  AwaitingUpload --> PendingReview: submission received
-  PendingReview --> Satisfied: firm approves
-  PendingReview --> ReplacementRequested: firm records deficiency
-  PendingReview --> Excused: authorized reviewer excuses
-  ReplacementRequested --> PendingReview: replacement received
-  ReplacementRequested --> Excused: authorized reviewer excuses
-  Satisfied --> PendingReview: reviewer reopens
-  Excused --> AwaitingUpload: reviewer reopens
+  [*] --> PendingApproval
+  PendingApproval --> ApprovedScheduled: staff approves schedule
+  ApprovedScheduled --> SimulatedSent: prototype due-time simulation
+  ApprovedScheduled --> Canceled: staff cancels
+  PendingApproval --> Stale: missing-item revision changes
+  ApprovedScheduled --> Stale: missing-item revision changes before send
+  Stale --> PendingApproval: regenerate exact email snapshot
+  SimulatedSent --> [*]
 ```
 
-Every transition records actor, timestamp, reason where required, and the expected request revision.
+Approval must be idempotent. Repeating approval against the same revision and schedule must not create duplicate communications or tasks.
 
-## 5. Law-firm UI flow
+## UI contract
 
-1. Open **Document Review** from the global CRM navigation.
-2. Use queue filters: Awaiting review, Replacement needed, Resubmitted, Approved, Excused, or All.
-3. Select a request and inspect the active submission, automated-analysis note, requirement policy, and version history.
-4. Choose one disposition:
-   - **Approve**: marks the active submission approved and the request satisfied.
-   - **Request replacement**: requires a client-safe reason, rejects the active version, opens client follow-up, and leaves the request incomplete.
-   - **Excuse**: requires a reason and authorized reviewer; no upload is required for request completion.
-5. Approve and send the follow-up. Persist its exact content and next-due date.
-6. When the client resubmits, add a new immutable version, mark the prior active version superseded, and return the request to pending review.
-7. Approve or reject the replacement. The complete history remains visible.
+The **Document Review** tab defaults to **Needs approval** and displays one row per incomplete matter:
 
-## 6. Readiness rules
+- debtor name and chapter;
+- overall completion percentage;
+- number of missing essential fields;
+- number of missing documents;
+- reminder state.
 
-Keep these gates separate:
+Opening a row shows:
 
-- **Collection progress**: required request has a received submission or an approved excuse.
-- **Review progress**: required request is satisfied or excused.
-- **Attorney package available**: the firm may open an attorney-review package even while collection is incomplete; missing and disputed items remain prominently flagged.
-- **Document-review complete**: every applicable required request is satisfied or excused.
-- **Filing readiness**: never inferred solely from this workflow. It remains an attorney-controlled downstream decision.
+- a short list of missing essential information;
+- a short list of missing documents;
+- exact recipient and subject;
+- complete email body containing every displayed missing item;
+- Intake return link;
+- scheduled date/time;
+- **Approve & schedule reminder**.
 
-## 7. Replacement reason codes
+After approval, the UI shows the schedule, approver, immutable body snapshot, and a cancel action. The CRM also creates one scheduled communication, one follow-up task, one timeline entry, and one completion event.
 
-Use structured internal codes plus editable client-safe instructions:
+## Merge and concurrency rules
 
-- `wrong_document`
-- `wrong_person`
-- `wrong_date_range`
-- `missing_pages`
-- `illegible`
-- `password_protected`
-- `stale_document`
-- `duplicate`
-- `suspected_alteration`
-- `other`
+Intake refreshes may update canonical completion data. They must not overwrite CRM-owned approval state when the missing-item signature is unchanged.
 
-The prototype requires text before a replacement request. Production should store both the code and the exact message sent to the client.
+In the Jimmy prototype, a changed missing-item signature regenerates a pending-approval draft. A completed Intake resubmission removes the matter from Completion Review, cancels any simulated scheduled reminder, and moves the lead to `Intake Submitted` for attorney review.
 
-## 8. API boundary for production
+Production must additionally preserve the prior approval as immutable audit history and, when missing items change without full completion:
 
-Suggested routes:
+1. keep the prior approval event for audit history;
+2. mark an unsent schedule `stale`;
+3. regenerate the email body from the new missing-item list;
+4. require a new staff approval.
 
-```text
-GET    /api/firms/:firmId/document-review-queue
-GET    /api/matters/:matterId/document-requests
-POST   /api/document-requests/:requestId/submissions
-GET    /api/document-submissions/:submissionId/download
-POST   /api/document-requests/:requestId/decisions
-POST   /api/document-requests/:requestId/communications
+Production mutations should include an expected revision or ETag and return `409 Conflict` when stale.
+
+## Fake-debtor parity contract
+
+The deterministic parity run must prove:
+
+1. exactly 10 unique fake matters and package IDs;
+2. all recipients end in `@example.test`;
+3. each matter is 85-95% complete;
+4. each matter omits at least one essential field and one document;
+5. source document states remain received or needed as generated;
+6. every missing field/document appears in the completion bundle and email body;
+7. every Jimmy-branch Intake link opens `intake-demo.html` with the matching `packageId` selected;
+8. CRM import produces 10 matter-level completion rows;
+9. approving a schedule records actor, time, schedule, exact body, task, communication, and timeline event;
+10. reload and feed re-import preserve the approval and schedule;
+11. the Jimmy branch makes no external send request.
+12. completing the fake Intake cancels a simulated schedule and moves the matter out of the completion queue into attorney review.
+
+Run the full contract with:
+
+```powershell
+node scripts/run-10-client-completion-review-parity.mjs
 ```
 
-Mutation requests must include an expected revision or ETag. Return `409 Conflict` for stale decisions so an attorney approval cannot silently overwrite a newer client resubmission.
+## Production follow-ons
 
-## 9. Audit events
-
-At minimum, record:
-
-- request created or reopened;
-- submission received;
-- automated analysis completed;
-- review assigned;
-- approved;
-- replacement requested with reason;
-- follow-up approved/sent/failed;
-- replacement received;
-- prior version superseded;
-- excused with reason;
-- conflict rejected by the API.
-
-Uploaded versions and decisions should not be deleted through normal UI actions. Retention and legal-hold behavior require firm-policy approval.
-
-## 10. Prototype mapping
-
-The branch prototype stores data in `localStorage` and extends existing `lead.docChecklist[]` rows with optional fields:
-
-- `reviewStatus`
-- `versions[]`
-- `reviewEvents[]`
-- `replacementReason`
-- `excuseReason`
-- `followUpSentAt`
-
-Legacy values are normalized for display:
-
-| Existing value | Review queue state |
-| --- | --- |
-| `ai_accepted`, `ai_flagged` | Pending review |
-| `approved` | Approved |
-| `open` plus rejected/replacement metadata | Replacement needed |
-| `reason_given` with a non-chase reason | Excused / attorney review |
-| other `open` values | Awaiting upload |
-
-This compatibility layer is for the demo only; production should use the separate objects above.
-
-## 11. Acceptance scenarios
-
-1. Initial upload appears in Awaiting review and does not count as approved.
-2. Approve records reviewer/time and moves the request to Approved.
-3. Request replacement cannot complete without a reason.
-4. Sending follow-up records the communication and its next-due date.
-5. Resubmission creates version 2, preserves version 1, and returns to review.
-6. Approving version 2 closes the request without deleting version 1.
-7. Excuse requires a reason and is reversible.
-8. A stale revision returns a conflict rather than overwriting newer state.
-9. A client cannot access firm review controls.
-10. Attorney-package access remains separate from document-review completion.
-
-## 12. Open decisions for Matt
-
-- Which outcomes may staff select, and which require an attorney?
-- Does approval mean correct/readable, complete date coverage, corroborated intake data, or all three?
-- Which document requests are always required versus conditional by debtor facts and chapter?
-- Which excuse reasons are allowed and must any expire or require second review?
-- Which deficiency details may be shown to the client versus kept internal?
-- What follow-up cadence, channel, escalation, and stop rules should the firm use?
-- How long should rejected and superseded versions remain available?
+- Replace the Jimmy `packageId` selector with authenticated, expiring resume tokens on `intake.bkfastlane.com`.
+- Separate delivery execution from approval and use a durable job queue.
+- Add role-based permission checks for attorney, paralegal, and client.
+- Store immutable audit events and exact outbound message snapshots.
+- Add stale-revision handling when a debtor edits Intake after approval.
+- Add delivery, bounce, retry, cancellation, and opt-out rules.

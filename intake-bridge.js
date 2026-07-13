@@ -91,16 +91,32 @@
     if (clean(candidate?.source?.system) !== 'BK FastLane Intake') errors.push('Unexpected package source.')
     if (!matter || typeof matter !== 'object') errors.push('Canonical Matter payload is required.')
     if (!clean(matter?.id)) errors.push('Matter ID is required.')
-    if (matter?.status !== 'ready-for-attorney') errors.push('Matter is not ready for attorney review.')
     if (!['7', '13'].includes(String(matter?.chapter))) errors.push('Bankruptcy chapter is invalid.')
     if (!asArray(matter?.debtors).length || !debtorName(matter?.debtors?.[0])) {
       errors.push('Primary debtor identity is incomplete.')
     }
     if (!clean(candidate?.submittedAt)) errors.push('Submission timestamp is required.')
 
-    const readiness = candidate?.readiness || {}
-    if (readiness.fieldsFilled !== readiness.fieldsRequired) errors.push('Required field coverage is incomplete.')
-    if (readiness.documentsReady !== readiness.documentsRequired) errors.push('Required documents are incomplete.')
+    const completion = candidate?.completion || {}
+    const missingItems = asArray(completion.missingItems)
+    const needsClientAction = completion.status === 'needs_client_action'
+    const isComplete = completion.status === 'complete'
+    if (!needsClientAction && !isComplete) errors.push('Completion status is invalid.')
+    if (needsClientAction) {
+      if (matter?.status !== 'review') errors.push('Matter is not awaiting intake completion review.')
+      if (completion.percent < 85 || completion.percent > 95) errors.push('Completion must be between 85% and 95%.')
+      if (!missingItems.some((item) => item?.kind === 'field')) errors.push('At least one missing field is required.')
+      if (!missingItems.some((item) => item?.kind === 'document')) errors.push('At least one missing document is required.')
+    }
+    if (isComplete) {
+      if (matter?.status !== 'ready-for-attorney') errors.push('Completed matter is not ready for attorney review.')
+      if (completion.percent !== 100 || missingItems.length) errors.push('Completed Intake must be 100% with no missing items.')
+      if (candidate?.readiness?.fieldsFilled !== candidate?.readiness?.fieldsRequired) errors.push('Completed Intake fields are not ready.')
+      if (candidate?.readiness?.documentsReady !== candidate?.readiness?.documentsRequired) errors.push('Completed Intake documents are not ready.')
+    }
+    if (!clean(completion.intakeResumeUrl)) errors.push('Intake return URL is required.')
+    if (completion.emailDraft?.deliveryMode !== 'simulation') errors.push('Only simulated email delivery is allowed.')
+    if (!clean(completion.emailDraft?.recipient).endsWith('@example.test')) errors.push('Reminder recipient must be fake-safe.')
 
     return { errors, valid: errors.length === 0 }
   }
@@ -131,6 +147,13 @@
     const submittedDate = dateOnly(intakePackage.submittedAt)
     const stableId = `intake-${intakePackage.packageId}`
     const clientName = matterClientName(matter)
+    const completion = intakePackage.completion
+    const isComplete = completion.status === 'complete'
+    const missingSignature = asArray(completion.missingItems)
+      .map((item) => clean(item?.id))
+      .filter(Boolean)
+      .sort()
+      .join('|')
     const nextDay = new Date(`${submittedDate}T12:00:00Z`)
     nextDay.setUTCDate(nextDay.getUTCDate() + 1)
 
@@ -153,7 +176,7 @@
       createdDate: dateOnly(matter.createdAt) || submittedDate,
       customFields: {
         intakePackageId: intakePackage.packageId,
-        intakeReadiness: 'Ready for attorney',
+        intakeReadiness: isComplete ? 'Ready for attorney' : 'Client action needed',
         intakeSubmittedDate: submittedDate,
       },
       docChecklist: asArray(matter.documents).map((document, index) => {
@@ -200,6 +223,28 @@
       email: clean(primary.email),
       firstName: clean(primary.firstName),
       id: stableId,
+      intakeCompletion: {
+        ...completion,
+        followUp: {
+          ...completion.emailDraft,
+          approvedAt: undefined,
+          approvedBy: undefined,
+          id: `${stableId}-completion-reminder`,
+          matterRevision: completion.revision,
+          missingItemIds: asArray(completion.missingItems).map((item) => item.id),
+          scheduledFor: '',
+          status: isComplete ? 'canceled' : 'pending_approval',
+          ...(isComplete
+            ? {
+                canceledAt: intakePackage.submittedAt,
+                canceledBy: 'BK FastLane Intake',
+                cancelReason: 'Debtor completed the outstanding Intake items.',
+              }
+            : {}),
+          timezone: 'America/Denver',
+        },
+        missingSignature,
+      },
       intakePackage,
       intakeSubmittedDate: submittedDate,
       intakeSentDate: submittedDate,
@@ -207,28 +252,32 @@
       leadNotes: [clean(matter.clientGoals), clean(matter.urgentConcerns)]
         .filter(Boolean)
         .join(' Urgent: '),
-      leadStage: 'Intake Submitted',
+      leadStage: isComplete ? 'Intake Submitted' : 'Intake In Progress',
       notes: [],
       phone: clean(primary.phone),
       tasks: [
         {
           assignee: 'Matt McCune',
-          description: `Review the complete BK FastLane Intake package for ${clientName}.`,
+          description: isComplete
+            ? `Review the completed BK FastLane Intake package for ${clientName}.`
+            : `Review missing Intake items and approve a scheduled reminder for ${clientName}.`,
           due: nextDay.toISOString().slice(0, 10),
           id: `${stableId}-attorney-review`,
           priority: clean(matter.urgentConcerns) ? 'High' : 'Medium',
-          stage: 'Intake Submitted',
+          stage: isComplete ? 'Intake Submitted' : 'Intake In Progress',
           status: 'Pending',
-          title: 'Review completed Intake package',
+          title: isComplete ? 'Review completed Intake package' : 'Approve incomplete Intake reminder',
         },
       ],
       timeEntries: [],
       timeline: [
         {
-          action: 'Complete Intake package received',
+          action: isComplete ? 'Debtor completed outstanding Intake items' : 'Incomplete Intake package received',
           date: submittedDate,
-          detail: `${intakePackage.readiness.fieldsFilled}/${intakePackage.readiness.fieldsRequired} required field groups and ${intakePackage.readiness.documentsReady}/${intakePackage.readiness.documentsRequired} documents received.`,
-          id: `${stableId}-received`,
+          detail: isComplete
+            ? '100% complete; the reminder schedule was canceled and the package moved to attorney review.'
+            : `${completion.percent}% complete with ${completion.missingItems.length} client items still needed.`,
+          id: isComplete ? `${stableId}-completed-r${completion.revision}` : `${stableId}-received`,
           user: 'BK FastLane Intake',
         },
       ],
@@ -271,21 +320,74 @@
       if (!incomingDocumentIds.has(document?.docId)) mergedChecklist.push(document)
     })
 
+    const existingCompletion = list[existingIndex]?.intakeCompletion
+    const sameMissingItems =
+      existingCompletion?.missingSignature === incoming.intakeCompletion.missingSignature
+    const mergedCompletion = sameMissingItems
+      ? {
+          ...incoming.intakeCompletion,
+          ...existingCompletion,
+          documentCompletion: incoming.intakeCompletion.documentCompletion,
+          emailDraft: incoming.intakeCompletion.emailDraft,
+          fieldCompletion: incoming.intakeCompletion.fieldCompletion,
+          intakeResumeUrl: incoming.intakeCompletion.intakeResumeUrl,
+          missingItems: incoming.intakeCompletion.missingItems,
+          missingSignature: incoming.intakeCompletion.missingSignature,
+          percent: incoming.intakeCompletion.percent,
+          revision: incoming.intakeCompletion.revision,
+        }
+      : incoming.intakeCompletion
+
+    const completedNow = incoming.intakeCompletion.status === 'complete'
+
     return list.map((lead, index) =>
       index === existingIndex
         ? {
             ...incoming,
             ...lead,
             bankruptcyType: incoming.bankruptcyType,
+            communications: completedNow
+              ? asArray(lead.communications).map((communication) =>
+                  communication?.deliveryMode === 'simulation' &&
+                  communication?.status === 'Scheduled'
+                    ? {
+                        ...communication,
+                        canceledAt: incoming.intakePackage.submittedAt,
+                        status: 'Canceled',
+                      }
+                    : communication,
+                )
+              : lead.communications,
             contacts: incoming.contacts,
             docChecklist: mergedChecklist,
             email: incoming.email,
             firstName: incoming.firstName,
+            intakeCompletion: mergedCompletion,
             intakePackage: incoming.intakePackage,
             intakeSubmittedDate: incoming.intakeSubmittedDate,
             lastName: incoming.lastName,
             leadStage: incoming.leadStage,
             phone: incoming.phone,
+            tasks: completedNow
+              ? [
+                  ...incoming.tasks,
+                  ...asArray(lead.tasks)
+                    .filter((task) => task?.id !== incoming.tasks[0]?.id)
+                    .map((task) =>
+                      task?.title === 'Simulated intake reminder scheduled'
+                        ? { ...task, status: 'Canceled' }
+                        : task,
+                    ),
+                ]
+              : lead.tasks,
+            timeline: completedNow
+              ? [
+                  ...incoming.timeline,
+                  ...asArray(lead.timeline).filter(
+                    (event) => event?.id !== incoming.timeline[0]?.id,
+                  ),
+                ]
+              : lead.timeline,
           }
         : lead,
     )
