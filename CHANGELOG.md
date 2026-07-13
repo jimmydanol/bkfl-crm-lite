@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-13 - Branch-only document review workflow
+
+- Added a global **Document Review** navigation tab for the law-firm queue.
+- Added explicit review views for awaiting review, replacement needed, resubmitted, awaiting upload, approved, and excused requests.
+- Added reason-required replacement and excusal decisions, tracked follow-up, simulated resubmission, version history, and decision history for the fake-data prototype.
+- Added `docs/document-review-workflow.md` with the production-oriented state machine, roles, data objects, API boundary, concurrency rules, audit events, and acceptance scenarios.
+- Kept the change on Jimmy's GitHub Pages source branch; no upstream/default-branch files were changed.
+
 ## 2026-07-10
 
 ### Organization name synchronization (`65cb128`)

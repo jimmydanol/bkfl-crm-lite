@@ -45,6 +45,8 @@ a{text-decoration:none;}
   .crm-record-detail>div:first-child{padding-left:14px!important;padding-right:14px!important;}
   .crm-record-detail>div:last-child{padding:12px!important;}
   [data-testid="intake-package-view"]>div:first-child{padding:14px!important;}
+  .document-review-grid{grid-template-columns:1fr!important;}
+  .document-review-process{grid-template-columns:1fr!important;}
 }
 </style>
 </head>
@@ -678,6 +680,7 @@ const sidebarItems=[
   {key:"dashboard",label:"DASHBOARD",d:"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"},
   {key:"intake-inbox",label:"INTAKE INBOX",d:"M4 4h16v12H4z M4 12h4l2 3h4l2-3h4 M8 8h8"},
   {key:"leads",label:"LEADS",d:"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"},
+  {key:"document-review",label:"DOC REVIEW",d:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M8 13l2 2 4-4 M8 19h8"},
   {key:"contacts",label:"CONTACTS",d:"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"},
   {key:"settings",label:"SETTINGS",d:"M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"},
 ];
@@ -3033,6 +3036,182 @@ const DEFAULT_TASK_TEMPLATES=[];
 
 
 
+const DOCUMENT_REVIEW_STATE={
+  pending_review:{label:"Awaiting review",color:"#9a6700",bg:"#fff6d8",border:"#e9c46a"},
+  resubmitted:{label:"Resubmitted",color:"#6c3483",bg:"#f3e8fd",border:"#c9a7dc"},
+  replacement_requested:{label:"Replacement needed",color:"#b42318",bg:"#fdecec",border:"#f0a8a2"},
+  awaiting_upload:{label:"Awaiting upload",color:"#7a5b00",bg:"#fff8df",border:"#e3c86e"},
+  approved:{label:"Approved",color:"#2f6b3c",bg:"#e7f2e9",border:"#94b89b"},
+  excused:{label:"Excused",color:"#59636e",bg:"#f0f2f4",border:"#c7cdd3"},
+};
+
+function documentReviewState(document){
+  if(document.reviewStatus&&DOCUMENT_REVIEW_STATE[document.reviewStatus])return document.reviewStatus;
+  if(document.status==="approved")return "approved";
+  if(document.status==="ai_accepted"||document.status==="ai_flagged")return "pending_review";
+  if(document.status==="open"&&(document.reason==="rejected"||document.replacementReason))return "replacement_requested";
+  if(document.status==="reason_given"&&!CHASE_REASONS.includes(document.reason))return "excused";
+  return "awaiting_upload";
+}
+
+function documentReviewVersions(document){
+  if(Array.isArray(document.versions)&&document.versions.length)return document.versions;
+  const fileName=document.fileName||document.rejectedFile;
+  if(!fileName)return [];
+  const state=documentReviewState(document);
+  return [{
+    id:"legacy-"+document.id,
+    version:1,
+    fileName,
+    receivedAt:document.date||document.approvedDate||"Imported demo record",
+    status:state==="approved"?"approved":state==="replacement_requested"?"rejected":"under_review",
+  }];
+}
+
+function documentReviewName(document){
+  const meta=docMeta(document.docId);
+  if(meta.name&&meta.name!==document.docId)return meta.name;
+  return (document.fileName||document.rejectedFile||"Intake document").replace(/\s*\(fake demo\)$/i,"");
+}
+
+function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
+  const [filter,setFilter]=useState("pending_review");
+  const [selectedKey,setSelectedKey]=useState(null);
+  const [decisionReason,setDecisionReason]=useState("");
+  const [notice,setNotice]=useState("");
+  const today=new Date().toISOString().split("T")[0];
+  const items=useMemo(()=>leads.flatMap(lead=>(lead.docChecklist||[]).map(document=>({
+    key:lead.id+":"+document.id,
+    lead,
+    document,
+    state:documentReviewState(document),
+    name:document.customName||documentReviewName(document),
+    requirement:docMeta(document.docId).req||"optional",
+  }))),[leads]);
+  const filtered=items.filter(item=>filter==="all"||item.state===filter);
+  const selected=filtered.find(item=>item.key===selectedKey)||filtered[0]||null;
+  const counts=Object.keys(DOCUMENT_REVIEW_STATE).reduce((result,state)=>({...result,[state]:items.filter(item=>item.state===state).length}),{});
+  const patchDocument=(leadId,documentId,mutator)=>setLeads(current=>current.map(lead=>lead.id!==leadId?lead:{...lead,docChecklist:(lead.docChecklist||[]).map(document=>document.id===documentId?mutator(document):document)}));
+  const reviewEvent=(action,detail)=>({id:Date.now()+Math.random(),action,detail,date:new Date().toISOString(),actor:"Matt McCune"});
+  const updateSelected=(mutator)=>{if(selected)patchDocument(selected.lead.id,selected.document.id,mutator);};
+  const requireReason=()=>{
+    if(decisionReason.trim())return true;
+    setNotice("Enter a reason before recording this decision.");
+    return false;
+  };
+  const approve=()=>{
+    if(!selected)return;
+    updateSelected(document=>{
+      const versions=documentReviewVersions(document);
+      const nextVersions=versions.map((version,index)=>index===versions.length-1?{...version,status:"approved",decidedAt:new Date().toISOString(),decidedBy:"Matt McCune"}:version);
+      return {...document,status:"approved",reviewStatus:"approved",approvedDate:today,approvedBy:"Matt McCune",reason:undefined,replacementReason:undefined,versions:nextVersions,reviewEvents:[...(document.reviewEvents||[]),reviewEvent("approved","Active submission approved by the firm.")]};
+    });
+    setDecisionReason("");setNotice("Document approved. The request is now satisfied.");
+  };
+  const requestReplacement=()=>{
+    if(!selected||!requireReason())return;
+    const reason=decisionReason.trim();
+    updateSelected(document=>{
+      const versions=documentReviewVersions(document);
+      const nextVersions=versions.map((version,index)=>index===versions.length-1?{...version,status:"rejected",decidedAt:new Date().toISOString(),decidedBy:"Matt McCune",reason}:version);
+      return {...document,status:"open",reason:"rejected",reviewStatus:"replacement_requested",replacementReason:reason,rejectedFile:document.fileName||document.rejectedFile,versions:nextVersions,reviewEvents:[...(document.reviewEvents||[]),reviewEvent("replacement_requested",reason)]};
+    });
+    setDecisionReason("");setNotice("Replacement requested. Review and send the client follow-up next.");
+  };
+  const excuse=()=>{
+    if(!selected||!requireReason())return;
+    const reason=decisionReason.trim();
+    updateSelected(document=>({...document,status:"reason_given",reason:"doesnt_apply",reviewStatus:"excused",excuseReason:reason,excusedAt:new Date().toISOString(),excusedBy:"Matt McCune",reviewEvents:[...(document.reviewEvents||[]),reviewEvent("excused",reason)]}));
+    setDecisionReason("");setNotice("Requirement excused with an auditable reason.");
+  };
+  const reopen=()=>{
+    if(!selected)return;
+    updateSelected(document=>({...document,status:"open",reviewStatus:"awaiting_upload",reason:undefined,excuseReason:undefined,approvedDate:undefined,approvedBy:undefined,reviewEvents:[...(document.reviewEvents||[]),reviewEvent("reopened","The request was reopened for collection and review.")]}));
+    setNotice("Request reopened and returned to Awaiting upload.");
+  };
+  const sendFollowUp=()=>{
+    if(!selected)return;
+    const leadId=selected.lead.id,documentId=selected.document.id,documentName=selected.name;
+    setLeads(current=>current.map(lead=>{
+      if(lead.id!==leadId)return lead;
+      const currentDocument=(lead.docChecklist||[]).find(document=>document.id===documentId);
+      const reason=currentDocument?.replacementReason||currentDocument?.note||"Please upload a complete, readable replacement.";
+      const nextDue=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
+      const body="Hi "+lead.firstName+",\n\nWe reviewed your "+documentName+" and need a replacement.\n\nWhat we need: "+reason+"\n\nPlease upload the replacement through your secure portal. You do not need to resend documents we already approved.\n\nMatt McCune";
+      const communication={id:Date.now(),date:today,type:"Email",direction:"Outgoing",subject:"Replacement needed: "+documentName,body,to:lead.firstName+" "+lead.lastName,email:lead.email||"",documentRequestId:documentId};
+      const task={id:Date.now()+1,title:"Follow up: "+documentName,due:nextDue,status:"Pending",assignee:"Matt McCune",stage:"Document replacement"};
+      return {...lead,
+        docChecklist:(lead.docChecklist||[]).map(document=>document.id===documentId?{...document,requestedDate:today,followUpSentAt:new Date().toISOString(),followUpDue:nextDue,reviewEvents:[...(document.reviewEvents||[]),reviewEvent("follow_up_sent",reason)]}:document),
+        communications:[communication,...(lead.communications||[])],
+        tasks:[task,...(lead.tasks||[])],
+        timeline:[{id:Date.now()+2,date:today,action:"Document replacement requested",detail:documentName+" - "+reason,user:"Matt McCune"},...(lead.timeline||[])],
+      };
+    }));
+    setNotice("Follow-up sent and logged. A seven-day follow-up task was created.");
+  };
+  const uploadReplacement=()=>{
+    if(!selected)return;
+    const input=document.createElement("input");
+    input.type="file";
+    input.onchange=()=>{
+      const file=input.files&&input.files[0];
+      if(!file)return;
+      updateSelected(currentDocument=>{
+        const versions=documentReviewVersions(currentDocument);
+        const last=versions[versions.length-1];
+        const nextVersion={id:"submission-"+Date.now(),version:versions.length+1,fileName:file.name,receivedAt:new Date().toISOString(),status:"under_review",supersedesSubmissionId:last?.id};
+        return {...currentDocument,status:"ai_accepted",reviewStatus:"resubmitted",fileName:file.name,date:today,reason:undefined,aiNote:"Replacement received - awaiting firm review",versions:[...versions,nextVersion],reviewEvents:[...(currentDocument.reviewEvents||[]),reviewEvent("replacement_received",file.name)]};
+      });
+      setNotice("Replacement received as a new version. The prior version remains in history.");
+      setFilter("resubmitted");
+    };
+    input.click();
+  };
+  const statePill=(state)=>{const meta=DOCUMENT_REVIEW_STATE[state];return <span style={{display:"inline-flex",padding:"3px 8px",borderRadius:999,fontSize:10.5,fontWeight:700,color:meta.color,background:meta.bg,border:"1px solid "+meta.border}}>{meta.label}</span>;};
+  const filterOptions=[
+    ["pending_review","Awaiting review"],["replacement_requested","Replacement needed"],["resubmitted","Resubmitted"],["awaiting_upload","Awaiting upload"],["approved","Approved"],["excused","Excused"],["all","All"],
+  ];
+  const versions=selected?documentReviewVersions(selected.document):[];
+  const events=selected?(selected.document.reviewEvents||[]):[];
+  const button={padding:"8px 13px",borderRadius:6,border:"1px solid #d0d0d0",background:"#fff",color:"#4b5563",fontSize:12,fontWeight:650,cursor:"pointer"};
+  return <div data-testid="document-review-page" style={{padding:"24px 28px",flex:1,background:"#FBFAF7"}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",marginBottom:18,flexWrap:"wrap"}}>
+      <div><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>LAW-FIRM WORKFLOW</p><h1 style={{fontSize:24,fontWeight:750,color:"#2f3b34",margin:0}}>Document Review</h1><p style={{fontSize:13,color:"#69726d",marginTop:6,maxWidth:720,lineHeight:1.55}}>Review client submissions, approve or excuse requirements, request replacements, track follow-up, and preserve every resubmitted version.</p></div>
+      <a href="./docs/document-review-workflow.md" target="_blank" rel="noreferrer" style={{...button,display:"inline-flex",alignItems:"center",color:"#214e5f"}}>Developer workflow spec</a>
+    </div>
+    <div style={{padding:"10px 13px",borderRadius:8,background:"#fff8df",border:"1px solid #ead28b",fontSize:12,color:"#6d5712",marginBottom:16}}>Fake-data branch prototype. Automated analysis recommends; only the law firm records a disposition. Production requires role-based authorization, private storage, immutable audit events, and conflict-safe APIs.</div>
+    <div className="document-review-process" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:10,marginBottom:16}}>
+      {[["1","Receive","Upload creates a pending review item."],["2","Decide","Approve, replace, or excuse with a reason."],["3","Follow up","Send and log client-safe replacement instructions."],["4","Re-review","New version returns to review; history stays visible."]].map(step=><div key={step[0]} style={{background:"#fff",border:"1px solid #e2e6e2",borderRadius:8,padding:13}}><div style={{width:24,height:24,borderRadius:"50%",background:"#dce8de",color:"#3d5c43",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:7}}>{step[0]}</div><strong style={{fontSize:12.5,color:"#37433b"}}>{step[1]}</strong><p style={{fontSize:11,color:"#7b837e",lineHeight:1.45,marginTop:4}}>{step[2]}</p></div>)}
+    </div>
+    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}}>{filterOptions.map(([key,label])=><button key={key} onClick={()=>{setFilter(key);setSelectedKey(null);setNotice("");}} style={{...button,background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863",borderColor:filter===key?"#214e5f":"#d8ddd9"}}>{label} ({key==="all"?items.length:counts[key]||0})</button>)}</div>
+    {notice&&<div aria-live="polite" style={{padding:"9px 12px",borderRadius:7,background:"#e7f2e9",border:"1px solid #a6c6ac",color:"#315c39",fontSize:12,marginBottom:12}}>{notice}</div>}
+    <div className="document-review-grid" style={{display:"grid",gridTemplateColumns:"minmax(310px,.9fr) minmax(420px,1.4fr)",gap:14,alignItems:"start"}}>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:9,overflow:"hidden"}}>
+        <div style={{padding:"12px 15px",borderBottom:"1px solid #edf0ed",fontSize:12,fontWeight:750,color:"#3d4941"}}>Queue - {filtered.length} request{filtered.length===1?"":"s"}</div>
+        <div style={{maxHeight:610,overflowY:"auto"}}>{filtered.map(item=><button key={item.key} onClick={()=>{setSelectedKey(item.key);setDecisionReason("");setNotice("");}} style={{display:"block",width:"100%",textAlign:"left",padding:"13px 15px",border:"none",borderBottom:"1px solid #f0f2f0",background:selected?.key===item.key?"#eef4ef":"#fff",cursor:"pointer"}}><div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}><strong style={{fontSize:12.5,color:"#37433b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</strong>{statePill(item.state)}</div><div style={{fontSize:11.5,color:"#7b837e",marginTop:5}}>{item.lead.firstName} {item.lead.lastName} - {item.lead.bankruptcyType}</div><div style={{fontSize:10.5,color:"#9aa19c",marginTop:3}}>{item.document.fileName||item.document.rejectedFile||"No active upload"}</div></button>)}</div>
+        {!filtered.length&&<div style={{padding:32,textAlign:"center",fontSize:12,color:"#99a09b"}}>Nothing in this queue.</div>}
+      </section>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:9,overflow:"hidden"}}>
+        {!selected?<div style={{padding:48,textAlign:"center",fontSize:13,color:"#99a09b"}}>Select a queue item to review it.</div>:<React.Fragment>
+          <div style={{padding:"16px 18px",borderBottom:"1px solid #edf0ed",display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start"}}><div><p style={{fontSize:11,color:"#89918c",marginBottom:4}}>{selected.lead.firstName} {selected.lead.lastName}</p><h2 style={{fontSize:17,color:"#344038",margin:0}}>{selected.name}</h2><p style={{fontSize:11.5,color:"#89918c",marginTop:5}}>Policy: {selected.requirement} - {docMeta(selected.document.docId).when||"Firm-requested document"}</p></div>{statePill(selected.state)}</div>
+          <div style={{padding:18}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8,marginBottom:15}}>{[["Active file",selected.document.fileName||selected.document.rejectedFile||"None"],["Automated analysis",selected.document.aiNote||"No recommendation"],["Follow-up",selected.document.followUpSentAt?"Sent "+selected.document.followUpSentAt.slice(0,10):"Not sent"]].map(row=><div key={row[0]} style={{padding:10,background:"#f8faf8",borderRadius:7,border:"1px solid #edf0ed",minWidth:0}}><small style={{display:"block",fontSize:9.5,fontWeight:800,letterSpacing:".05em",color:"#939b96",textTransform:"uppercase",marginBottom:5}}>{row[0]}</small><div style={{fontSize:11.5,color:"#455149",lineHeight:1.4,overflowWrap:"anywhere"}}>{row[1]}</div></div>)}</div>
+            {(selected.state==="pending_review"||selected.state==="resubmitted")&&<div style={{marginBottom:16}}><label style={{display:"block",fontSize:11.5,fontWeight:700,color:"#4c5750",marginBottom:6}}>Decision reason <span style={{fontWeight:400,color:"#8c948f"}}>(required for replacement or excuse)</span></label><textarea value={decisionReason} onChange={event=>setDecisionReason(event.target.value)} placeholder="Client-safe explanation, e.g. Pages 3-4 are missing from the March statement." rows={3} style={{width:"100%",padding:10,border:"1px solid #d5dad6",borderRadius:7,resize:"vertical",fontSize:12,outline:"none"}}/><div style={{display:"flex",gap:7,flexWrap:"wrap",marginTop:8}}><button onClick={approve} style={{...button,background:"#3f7049",color:"#fff",borderColor:"#3f7049"}}>Approve</button><button onClick={requestReplacement} style={{...button,color:"#b42318",borderColor:"#e5aaa5"}}>Request replacement</button><button onClick={excuse} style={button}>Excuse requirement</button></div></div>}
+            {selected.state==="replacement_requested"&&<div style={{padding:12,background:"#fdf2f1",border:"1px solid #efc0bc",borderRadius:8,marginBottom:16}}><strong style={{fontSize:12,color:"#92352d"}}>Replacement instructions</strong><p style={{fontSize:12,color:"#6e4945",lineHeight:1.5,marginTop:5}}>{selected.document.replacementReason||selected.document.note||"A complete, readable replacement is required."}</p><textarea value={decisionReason} onChange={event=>setDecisionReason(event.target.value)} placeholder="Reason required only if you excuse this requirement instead." rows={2} style={{width:"100%",padding:9,border:"1px solid #e3bbb7",borderRadius:6,resize:"vertical",fontSize:11.5,outline:"none",marginTop:9}}/><div style={{display:"flex",gap:7,flexWrap:"wrap",marginTop:9}}><button onClick={sendFollowUp} style={{...button,background:"#214e5f",color:"#fff",borderColor:"#214e5f"}}>Approve & send follow-up</button><button onClick={uploadReplacement} style={button}>Simulate client resubmission</button><button onClick={excuse} style={button}>Excuse instead</button></div></div>}
+            {(selected.state==="approved"||selected.state==="excused")&&<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,padding:12,background:"#f4f7f4",borderRadius:8,marginBottom:16}}><div><strong style={{fontSize:12,color:"#455149"}}>{selected.state==="approved"?"Request satisfied":"Requirement excused"}</strong><p style={{fontSize:11.5,color:"#7b837e",marginTop:3}}>{selected.document.excuseReason||("Recorded by "+(selected.document.approvedBy||selected.document.excusedBy||"the firm"))}</p></div><button onClick={reopen} style={button}>Reopen</button></div>}
+            {selected.state==="awaiting_upload"&&<div style={{padding:12,background:"#fff8df",border:"1px solid #ead28b",borderRadius:8,marginBottom:16}}><strong style={{fontSize:12,color:"#6d5712"}}>Waiting for the client</strong><p style={{fontSize:11.5,color:"#7e6b2e",lineHeight:1.5,marginTop:4}}>No active submission is available for firm review. Use the lead's Documents tab to include this item in the next collection request.</p></div>}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+              <div><h3 style={{fontSize:12.5,color:"#3d4941",marginBottom:8}}>Version history</h3>{versions.length?versions.slice().reverse().map(version=><div key={version.id} style={{padding:"8px 9px",borderLeft:"3px solid "+(version.status==="approved"?"#7a9c80":version.status==="rejected"?"#dc6b62":"#d7b64b"),background:"#fafbfa",marginBottom:6}}><div style={{fontSize:11.5,fontWeight:700,color:"#4a554e"}}>v{version.version} - {version.fileName}</div><div style={{fontSize:10.5,color:"#8a928d",marginTop:2}}>{version.status.replace("_"," ")} - {String(version.receivedAt).slice(0,10)}</div>{version.reason&&<div style={{fontSize:10.5,color:"#a0443d",marginTop:3}}>{version.reason}</div>}</div>):<p style={{fontSize:11.5,color:"#9aa19c"}}>No upload versions yet.</p>}</div>
+              <div><h3 style={{fontSize:12.5,color:"#3d4941",marginBottom:8}}>Decision history</h3>{events.length?events.slice().reverse().map(event=><div key={event.id} style={{padding:"7px 0",borderBottom:"1px solid #eef0ee"}}><div style={{fontSize:11.5,fontWeight:700,color:"#4a554e"}}>{event.action.replaceAll("_"," ")}</div><div style={{fontSize:10.5,color:"#8a928d",marginTop:2}}>{String(event.date).slice(0,16).replace("T"," ")} - {event.actor}</div><div style={{fontSize:10.5,color:"#6f7872",marginTop:2}}>{event.detail}</div></div>):<p style={{fontSize:11.5,color:"#9aa19c"}}>Legacy record - no structured events yet.</p>}</div>
+            </div>
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}><button onClick={()=>{setSelectedLead(selected.lead.id);setPage("lead-detail");}} style={{...button,color:"#214e5f"}}>Open lead record</button></div>
+          </div>
+        </React.Fragment>}
+      </section>
+    </div>
+  </div>;
+}
+
 function PlaceholderPage({title}){
   return(<div style={{padding:"24px 28px",flex:1}}><h1 style={{fontSize:22,fontWeight:700,color:"#434343",marginBottom:20}}>{title}</h1>
     <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",padding:60,textAlign:"center",color:"#999"}}>
@@ -3053,7 +3232,10 @@ function App(){
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_auto_templates",JSON.stringify(autoTemplates));}catch(e){}},[autoTemplates]);
   const [taskAutoTemplates,setTaskAutoTemplates]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_task_auto_templates");if(s)return JSON.parse(s);}catch(e){}return [];});
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_task_auto_templates",JSON.stringify(taskAutoTemplates));}catch(e){}},[taskAutoTemplates]);
-  const [page,setPage]=useState(()=>new URLSearchParams(window.location.search).get("view")==="intake-inbox"?"intake-inbox":"dashboard");
+  const [page,setPage]=useState(()=>{
+    const requested=new URLSearchParams(window.location.search).get("view");
+    return ["intake-inbox","document-review","leads","contacts","settings"].includes(requested)?requested:"dashboard";
+  });
   const [selectedMatter,setSelectedMatter]=useState(null);
   const [selectedLead,setSelectedLead]=useState(null);
   const [selectedContact,setSelectedContact]=useState(null);
@@ -3082,6 +3264,7 @@ function App(){
         {page==="dashboard"&&<DashboardPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="intake-inbox"&&<IntakeInboxPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
+        {page==="document-review"&&<DocumentReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="lead-detail"&&<LeadDetail lead={currentLead} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead} matters={matters} setMatters={setMatters} setSelectedMatter={setSelectedMatter} setSelectedContact={setSelectedContact} msgTemplates={msgTemplates} seqTemplates={seqTemplates} commAutomations={autoTemplates}/>}
         {page==="contacts"&&<ContactsPage matters={matters} leads={leads} standaloneContacts={standaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
         {page==="contact-detail"&&selectedContact&&<ContactDetailPage contactId={selectedContact.id} contactSource={selectedContact.source} sourceId={selectedContact.sourceId} matters={matters} setMatters={setMatters} leads={leads} setLeads={setLeads} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
