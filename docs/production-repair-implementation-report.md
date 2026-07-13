@@ -71,4 +71,4 @@ P0/P1 items materially resolved in the prototype:
 - Evidence: `results/50-debtor-crm-agentic-evaluation/*`, `results/production-repair-50x/*`
 - Handoff/report: `docs/intake-production-repair-handoff.md`, `docs/production-repair-implementation-report.md`
 
-Implementation commit: recorded in the final branch handoff after verification.
+Implementation commit: `9a18beeaf7436dc9a566cbe930efefadae0d5879` (`Implement case-specific CRM production repair`).
