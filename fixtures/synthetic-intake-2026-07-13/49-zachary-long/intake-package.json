@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-049",
+  "synthetic": true,
+  "submitted": "7/01/2026, 11:36 AM",
+  "court": "Central District of California",
+  "goals": "Stop a collection lawsuit and address unsecured debt before a judgment enters.",
+  "concerns": "An answer deadline appears on court papers uploaded with the intake.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "Yes",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Zachary Long",
+        "dob": "01/10/1995",
+        "ssn": "***-**-4148",
+        "email": "zachary-long@example.test",
+        "phone": "(714) 555-0148",
+        "address": "1916 Aspen Trail, Fullerton, CA 92833"
+      },
+      {
+        "name": "Casey Long",
+        "dob": "06/15/1978",
+        "ssn": "***-**-6148",
+        "email": "spouse.zachary-long@example.test",
+        "phone": "(714) 555-0198",
+        "address": "1916 Aspen Trail, Fullerton, CA 92833"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "North Orange Machine Works",
+      "frequency": "Bi-weekly",
+      "monthly": 6224,
+      "sixMonth": 37344
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Fullerton Community Services",
+      "frequency": "Monthly",
+      "monthly": 3492,
+      "sixMonth": 20952
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2832,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 287,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1916 Aspen Trail, Fullerton, CA 92833",
+      "category": "Real estate",
+      "value": 510600,
+      "lien": 367632,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 2016,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4760,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2018 Honda Civic",
+      "category": "Vehicle",
+      "value": 22080,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 28820,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 367632,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 53300,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 13464,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "creditor_payments_90": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Pending collection lawsuit",
+        "date": "06/25/2026",
+        "amount": 7380,
+        "desc": "Zachary Long described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Pending collection lawsuit",
+      "section": "Financial Affairs",
+      "detail": "An answer deadline appears on court papers uploaded with the intake. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 66,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age",
+      "Creditor mailing address",
+      "Property purchase month"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

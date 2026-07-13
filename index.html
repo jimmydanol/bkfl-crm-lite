@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<script src="./synthetic-intake-fixtures.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;}
@@ -19,11 +20,13 @@ body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#
 input,select,textarea,button{font-family:inherit;}
 a{text-decoration:none;}
 @keyframes bkflPulse{0%{box-shadow:0 0 0 0 rgba(122,156,128,0.55);}70%{box-shadow:0 0 0 11px rgba(122,156,128,0);}100%{box-shadow:0 0 0 0 rgba(122,156,128,0);}}
+#synthetic-branch-badge{position:fixed;right:14px;bottom:14px;z-index:200;background:#263b2c;color:#fff;border:1px solid #7a9c80;border-radius:999px;padding:7px 12px;font-size:10px;font-weight:700;letter-spacing:.55px;box-shadow:0 4px 14px rgba(38,59,44,.22);}
 </style>
 </head>
 <body>
 <!-- BK FastLane CRM LITE (v1 dev build) — scaled-down from bkfl-manage.html on 2026-07-08. Scope: Leads, Contacts, Tasks. Original file untouched. -->
 <div id="root"></div>
+<div id="synthetic-branch-badge">SYNTHETIC DATASET &middot; 50 DEBTORS</div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
 
@@ -454,6 +457,9 @@ const INITIAL_LEADS=[
   {id:6,firstName:"Rachel",lastName:"Moore",email:"rmoore@email.com",phone:"(626) 555-0311",bankruptcyType:"Other",leadStage:"Intake Sent",intakeSentDate:"2026-07-01",createdDate:"2025-04-29",leadNotes:"Unsure of chapter. Needs evaluation. Small business owner.",contacts:[{id:1,name:"Rachel Moore",firstName:"Rachel",middleName:"Ann",lastName:"Moore",role:"Lead",email:"rmoore@email.com",phone:"(626) 555-0311"}],calendarEvents:[],communications:[],notes:[],documents:[],tasks:[{id:1,due:_rel(0),title:"Approve follow-up email — intake not completed",status:"Pending",assignee:"Matt McCune",stage:"Intake Sent",recurring:true}],timeEntries:[],customFields:{upFrontFeeQuoted:""},timeline:[{id:1,date:"2025-04-29",action:"Lead created",detail:"New lead intake",user:"Matt McCune"}]},
 ];
 
+/* This branch layers deterministic synthetic Intake submissions over Matt's untouched seed records. */
+INITIAL_LEADS.push(...((window.BKFLSyntheticIntake||{}).leads||[]));
+
 const ATTORNEYS=["Matt McCune"];
 const STAFF=["Angie Sullivan"];
 
@@ -592,6 +598,8 @@ const DEMO_INTAKE_PACKAGES={
 /* Printable AI INTAKE SUMMARY — the AI's analysis of what the debtor submitted.
    This is what the debtor receives (after law firm approval). Distinct from the Intake Package,
    which is the raw record of every answer. */
+Object.assign(DEMO_INTAKE_PACKAGES,Object.fromEntries(((window.BKFLSyntheticIntake||{}).leads||[]).map(lead=>[lead.email,lead.intakePackage])));
+
 function buildIntakeSummaryHtml(lead,pkg){
   const money=(n)=>typeof n==="number"?fmt(n):(n||"—");
   const totInc=(pkg.income||[]).reduce((a,x)=>a+(x.monthly||0),0);
@@ -694,8 +702,8 @@ const leadStageColors={
 };
 
 function useLocalLeads(){
-  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v21");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
-  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v21",JSON.stringify(leads));},[leads]);
+  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v22_synthetic_50");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
+  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v22_synthetic_50",JSON.stringify(leads));},[leads]);
   return [leads,setLeads];
 }
 
@@ -1605,11 +1613,19 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
                       {d.rejectedFile&&!d.fileName&&<span style={{fontSize:10,fontWeight:700,color:"#a94438",background:"#fdf0ef",border:"1px solid #f0b9b1",borderRadius:4,padding:"1px 7px"}}>REJECTED UPLOAD</span>}
                     </div>
-                    <div style={{border:"1px dashed #ccc",borderRadius:8,padding:"46px 20px",textAlign:"center",background:"#fbfbf9",marginBottom:12}}>
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
-                      <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
-                      <div style={{fontSize:11,color:"#aaa",marginTop:4}}>In production the PDF renders here, with {"\u201c"}Open full size{"\u201d"} in a new tab. Never a download.</div>
-                    </div>
+                    {d.fileUrl
+                      ?<div style={{border:"1px solid #d8ded9",borderRadius:8,overflow:"hidden",background:"#fbfbf9",marginBottom:12}}>
+                        <iframe src={d.fileUrl} title={f} style={{display:"block",width:"100%",height:420,border:0,background:"#fff"}}/>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"8px 10px",borderTop:"1px solid #e4e8e4"}}>
+                          <span style={{fontSize:11.5,fontWeight:600,color:"#666",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f}</span>
+                          <a href={d.fileUrl} target="_blank" rel="noopener" style={{fontSize:11,fontWeight:700,color:"#3d5c43",whiteSpace:"nowrap"}}>Open full size</a>
+                        </div>
+                      </div>
+                      :<div style={{border:"1px dashed #ccc",borderRadius:8,padding:"46px 20px",textAlign:"center",background:"#fbfbf9",marginBottom:12}}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
+                        <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
+                        <div style={{fontSize:11,color:"#aaa",marginTop:4}}>This legacy seed has a file name but no fixture bytes.</div>
+                      </div>}
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                       <button onClick={()=>setPreviewDoc(null)} style={{...btn,padding:"6px 16px",fontSize:12}}>Close</button>
                     </div>
@@ -1815,6 +1831,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const sevColor={HIGH:"#dc3545",MEDIUM:"#F59E0B",INFO:"#7a9c80"};
           return(<div>
             {/* header band */}
+            {pkg.dataQuality&&<div style={{background:"#fff8e8",border:"1px solid #ead79d",borderRadius:8,padding:"12px 18px",marginBottom:12}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:8}}><span style={{fontSize:12,fontWeight:700,color:"#6f5821"}}>Entered-data completeness</span><span style={{fontSize:12,fontWeight:800,color:"#856404"}}>{pkg.dataQuality.completionPercent}% entered</span></div>
+              <div style={{height:6,background:"#eee4c8",borderRadius:999,overflow:"hidden",marginBottom:9}}><div style={{height:"100%",width:pkg.dataQuality.completionPercent+"%",background:pkg.dataQuality.completionPercent>=80?"#7a9c80":"#F59E0B"}}/></div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{(pkg.dataQuality.missingFields||[]).map((field,i)=><span key={i} style={{fontSize:11,color:"#6f5821",background:"#fff",border:"1px solid #ead79d",borderRadius:999,padding:"3px 8px"}}>{field}</span>)}</div>
+            </div>}
             <div style={{background:"#dce8de",border:"1px solid #9bba9f",borderRadius:8,padding:"16px 24px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}>
               <div>
                 <div style={{fontSize:10.5,fontWeight:700,color:"#5a7c60",textTransform:"uppercase",letterSpacing:"1px",marginBottom:3}}>BK FastLane Intake Package</div>

@@ -21,6 +21,17 @@ Open `index.html` in any modern browser. No build step, no server — it's a sin
 3. Every document requires manual firm approval — AI acceptance is a recommendation, never the final word.
 4. One email = one contact = one intake per case. Joint filers share a single intake sent to the primary contact.
 
+## Synthetic 50-debtor branch
+
+The `codex/50-realistic-debtor-imports` branch layers 50 deterministic, synthetic Intake submissions over Matt's existing seed records without changing his `main` branch. Every synthetic record uses reserved `example.test` email addresses, reserved 555-01xx phone numbers, and PDFs visibly marked as training fixtures.
+
+- Generate the Intake packages and document files: `node scripts/generate-50-synthetic-debtors.mjs`
+- Verify identities, package variation, document contracts, and PDF imports: `node scripts/test-50-synthetic-debtors.mjs`
+- Canonical fixture inventory: `fixtures/synthetic-intake-2026-07-13/manifest.json`
+- Browser import payload: `synthetic-intake-fixtures.js`
+
+The CRM uses a branch-specific localStorage key, `bkfl_lite_leads_v22_synthetic_50`, so this dataset cannot overwrite Matt's normal `bkfl_lite_leads_v21` browser state.
+
 ## Spec
 
 `docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-044",
+  "synthetic": true,
+  "submitted": "7/08/2026, 15:01 PM",
+  "court": "District of Colorado",
+  "goals": "Address personal guarantees from a closed small business and obtain a fresh start.",
+  "concerns": "The debtor is unsure which vendor accounts were personally guaranteed.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Teresa Williams",
+        "dob": "08/22/1990",
+        "ssn": "***-**-4143",
+        "email": "teresa-williams@example.test",
+        "phone": "(720) 555-0143",
+        "address": "1831 Willow Bend Road, Edgewater, CO 80214"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Self-employment",
+      "employer": "Williams Services",
+      "frequency": "Monthly",
+      "monthly": 3083,
+      "sixMonth": 18498
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 662,
+      "sixMonth": 3972
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1784,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 202,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 267,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 1831,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4535,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2021 Hyundai Elantra",
+      "category": "Vehicle",
+      "value": 20530,
+      "lien": 11907,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 11907,
+      "arrears": 0,
+      "collateral": "2021 Hyundai Elantra"
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 49675,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 12499,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/17/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "business_connections": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Business-debt classification review",
+        "date": "06/20/2026",
+        "amount": 6705,
+        "desc": "Teresa Williams described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Business-debt classification review",
+      "section": "Debts",
+      "detail": "The debtor is unsure which vendor accounts were personally guaranteed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 65,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation",
+      "Monthly medical expense"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

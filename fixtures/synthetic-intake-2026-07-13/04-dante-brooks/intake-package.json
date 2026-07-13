@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-004",
+  "synthetic": true,
+  "submitted": "7/04/2026, 11:21 PM",
+  "court": "District of Colorado",
+  "goals": "Address personal guarantees from a closed small business and obtain a fresh start.",
+  "concerns": "The debtor is unsure which vendor accounts were personally guaranteed.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Dante Brooks",
+        "dob": "04/10/1975",
+        "ssn": "***-**-4103",
+        "email": "dante-brooks@example.test",
+        "phone": "(303) 555-0103",
+        "address": "1151 Willow Bend Road, Lakewood, CO 80226"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Self-employment",
+      "employer": "Brooks Services",
+      "frequency": "Monthly",
+      "monthly": 1843,
+      "sixMonth": 11058
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 302,
+      "sixMonth": 1812
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Lakewood Community Services",
+      "frequency": "Monthly",
+      "monthly": 2187,
+      "sixMonth": 13122
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1264,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 236,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 332,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 107,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 351,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2735,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2021 Hyundai Elantra",
+      "category": "Vehicle",
+      "value": 8130,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 20675,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 4779,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "business_connections": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Business-debt classification review",
+        "date": "06/05/2026",
+        "amount": 1305,
+        "desc": "Dante Brooks described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Business-debt classification review",
+      "section": "Debts",
+      "detail": "The debtor is unsure which vendor accounts were personally guaranteed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 66,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation",
+      "Monthly medical expense"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

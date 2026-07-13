@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-030",
+  "synthetic": true,
+  "submitted": "7/06/2026, 10:23 PM",
+  "court": "District of Colorado",
+  "goals": "Catch up on the mortgage, keep the home, and consolidate other debts into a plan.",
+  "concerns": "The monthly mortgage statement and arrears letter do not agree.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Denise Harper",
+        "dob": "06/07/1976",
+        "ssn": "***-**-4129",
+        "email": "denise-harper@example.test",
+        "phone": "(970) 555-0129",
+        "address": "1593 Riverstone Place, Sheridan, CO 80110"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Bear Creek Assisted Living",
+      "frequency": "Bi-weekly",
+      "monthly": 5027,
+      "sixMonth": 30162
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 536,
+      "sixMonth": 3216
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2376,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 202,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 211,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1593 Riverstone Place, Sheridan, CO 80110",
+      "category": "Real estate",
+      "value": 421300,
+      "lien": 315975,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 1313,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3905,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2016 Chevrolet Malibu",
+      "category": "Vehicle",
+      "value": 16190,
+      "lien": 9390,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 9390,
+      "arrears": 0,
+      "collateral": "2016 Chevrolet Malibu"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 315975,
+      "arrears": 12490,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 39525,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 9797,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/21/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Mortgage arrears discrepancy",
+        "date": "06/06/2026",
+        "amount": 4815,
+        "desc": "Denise Harper described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Mortgage arrears discrepancy",
+      "section": "Property",
+      "detail": "The monthly mortgage statement and arrears letter do not agree. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 58,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number",
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

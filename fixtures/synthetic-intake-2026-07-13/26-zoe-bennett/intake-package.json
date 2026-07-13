@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-026",
+  "synthetic": true,
+  "submitted": "7/02/2026, 15:55 PM",
+  "court": "District of Colorado",
+  "goals": "Create a manageable plan for tax balances and other debt.",
+  "concerns": "State and federal notices list different payoff amounts.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Zoe Bennett",
+        "dob": "02/22/1972",
+        "ssn": "***-**-4125",
+        "email": "zoe-bennett@example.test",
+        "phone": "(720) 555-0125",
+        "address": "1525 Meadow Run Drive, Golden, CO 80401"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Table Mountain Outdoor Gear",
+      "frequency": "Bi-weekly",
+      "monthly": 4775,
+      "sixMonth": 28650
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 500,
+      "sixMonth": 3000
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2280,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 195,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1525 Meadow Run Drive, Golden, CO 80401",
+      "category": "Real estate",
+      "value": 402500,
+      "lien": 301875,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 1165,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3725,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2020 Toyota RAV4",
+      "category": "Vehicle",
+      "value": 14950,
+      "lien": 8671,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 8671,
+      "arrears": 0,
+      "collateral": "2020 Toyota RAV4"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 301875,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 36625,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 9025,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "IRS and state revenue agency",
+      "type": "priority",
+      "balance": 11300,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/17/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Tax debt requires year-by-year review",
+        "date": "06/02/2026",
+        "amount": 4275,
+        "desc": "Zoe Bennett described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Tax debt requires year-by-year review",
+      "section": "Debts",
+      "detail": "State and federal notices list different payoff amounts. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 83,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

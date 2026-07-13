@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-050",
+  "synthetic": true,
+  "submitted": "7/02/2026, 12:43 PM",
+  "court": "District of Colorado",
+  "goals": "Catch up on the mortgage, keep the home, and consolidate other debts into a plan.",
+  "concerns": "The monthly mortgage statement and arrears letter do not agree.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Adriana Cruz",
+        "dob": "02/13/1996",
+        "ssn": "***-**-4149",
+        "email": "adriana-cruz@example.test",
+        "phone": "(720) 555-0149",
+        "address": "1933 Riverstone Place, Loveland, CO 80537"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Frontier Mobility Services",
+      "frequency": "Bi-weekly",
+      "monthly": 6287,
+      "sixMonth": 37722
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 716,
+      "sixMonth": 4296
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Loveland Community Services",
+      "frequency": "Monthly",
+      "monthly": 3521,
+      "sixMonth": 21126
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2856,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 291,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1933 Riverstone Place, Loveland, CO 80537",
+      "category": "Real estate",
+      "value": 515300,
+      "lien": 386475,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 2053,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4805,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2020 Toyota RAV4",
+      "category": "Vehicle",
+      "value": 22390,
+      "lien": 12986,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 12986,
+      "arrears": 0,
+      "collateral": "2020 Toyota RAV4"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 386475,
+      "arrears": 16690,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 54025,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 13657,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/23/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Mortgage arrears discrepancy",
+        "date": "06/26/2026",
+        "amount": 7515,
+        "desc": "Adriana Cruz described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Mortgage arrears discrepancy",
+      "section": "Property",
+      "detail": "The monthly mortgage statement and arrears letter do not agree. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 59,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number",
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

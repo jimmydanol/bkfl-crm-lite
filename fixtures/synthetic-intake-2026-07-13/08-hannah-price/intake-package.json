@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-008",
+  "synthetic": true,
+  "submitted": "7/08/2026, 15:49 PM",
+  "court": "District of Colorado",
+  "goals": "Discharge eligible consumer debt and stabilize the monthly budget.",
+  "concerns": "Student-loan payments are restarting while medical bills remain in collection.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Hannah Price",
+        "dob": "08/22/1979",
+        "ssn": "***-**-4107",
+        "email": "hannah-price@example.test",
+        "phone": "(720) 555-0107",
+        "address": "1219 Orchard View Street, Thornton, CO 80229"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Northstar Child Development",
+      "frequency": "Bi-weekly",
+      "monthly": 3641,
+      "sixMonth": 21846
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Thornton Community Services",
+      "frequency": "Monthly",
+      "monthly": 2303,
+      "sixMonth": 13818
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1316,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 148,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 274,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 123,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Western Valley Bank",
+      "category": "Bank or financial account",
+      "value": 499,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2915,
+      "lien": 0,
+      "intent": "Keep"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 23575,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 5551,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Federal student loan servicer",
+      "type": "unsecured",
+      "balance": 23870,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/17/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Student loans listed for treatment review",
+        "date": "06/09/2026",
+        "amount": 1845,
+        "desc": "Hannah Price described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "INFO",
+      "flag": "Student loans listed for treatment review",
+      "section": "Debts",
+      "detail": "Student-loan payments are restarting while medical bills remain in collection. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 71,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

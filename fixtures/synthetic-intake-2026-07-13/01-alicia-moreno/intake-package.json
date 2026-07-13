@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-001",
+  "synthetic": true,
+  "submitted": "7/01/2026, 8:00 AM",
+  "court": "Central District of California",
+  "goals": "Stop a wage garnishment and discharge credit-card and medical debt.",
+  "concerns": "A payroll garnishment is scheduled to increase on the next pay period.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "Yes",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Alicia Moreno",
+        "dob": "01/01/1972",
+        "ssn": "***-**-4100",
+        "email": "alicia-moreno@example.test",
+        "phone": "(310) 555-0100",
+        "address": "1100 Fresh Start Way, Long Beach, CA 90810"
+      },
+      {
+        "name": "Morgan Moreno",
+        "dob": "06/15/1974",
+        "ssn": "***-**-6100",
+        "email": "spouse.alicia-moreno@example.test",
+        "phone": "(310) 555-0150",
+        "address": "1100 Fresh Start Way, Long Beach, CA 90810"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Harborview Medical Group",
+      "frequency": "Bi-weekly",
+      "monthly": 3200,
+      "sixMonth": 19200
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 1680,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1100 Fresh Start Way, Long Beach, CA 90810",
+      "category": "Real estate",
+      "value": 285000,
+      "lien": 205200,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 240,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2600,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2018 Honda Civic",
+      "category": "Vehicle",
+      "value": 7200,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 8900,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 205200,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 18500,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 4200,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "creditor_payments_90": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "closed_accounts": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Active wage garnishment",
+        "date": "06/02/2026",
+        "amount": 900,
+        "desc": "Alicia Moreno described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Active wage garnishment",
+      "section": "Financial Affairs",
+      "detail": "A payroll garnishment is scheduled to increase on the next pay period. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 84,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

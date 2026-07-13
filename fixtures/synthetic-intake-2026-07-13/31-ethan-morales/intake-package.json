@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-031",
+  "synthetic": true,
+  "submitted": "7/07/2026, 11:30 AM",
+  "court": "Central District of California",
+  "goals": "Stop a wage garnishment and discharge credit-card and medical debt.",
+  "concerns": "A payroll garnishment is scheduled to increase on the next pay period.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Ethan Morales",
+        "dob": "07/10/1977",
+        "ssn": "***-**-4130",
+        "email": "ethan-morales@example.test",
+        "phone": "(310) 555-0130",
+        "address": "1610 Fresh Start Way, Whittier, CA 90605"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Uptown Printing House",
+      "frequency": "Bi-weekly",
+      "monthly": 5090,
+      "sixMonth": 30540
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2400,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 219,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 215,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1610 Fresh Start Way, Whittier, CA 90605",
+      "category": "Real estate",
+      "value": 426000,
+      "lien": 332280,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 1350,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3950,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2022 Kia Seltos",
+      "category": "Vehicle",
+      "value": 16500,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 21350,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 332280,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 40250,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 9990,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Active wage garnishment",
+        "date": "06/07/2026",
+        "amount": 4950,
+        "desc": "Ethan Morales described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Active wage garnishment",
+      "section": "Financial Affairs",
+      "detail": "A payroll garnishment is scheduled to increase on the next pay period. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 84,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

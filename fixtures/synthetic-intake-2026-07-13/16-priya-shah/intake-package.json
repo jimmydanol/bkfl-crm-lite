@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-016",
+  "synthetic": true,
+  "submitted": "7/04/2026, 14:45 PM",
+  "court": "District of Colorado",
+  "goals": "Create a manageable plan for tax balances and other debt.",
+  "concerns": "State and federal notices list different payoff amounts.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Priya Shah",
+        "dob": "04/19/1987",
+        "ssn": "***-**-4115",
+        "email": "priya-shah@example.test",
+        "phone": "(303) 555-0115",
+        "address": "1355 Meadow Run Drive, Littleton, CO 80120"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Foothills Imaging Center",
+      "frequency": "Bi-weekly",
+      "monthly": 4145,
+      "sixMonth": 24870
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2040,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 202,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 332,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 155,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1355 Meadow Run Drive, Littleton, CO 80120",
+      "category": "Real estate",
+      "value": 355500,
+      "lien": 287955,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 795,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3275,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2015 Subaru Outback",
+      "category": "Vehicle",
+      "value": 11850,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 287955,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 29375,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 7095,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "IRS and state revenue agency",
+      "type": "priority",
+      "balance": 9900,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Tax debt requires year-by-year review",
+        "date": "06/17/2026",
+        "amount": 2925,
+        "desc": "Priya Shah described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Tax debt requires year-by-year review",
+      "section": "Debts",
+      "detail": "State and federal notices list different payoff amounts. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 84,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

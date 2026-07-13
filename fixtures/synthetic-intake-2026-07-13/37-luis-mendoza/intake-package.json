@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-037",
+  "synthetic": true,
+  "submitted": "7/01/2026, 8:12 AM",
+  "court": "Central District of California",
+  "goals": "Resolve consumer debt after a divorce without disrupting current support payments.",
+  "concerns": "The debtor is unclear about the amount of support arrears shown in the order.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "Yes",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Luis Mendoza",
+        "dob": "01/01/1983",
+        "ssn": "***-**-4136",
+        "email": "luis-mendoza@example.test",
+        "phone": "(562) 555-0136",
+        "address": "1712 Pine Hollow Lane, San Bernardino, CA 92404"
+      },
+      {
+        "name": "Taylor Mendoza",
+        "dob": "06/15/1988",
+        "ssn": "***-**-6136",
+        "email": "spouse.luis-mendoza@example.test",
+        "phone": "(562) 555-0186",
+        "address": "1712 Pine Hollow Lane, San Bernardino, CA 92404"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Arrowhead Landscape Services",
+      "frequency": "Bi-weekly",
+      "monthly": 5468,
+      "sixMonth": 32808
+    },
+    {
+      "source": "Spouse income",
+      "employer": "San Bernardino Community Services",
+      "frequency": "Monthly",
+      "monthly": 3144,
+      "sixMonth": 18864
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2544,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 202,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1712 Pine Hollow Lane, San Bernardino, CA 92404",
+      "category": "Real estate",
+      "value": 454200,
+      "lien": 327024,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 1572,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4220,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2019 Nissan Rogue",
+      "category": "Vehicle",
+      "value": 18360,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 23840,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 327024,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 44600,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 11148,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Domestic support obligation",
+      "type": "priority",
+      "balance": 5640,
+      "arrears": 5640,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "closed_accounts": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Domestic-support documents incomplete",
+        "date": "06/13/2026",
+        "amount": 5760,
+        "desc": "Luis Mendoza described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "MEDIUM",
+      "flag": "Domestic-support documents incomplete",
+      "section": "Debts",
+      "detail": "The debtor is unclear about the amount of support arrears shown in the order. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 78,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

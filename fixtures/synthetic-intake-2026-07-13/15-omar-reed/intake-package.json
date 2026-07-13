@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-015",
+  "synthetic": true,
+  "submitted": "7/03/2026, 13:38 AM",
+  "court": "Central District of California",
+  "goals": "Keep a needed vehicle and catch up on the loan while resolving unsecured debt.",
+  "concerns": "The lender sent a repossession warning after two missed payments.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Omar Reed",
+        "dob": "03/16/1986",
+        "ssn": "***-**-4114",
+        "email": "omar-reed@example.test",
+        "phone": "(818) 555-0114",
+        "address": "1338 Sunrise Terrace, Inglewood, CA 90303"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "LAX Hospitality Partners",
+      "frequency": "Bi-weekly",
+      "monthly": 4082,
+      "sixMonth": 24492
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Inglewood Community Services",
+      "frequency": "Monthly",
+      "monthly": 2506,
+      "sixMonth": 15036
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1407,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 293,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 151,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 758,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3230,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2022 Kia Seltos",
+      "category": "Vehicle",
+      "value": 11540,
+      "lien": 6693,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 6693,
+      "arrears": 1274,
+      "collateral": "2022 Kia Seltos"
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 28650,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 6902,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/24/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Vehicle repossession risk",
+        "date": "06/16/2026",
+        "amount": 2790,
+        "desc": "Omar Reed described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Vehicle repossession risk",
+      "section": "Property",
+      "detail": "The lender sent a repossession warning after two missed payments. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 58,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number",
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

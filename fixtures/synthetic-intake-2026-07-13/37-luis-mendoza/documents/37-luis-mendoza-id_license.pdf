@@ -1,0 +1,46 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 575 >>
+stream
+BT
+/F1 11 Tf
+72 742 Td
+(SYNTHETIC TRAINING DOCUMENT - NOT A REAL PERSON OR ACCOUNT) Tj
+0 -18 Td (Fixture: BKFL-SYN-037) Tj
+0 -18 Td (Debtor: Luis Mendoza) Tj
+0 -18 Td (Document type: Driver's license or photo ID) Tj
+0 -18 Td (Intake source commit: e3fc6348f04d) Tj
+0 -18 Td () Tj
+0 -18 Td (Synthetic ID number: CA-SYN-90036) Tj
+0 -18 Td (Date of birth: 01/01/1983) Tj
+0 -18 Td (Address: 1712 Pine Hollow Lane, San Bernardino, CA 92404) Tj
+0 -18 Td () Tj
+0 -18 Td (AI intake screening: Image is readable, but the lower-right corner is cropped; confirm expiration date.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000866 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+936
+%%EOF

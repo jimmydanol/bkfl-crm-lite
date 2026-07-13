@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-040",
+  "synthetic": true,
+  "submitted": "7/04/2026, 11:33 PM",
+  "court": "District of Colorado",
+  "goals": "Catch up on the mortgage, keep the home, and consolidate other debts into a plan.",
+  "concerns": "The monthly mortgage statement and arrears letter do not agree.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Olivia Sandoval",
+        "dob": "04/10/1986",
+        "ssn": "***-**-4139",
+        "email": "olivia-sandoval@example.test",
+        "phone": "(303) 555-0139",
+        "address": "1763 Riverstone Place, Federal Heights, CO 80260"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "North Metro Laundry",
+      "frequency": "Bi-weekly",
+      "monthly": 5657,
+      "sixMonth": 33942
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Federal Heights Community Services",
+      "frequency": "Monthly",
+      "monthly": 3231,
+      "sixMonth": 19386
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2616,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 332,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 251,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1763 Riverstone Place, Federal Heights, CO 80260",
+      "category": "Real estate",
+      "value": 468300,
+      "lien": 379323,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 1683,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4355,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2015 Subaru Outback",
+      "category": "Vehicle",
+      "value": 19290,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 379323,
+      "arrears": 14590,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 46775,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 11727,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Mortgage arrears discrepancy",
+        "date": "06/16/2026",
+        "amount": 6165,
+        "desc": "Olivia Sandoval described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Mortgage arrears discrepancy",
+      "section": "Property",
+      "detail": "The monthly mortgage statement and arrears letter do not agree. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 60,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

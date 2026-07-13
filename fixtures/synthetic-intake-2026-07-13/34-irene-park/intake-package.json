@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-034",
+  "synthetic": true,
+  "submitted": "7/10/2026, 14:51 PM",
+  "court": "District of Colorado",
+  "goals": "Address personal guarantees from a closed small business and obtain a fresh start.",
+  "concerns": "The debtor is unsure which vendor accounts were personally guaranteed.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Irene Park",
+        "dob": "10/19/1980",
+        "ssn": "***-**-4133",
+        "email": "irene-park@example.test",
+        "phone": "(303) 555-0133",
+        "address": "1661 Willow Bend Road, Lafayette, CO 80026"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Self-employment",
+      "employer": "Park Services",
+      "frequency": "Monthly",
+      "monthly": 2773,
+      "sixMonth": 16638
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 572,
+      "sixMonth": 3432
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Lafayette Community Services",
+      "frequency": "Monthly",
+      "monthly": 3057,
+      "sixMonth": 18342
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1654,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 270,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 332,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 227,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 1461,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4085,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2020 Toyota RAV4",
+      "category": "Vehicle",
+      "value": 17430,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 42425,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 10569,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "business_connections": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Business-debt classification review",
+        "date": "06/10/2026",
+        "amount": 5355,
+        "desc": "Irene Park described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Business-debt classification review",
+      "section": "Debts",
+      "detail": "The debtor is unsure which vendor accounts were personally guaranteed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 66,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number",
+      "Other-income start date",
+      "Business closure date"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}
