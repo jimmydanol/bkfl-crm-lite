@@ -34,36 +34,21 @@ const asciiSafe = (value) => {
 const buildPackage = (report, sourceData, generatedAt) => {
   const matter = structuredClone(sourceData.matter)
   const packageId = `bkfl-demo-${report.scenarioId}`
-  const coverage = Array.isArray(sourceData.coverage) ? sourceData.coverage : []
-  const requiredCoverage = coverage.filter(
-    (item) => item?.definition?.requiredForClientStep,
-  )
-  const fieldsRequired = requiredCoverage.length
-  const fieldsFilled = requiredCoverage.filter((item) => item.filled).length
-  const documentsRequired = Array.isArray(matter?.documents)
-    ? matter.documents.length
-    : 0
-  const documentsReady = (matter?.documents || []).filter(
-    (document) => document.status === 'received' || document.status === 'reviewed',
-  ).length
-  const missingItems = (sourceData.reminder?.items || []).map((item) => ({
-    canonicalPath: item.canonicalPath,
-    clientInstruction: item.debtorPrompt,
-    essential: true,
-    id: item.id,
-    kind: item.source === 'documents' ? 'document' : 'field',
-    label: item.title,
-    priority: item.priority,
-  }))
+  const canonicalBundle = structuredClone(sourceData.intakeCompletionBundle)
+  if (canonicalBundle?.bundleVersion !== 2) {
+    throw new Error(`${report.scenarioId} did not provide IntakeCompletionBundle v2.`)
+  }
+  const missingItems = canonicalBundle.reminderItems.map((item) => ({ ...item }))
   const missingFields = missingItems.filter((item) => item.kind === 'field')
   const missingDocuments = missingItems.filter((item) => item.kind === 'document')
-  const completionPercent = Number(sourceData.completionPercent)
+  const fieldsRequired = canonicalBundle.metrics.fieldCompletion.applicable
+  const fieldsFilled = canonicalBundle.metrics.fieldCompletion.entered
+  const documentsRequired = canonicalBundle.metrics.documentCollection.applicable
+  const documentsReady = canonicalBundle.metrics.documentCollection.collected
+  const completionPercent = canonicalBundle.metrics.intakeChecklistCompletion
 
   if (!matter?.id || matter.status !== 'review') {
     throw new Error(`${report.scenarioId} is not an incomplete review Matter.`)
-  }
-  if (completionPercent < 85 || completionPercent > 95) {
-    throw new Error(`${report.scenarioId} is not realistically 85-95% complete.`)
   }
   if (!missingFields.length || !missingDocuments.length) {
     throw new Error(`${report.scenarioId} must omit both fields and documents.`)
@@ -80,7 +65,8 @@ const buildPackage = (report, sourceData, generatedAt) => {
   }
 
   const submittedAt = matter.personalInfoSubmittedAt || generatedAt
-  const intakeResumeUrl = `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html?packageId=${encodeURIComponent(packageId)}`
+  const firstItemId = missingItems[0]?.id || ''
+  const intakeResumeUrl = `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html?packageId=${encodeURIComponent(packageId)}${firstItemId ? `&itemId=${encodeURIComponent(firstItemId)}` : ''}`
   const emailBodySnapshot = sourceData.reminder.body.replace(
     sourceData.reminder.intakeUrl,
     intakeResumeUrl,
@@ -88,6 +74,8 @@ const buildPackage = (report, sourceData, generatedAt) => {
 
   return asciiSafe({
     completion: {
+      bundle: canonicalBundle,
+      blockingReadiness: canonicalBundle.metrics.blockingReadiness,
       documentCompletion: {
         applicableRequired: documentsRequired,
         receivedRequired: documentsReady,
@@ -106,11 +94,15 @@ const buildPackage = (report, sourceData, generatedAt) => {
         enteredRequired: fieldsFilled,
         percent: fieldsRequired ? Math.round((fieldsFilled / fieldsRequired) * 100) : 0,
       },
+      intakeChecklistCompletion: completionPercent,
       intakeResumeUrl,
+      items: canonicalBundle.items,
       missingItems,
       percent: completionPercent,
-      revision: 1,
-      status: 'needs_client_action',
+      revision: canonicalBundle.matterRevision,
+      states: canonicalBundle.states,
+      status: canonicalBundle.states.intakeCompletion,
+      urgentAttorneyTask: canonicalBundle.urgentAttorneyTask,
     },
     demo: true,
     generatedAt,
@@ -125,11 +117,13 @@ const buildPackage = (report, sourceData, generatedAt) => {
       status: 'needs-client-action',
     },
     reviewFlags: sourceData.reviewFlags || [],
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: {
       branch: 'Jimmy',
       scenarioId: report.scenarioId,
+      scenarioTitle: sourceData.scenario?.title || '',
       system: 'BK FastLane Intake',
+      traits: sourceData.scenario?.traits || [],
     },
     submittedAt,
   })

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-13 - Intake Completion fake-pilot acceptance
+
+- Made canonical Intake Completion bundle v2 the single applicability authority; CRM Lite consumes it without re-deriving missing items.
+- Split Intake Completion, Document Review, and Attorney Review into independent navigation and state dimensions.
+- Added ten fact-specific Chapter 7/13 fake matters with deterministic package, completion-item, and document IDs.
+- Added staff sorting/filtering, reasoned reminder edits, full-content hashes, idempotent approval, and atomic cancellation across schedules, communications, and tasks.
+- Added an exact-item fake debtor portal with mobile focus, PDF/image validation, replacement, unavailable/not-applicable/help responses, partial resubmission, reminder suppression, and reload/two-tab persistence.
+- Added a single command that regenerates twice, builds and lints Intake, verifies the bridge contract, and runs desktop/mobile browser acceptance.
+
 ## 2026-07-13 - Incomplete-intake completion management
 
 - Reframed Document Review as one matter-level completion queue instead of one row per uploaded document.

@@ -5,10 +5,10 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function createIntakeBridge() {
   'use strict'
 
-  const HANDOFF_STORAGE_KEY = 'bkfl_intake_handoffs_v1'
+  const HANDOFF_STORAGE_KEY = 'bkfl_intake_handoffs_v2'
   const ORGANIZATION_EVENT = 'bkfl:organization-change'
   const ORGANIZATION_STORAGE_KEY = 'bkfl_lite_org_v1'
-  const PACKAGE_SCHEMA_VERSION = 1
+  const PACKAGE_SCHEMA_VERSION = 2
   const DEFAULT_ORGANIZATION = Object.freeze({
     city: 'Boulder',
     country: 'United States',
@@ -27,6 +27,66 @@
   const numberValue = (value) => {
     const parsed = Number(value)
     return Number.isFinite(parsed) ? parsed : 0
+  }
+
+  const hashText = (value) => {
+    let hash = 2166136261
+    const input = String(value ?? '')
+    for (let index = 0; index < input.length; index += 1) {
+      hash ^= input.charCodeAt(index)
+      hash = Math.imul(hash, 16777619)
+    }
+    return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`
+  }
+
+  const reminderSignaturePayload = ({
+    body,
+    matterRevision,
+    missingItems,
+    recipient,
+    resumeUrl,
+    subject,
+  }) => ({
+    body: clean(body),
+    matterRevision: numberValue(matterRevision),
+    missingItemInstructions: asArray(missingItems)
+      .map((item) => `${clean(item?.id)}:${clean(item?.clientInstruction)}`)
+      .sort(),
+    recipient: clean(recipient).toLowerCase(),
+    resumeUrl: clean(resumeUrl),
+    subject: clean(subject),
+  })
+
+  const reminderContentHash = (input) =>
+    hashText(JSON.stringify(reminderSignaturePayload(input)))
+
+  const reminderHashForCompletion = (completion, override = {}) =>
+    reminderContentHash({
+      body:
+        override.body ??
+        completion?.followUp?.bodySnapshot ??
+        completion?.emailDraft?.bodySnapshot,
+      matterRevision: override.matterRevision ?? completion?.revision,
+      missingItems: override.missingItems ?? completion?.missingItems,
+      recipient:
+        override.recipient ??
+        completion?.followUp?.recipient ??
+        completion?.emailDraft?.recipient,
+      resumeUrl: override.resumeUrl ?? completion?.intakeResumeUrl,
+      subject:
+        override.subject ??
+        completion?.followUp?.subject ??
+        completion?.emailDraft?.subject,
+    })
+
+  const dedupeById = (items) => {
+    const seen = new Set()
+    return asArray(items).filter((item) => {
+      const id = clean(item?.id)
+      if (!id || seen.has(id)) return false
+      seen.add(id)
+      return true
+    })
   }
 
   const normalizeOrganization = (candidate) => {
@@ -95,26 +155,140 @@
     if (!asArray(matter?.debtors).length || !debtorName(matter?.debtors?.[0])) {
       errors.push('Primary debtor identity is incomplete.')
     }
+    if (
+      !asArray(matter?.debtors).every((debtor) =>
+        clean(debtor?.email).endsWith('@example.test'),
+      )
+    ) {
+      errors.push('Every debtor email must use the reserved fake-data domain.')
+    }
     if (!clean(candidate?.submittedAt)) errors.push('Submission timestamp is required.')
 
     const completion = candidate?.completion || {}
     const missingItems = asArray(completion.missingItems)
+    if (completion?.bundle?.bundleVersion !== 2) {
+      errors.push('Canonical IntakeCompletionBundle v2 is required.')
+    }
+    if (
+      !asArray(completion?.items).every(
+        (item) =>
+          clean(item?.id) &&
+          clean(item?.canonicalPath) &&
+          clean(item?.applicability) &&
+          clean(item?.applicabilityReason) &&
+          clean(item?.whyNeeded) &&
+          clean(item?.caseStageDeadline) &&
+          typeof item?.clientActionable === 'boolean' &&
+          clean(item?.resolutionStatus),
+      )
+    ) {
+      errors.push('Every completion item must include the canonical applicability contract.')
+    }
+    const projectionSignature = (items) => asArray(items)
+      .map((item) => JSON.stringify([
+        clean(item?.id),
+        clean(item?.kind),
+        clean(item?.label),
+        clean(item?.clientInstruction),
+        clean(item?.canonicalPath),
+        clean(item?.applicability),
+        clean(item?.applicabilityReason),
+        clean(item?.whyNeeded),
+        clean(item?.caseStageDeadline),
+        item?.clientActionable === true,
+        clean(item?.priority),
+        clean(item?.resolutionStatus),
+        clean(item?.sectionId),
+        clean(item?.responseReason),
+        clean(item?.responseNote),
+        clean(item?.respondedAt),
+      ]))
+      .sort()
+      .join('\n')
+    if (projectionSignature(completion.items) !== projectionSignature(completion.bundle?.items)) {
+      errors.push('Completion item projection diverges from the canonical bundle.')
+    }
+    if (numberValue(completion.revision) !== numberValue(completion.bundle?.matterRevision)) {
+      errors.push('Completion revision diverges from the canonical bundle.')
+    }
+    const canonicalStates = completion.bundle?.states || {}
+    const projectedStates = completion.states || {}
+    if (
+      ['submission', 'intakeCompletion', 'documentReview', 'attorneyReview']
+        .some((key) => clean(projectedStates[key]) !== clean(canonicalStates[key]))
+      || clean(completion.status) !== clean(canonicalStates.intakeCompletion)
+    ) {
+      errors.push('Completion state projection diverges from the canonical bundle.')
+    }
+    const canonicalMetrics = completion.bundle?.metrics || {}
+    const projectedMetricPairs = [
+      [completion.intakeChecklistCompletion, canonicalMetrics.intakeChecklistCompletion],
+      [completion.percent, canonicalMetrics.intakeChecklistCompletion],
+      [completion.fieldCompletion?.applicableRequired, canonicalMetrics.fieldCompletion?.applicable],
+      [completion.fieldCompletion?.enteredRequired, canonicalMetrics.fieldCompletion?.entered],
+      [completion.fieldCompletion?.percent, canonicalMetrics.fieldCompletion?.percent],
+      [completion.documentCompletion?.applicableRequired, canonicalMetrics.documentCollection?.applicable],
+      [completion.documentCompletion?.receivedRequired, canonicalMetrics.documentCollection?.collected],
+      [completion.blockingReadiness?.required, canonicalMetrics.blockingReadiness?.required],
+      [completion.blockingReadiness?.complete, canonicalMetrics.blockingReadiness?.complete],
+      [completion.blockingReadiness?.percent, canonicalMetrics.blockingReadiness?.percent],
+    ]
+    if (projectedMetricPairs.some(([projected, canonical]) => numberValue(projected) !== numberValue(canonical))) {
+      errors.push('Completion metric projection diverges from the canonical bundle.')
+    }
+    const expectedMissingItems = asArray(completion.bundle?.items).filter(
+      (item) =>
+        item?.clientActionable === true &&
+        item?.applicability === 'essential_now' &&
+        !['answered', 'uploaded', 'replaced', 'unavailable', 'not_applicable'].includes(item?.resolutionStatus),
+    )
+    if (projectionSignature(missingItems) !== projectionSignature(expectedMissingItems)) {
+      errors.push('Missing-item projection diverges from canonical essential-now resolution state.')
+    }
+    const expectedReminderItems = expectedMissingItems.filter(
+      (item) => ['open', 'unsupported_file'].includes(item?.resolutionStatus),
+    )
+    if (
+      projectionSignature(completion.bundle?.reminderItems) !==
+      projectionSignature(expectedReminderItems)
+    ) {
+      errors.push('Reminder projection diverges from canonical unresolved first-reminder state.')
+    }
     const needsClientAction = completion.status === 'needs_client_action'
     const isComplete = completion.status === 'complete'
     if (!needsClientAction && !isComplete) errors.push('Completion status is invalid.')
     if (needsClientAction) {
-      if (matter?.status !== 'review') errors.push('Matter is not awaiting intake completion review.')
-      if (completion.percent < 85 || completion.percent > 95) errors.push('Completion must be between 85% and 95%.')
-      if (!missingItems.some((item) => item?.kind === 'field')) errors.push('At least one missing field is required.')
-      if (!missingItems.some((item) => item?.kind === 'document')) errors.push('At least one missing document is required.')
+      if (!['review', 'client-response-received'].includes(matter?.status)) {
+        errors.push('Matter is not awaiting Intake Completion review.')
+      }
+      if (!missingItems.length) errors.push('At least one applicable missing item is required.')
+      if (
+        !missingItems.every(
+          (item) => item?.applicability === 'essential_now' && item?.clientActionable === true,
+        )
+      ) {
+        errors.push('First-reminder items must be client-actionable essential-now items.')
+      }
     }
     if (isComplete) {
-      if (matter?.status !== 'ready-for-attorney') errors.push('Completed matter is not ready for attorney review.')
+      if (!['ready-for-attorney', 'intake-complete-pending-review'].includes(matter?.status)) {
+        errors.push('Completed Intake is not pending the separate review workflow.')
+      }
       if (completion.percent !== 100 || missingItems.length) errors.push('Completed Intake must be 100% with no missing items.')
-      if (candidate?.readiness?.fieldsFilled !== candidate?.readiness?.fieldsRequired) errors.push('Completed Intake fields are not ready.')
-      if (candidate?.readiness?.documentsReady !== candidate?.readiness?.documentsRequired) errors.push('Completed Intake documents are not ready.')
     }
     if (!clean(completion.intakeResumeUrl)) errors.push('Intake return URL is required.')
+    try {
+      const resumeUrl = new URL(completion.intakeResumeUrl)
+      if (
+        resumeUrl.protocol !== 'https:' ||
+        resumeUrl.hostname !== 'jimmydanol.github.io' ||
+        !resumeUrl.pathname.startsWith('/bkfl-crm-lite/')
+      ) {
+        errors.push('Intake return URL must use the authorized Jimmy preview origin.')
+      }
+    } catch {
+      errors.push('Intake return URL is invalid.')
+    }
     if (completion.emailDraft?.deliveryMode !== 'simulation') errors.push('Only simulated email delivery is allowed.')
     if (!clean(completion.emailDraft?.recipient).endsWith('@example.test')) errors.push('Reminder recipient must be fake-safe.')
 
@@ -127,15 +301,17 @@
     return JSON.parse(JSON.stringify(candidate))
   }
 
-  const checklistStatus = (status) => {
+  const checklistStatus = (status, qualityIssue) => {
+    if (qualityIssue) return 'open'
     if (status === 'reviewed') return 'approved'
     if (status === 'received') return 'ai_accepted'
     return 'open'
   }
 
-  const documentReviewStatus = (status) => {
-    if (status === 'reviewed') return 'approved'
-    if (status === 'received') return 'pending_review'
+  const documentReviewStatus = (document) => {
+    if (document?.qualityIssue) return 'replacement_requested'
+    if (document?.status === 'reviewed') return 'approved'
+    if (document?.status === 'received') return 'pending_review'
     return 'awaiting_upload'
   }
 
@@ -149,11 +325,9 @@
     const clientName = matterClientName(matter)
     const completion = intakePackage.completion
     const isComplete = completion.status === 'complete'
-    const missingSignature = asArray(completion.missingItems)
-      .map((item) => clean(item?.id))
-      .filter(Boolean)
-      .sort()
-      .join('|')
+    const isSuppressed = isComplete || completion.suppressionReason === 'client_response'
+    const contentHash = reminderHashForCompletion(completion)
+    const missingSignature = contentHash
     const nextDay = new Date(`${submittedDate}T12:00:00Z`)
     nextDay.setUTCDate(nextDay.getUTCDate() + 1)
 
@@ -183,11 +357,13 @@
         const documentId = clean(document.id) || `intake-document-${index + 1}`
         const documentName = clean(document.name) || `Intake document ${index + 1}`
         const receivedAt = clean(document.receivedAt) || intakePackage.submittedAt
-        const reviewStatus = documentReviewStatus(document.status)
+        const reviewStatus = documentReviewStatus(document)
         const hasSubmission = reviewStatus !== 'awaiting_upload'
 
         return {
-          aiNote: clean(document.notes),
+          aiNote: document.qualityIssue
+            ? `Seeded ${document.qualityIssue.replaceAll('_', ' ')} document; replacement required.`
+            : clean(document.notes),
           customName: documentName,
           date: dateOnly(receivedAt) || submittedDate,
           docId: documentId,
@@ -204,15 +380,23 @@
                 },
               ]
             : [],
+          replacementReason: document.qualityIssue
+            ? `The seeded fake document is ${document.qualityIssue.replaceAll('_', ' ')}.`
+            : undefined,
           reviewStatus,
-          status: checklistStatus(document.status),
+          status: checklistStatus(document.status, document.qualityIssue),
           versions: hasSubmission
             ? [
                 {
                   fileName: `${documentName} (fake demo)`,
                   id: `${stableId}-${documentId}-v1`,
                   receivedAt,
-                  status: reviewStatus === 'approved' ? 'approved' : 'under_review',
+                  status:
+                    reviewStatus === 'approved'
+                      ? 'approved'
+                      : reviewStatus === 'replacement_requested'
+                        ? 'rejected'
+                        : 'under_review',
                   version: 1,
                 },
               ]
@@ -230,15 +414,24 @@
           approvedAt: undefined,
           approvedBy: undefined,
           id: `${stableId}-completion-reminder`,
+          generatedSnapshot: {
+            body: completion.emailDraft.bodySnapshot,
+            recipient: completion.emailDraft.recipient,
+            resumeUrl: completion.intakeResumeUrl,
+            subject: completion.emailDraft.subject,
+          },
+          contentHash,
           matterRevision: completion.revision,
           missingItemIds: asArray(completion.missingItems).map((item) => item.id),
           scheduledFor: '',
-          status: isComplete ? 'canceled' : 'pending_approval',
-          ...(isComplete
+          status: isSuppressed ? 'canceled' : 'pending_approval',
+          ...(isSuppressed
             ? {
                 canceledAt: intakePackage.submittedAt,
                 canceledBy: 'BK FastLane Intake',
-                cancelReason: 'Debtor completed the outstanding Intake items.',
+                cancelReason: isComplete
+                  ? 'Debtor completed the outstanding Intake items.'
+                  : 'A debtor response suppressed the pending reminder for staff review.',
               }
             : {}),
           timezone: 'America/Denver',
@@ -252,21 +445,57 @@
       leadNotes: [clean(matter.clientGoals), clean(matter.urgentConcerns)]
         .filter(Boolean)
         .join(' Urgent: '),
-      leadStage: isComplete ? 'Intake Submitted' : 'Intake In Progress',
+      leadStage: isComplete
+        ? 'Intake Submitted'
+        : 'Intake Submitted — Client Action Needed',
       notes: [],
       phone: clean(primary.phone),
       tasks: [
+        ...(completion.urgentAttorneyTask
+          ? [
+              {
+                assignee: 'pilot reviewer',
+                description: completion.urgentAttorneyTask.reason,
+                due: submittedDate,
+                id: `${stableId}-same-day-attorney-task-r${completion.revision}`,
+                priority: 'High',
+                stage: 'Attorney Review',
+                status: 'Pending',
+                title: completion.urgentAttorneyTask.title,
+              },
+            ]
+          : []),
+        ...asArray(completion.missingItems)
+          .filter((item) => item.resolutionStatus === 'help_requested')
+          .map((item) => ({
+            assignee: 'pilot reviewer',
+            description: `${item.label}: ${clean(item.responseReason || item.responseNote || 'Client requested help.')}`,
+            due: submittedDate,
+            id: `${stableId}-client-help-${item.id}-r${completion.revision}`,
+            priority: item.priority === 'high' ? 'High' : 'Medium',
+            stage: 'Intake Completion',
+            status: 'Pending',
+            title: 'Respond to debtor Intake help request',
+          })),
         {
-          assignee: 'Matt McCune',
+          assignee: 'pilot reviewer',
           description: isComplete
             ? `Review the completed BK FastLane Intake package for ${clientName}.`
+            : isSuppressed
+              ? `Review the new debtor response and remaining Intake Completion items for ${clientName}.`
             : `Review missing Intake items and approve a scheduled reminder for ${clientName}.`,
-          due: nextDay.toISOString().slice(0, 10),
+          due: completion.urgentAttorneyTask
+            ? submittedDate
+            : nextDay.toISOString().slice(0, 10),
           id: `${stableId}-attorney-review`,
-          priority: clean(matter.urgentConcerns) ? 'High' : 'Medium',
-          stage: isComplete ? 'Intake Submitted' : 'Intake In Progress',
+          priority: completion.urgentAttorneyTask ? 'High' : 'Medium',
+          stage: isComplete ? 'Intake Submitted' : 'Intake Completion',
           status: 'Pending',
-          title: isComplete ? 'Review completed Intake package' : 'Approve incomplete Intake reminder',
+          title: isComplete
+            ? 'Review completed Intake package'
+            : isSuppressed
+              ? 'Review debtor Intake response'
+              : 'Approve incomplete Intake reminder',
         },
       ],
       timeEntries: [],
@@ -281,6 +510,239 @@
           user: 'BK FastLane Intake',
         },
       ],
+    }
+  }
+
+  const approveCompletionReminder = (
+    lead,
+    { actor = 'pilot reviewer', now = new Date().toISOString(), scheduledFor } = {},
+  ) => {
+    const completion = lead?.intakeCompletion
+    if (!completion || completion.status === 'complete' || !clean(scheduledFor)) {
+      return lead
+    }
+    const contentHash = reminderHashForCompletion(completion)
+    const workflowKey = `${lead.id}:r${completion.revision}:${contentHash}:${scheduledFor}`
+    const approvalId = `completion-approval-${hashText(workflowKey)}`
+    if (completion.followUp?.approvalId === approvalId) return lead
+
+    const approvedSnapshot = {
+      body: clean(completion.followUp?.bodySnapshot || completion.emailDraft?.bodySnapshot),
+      missingItemInstructions: asArray(completion.missingItems).map((item) => ({
+        id: item.id,
+        instruction: item.clientInstruction,
+      })),
+      recipient: clean(completion.followUp?.recipient || completion.emailDraft?.recipient),
+      resumeUrl: clean(completion.intakeResumeUrl),
+      subject: clean(completion.followUp?.subject || completion.emailDraft?.subject),
+    }
+    const approvalSignature = {
+      ...approvedSnapshot,
+      approvedAt: now,
+      approvedBy: actor,
+      contentHash,
+      matterRevision: completion.revision,
+    }
+    const communicationId = `scheduled-reminder-${hashText(workflowKey)}`
+    const taskId = `scheduled-reminder-task-${hashText(workflowKey)}`
+    const eventId = `reminder-approved-${hashText(workflowKey)}`
+    const followUp = {
+      ...completion.followUp,
+      approvalId,
+      approvalSignature,
+      approvedAt: now,
+      approvedBy: actor,
+      approvedSnapshot,
+      contentHash,
+      deliveryMode: 'simulation',
+      matterRevision: completion.revision,
+      missingItemIds: asArray(completion.missingItems).map((item) => item.id),
+      scheduledFor,
+      status: 'approved_scheduled',
+      timezone: 'America/Denver',
+      workflowKey,
+    }
+    const communication = {
+      approvedAt: now,
+      approvedBy: actor,
+      body: approvedSnapshot.body,
+      date: dateOnly(now),
+      deliveryMode: 'simulation',
+      direction: 'Scheduled',
+      email: approvedSnapshot.recipient,
+      id: communicationId,
+      scheduledFor,
+      status: 'Scheduled',
+      subject: approvedSnapshot.subject,
+      to: lead.clientFullName || `${lead.firstName} ${lead.lastName}`,
+      type: 'Email',
+      workflowKey,
+    }
+    const task = {
+      assignee: actor,
+      due: scheduledFor.slice(0, 10),
+      id: taskId,
+      stage: 'Intake Completion',
+      status: 'Pending',
+      title: 'Simulated intake reminder scheduled',
+      workflowKey,
+    }
+
+    return {
+      ...lead,
+      communications: dedupeById([communication, ...asArray(lead.communications)]),
+      intakeCompletion: {
+        ...completion,
+        events: dedupeById([
+          {
+            action: 'reminder_approved',
+            actor,
+            date: now,
+            detail: scheduledFor,
+            id: eventId,
+          },
+          ...asArray(completion.events),
+        ]),
+        followUp,
+        scheduledRecords: dedupeById([
+          {
+            id: `scheduled-record-${hashText(workflowKey)}`,
+            scheduledFor,
+            status: 'active',
+            workflowKey,
+          },
+          ...asArray(completion.scheduledRecords),
+        ]),
+      },
+      tasks: dedupeById([task, ...asArray(lead.tasks)]),
+      timeline: dedupeById([
+        {
+          action: 'Incomplete Intake reminder approved',
+          date: dateOnly(now),
+          detail: `Simulation scheduled for ${scheduledFor}`,
+          id: `scheduled-reminder-timeline-${hashText(workflowKey)}`,
+          user: actor,
+        },
+        ...asArray(lead.timeline),
+      ]),
+    }
+  }
+
+  const cancelCompletionFollowUp = (
+    lead,
+    {
+      actor = 'pilot reviewer',
+      now = new Date().toISOString(),
+      reason = 'Reminder canceled by the pilot reviewer.',
+    } = {},
+  ) => {
+    const completion = lead?.intakeCompletion
+    if (!completion) return lead
+    const workflowKey = completion.followUp?.workflowKey
+    const cancelItem = (item) =>
+      workflowKey && item?.workflowKey === workflowKey && !['Canceled', 'canceled'].includes(item.status)
+        ? { ...item, canceledAt: now, cancelReason: reason, status: item.type === 'Email' ? 'Canceled' : 'Canceled' }
+        : item
+    const cancelRecord = (record) =>
+      workflowKey && record?.workflowKey === workflowKey
+        ? { ...record, canceledAt: now, cancelReason: reason, status: 'canceled' }
+        : record
+    const eventId = `reminder-canceled-${hashText(`${lead.id}:${workflowKey || 'none'}:${reason}`)}`
+
+    return {
+      ...lead,
+      communications: asArray(lead.communications).map(cancelItem),
+      intakeCompletion: {
+        ...completion,
+        events: dedupeById([
+          {
+            action: 'reminder_canceled',
+            actor,
+            date: now,
+            detail: reason,
+            id: eventId,
+          },
+          ...asArray(completion.events),
+        ]),
+        followUp: {
+          ...completion.followUp,
+          canceledAt: now,
+          canceledBy: actor,
+          cancelReason: reason,
+          status: 'canceled',
+        },
+        scheduledRecords: asArray(completion.scheduledRecords).map(cancelRecord),
+      },
+      tasks: asArray(lead.tasks).map(cancelItem),
+    }
+  }
+
+  const updateCompletionReminderDraft = (
+    lead,
+    {
+      actor = 'pilot reviewer',
+      body,
+      missingItems,
+      now = new Date().toISOString(),
+      overrideReason,
+      recipient,
+      subject,
+    } = {},
+  ) => {
+    if (!clean(overrideReason)) throw new Error('An override reason is required.')
+    const completion = lead?.intakeCompletion
+    if (!completion) return lead
+    const nextMissingItems = missingItems || completion.missingItems
+    const previousApproval = completion.followUp?.approvalSignature
+    const invalidatedLead = previousApproval && completion.followUp?.workflowKey
+      ? cancelCompletionFollowUp(lead, {
+          actor,
+          now,
+          reason: 'Approved reminder content changed and the prior simulated schedule was invalidated.',
+        })
+      : lead
+    const invalidatedCompletion = invalidatedLead.intakeCompletion
+    const nextFollowUp = {
+      ...invalidatedCompletion.followUp,
+      approvalId: undefined,
+      approvalSignature: undefined,
+      approvedAt: undefined,
+      approvedBy: undefined,
+      bodySnapshot: body ?? completion.followUp?.bodySnapshot,
+      canceledAt: undefined,
+      canceledBy: undefined,
+      cancelReason: undefined,
+      recipient: recipient ?? completion.followUp?.recipient,
+      scheduledFor: '',
+      status: previousApproval ? 'stale' : 'pending_approval',
+      subject: subject ?? completion.followUp?.subject,
+      workflowKey: undefined,
+    }
+    nextFollowUp.contentHash = reminderHashForCompletion(
+      { ...invalidatedCompletion, followUp: nextFollowUp, missingItems: nextMissingItems },
+      { missingItems: nextMissingItems },
+    )
+    return {
+      ...invalidatedLead,
+      intakeCompletion: {
+        ...invalidatedCompletion,
+        approvalHistory: previousApproval
+          ? [...asArray(completion.approvalHistory), previousApproval]
+          : asArray(completion.approvalHistory),
+        events: dedupeById([
+          {
+            action: 'reminder_draft_changed',
+            actor,
+            date: now,
+            detail: overrideReason,
+            id: `reminder-changed-${hashText(`${lead.id}:${nextFollowUp.contentHash}:${overrideReason}`)}`,
+          },
+          ...asArray(invalidatedCompletion.events),
+        ]),
+        followUp: nextFollowUp,
+        missingItems: nextMissingItems,
+        missingSignature: nextFollowUp.contentHash,
+      },
     }
   }
 
@@ -320,13 +782,23 @@
       if (!incomingDocumentIds.has(document?.docId)) mergedChecklist.push(document)
     })
 
-    const existingCompletion = list[existingIndex]?.intakeCompletion
-    const sameMissingItems =
+    const existingLead = list[existingIndex]
+    const existingCompletion = existingLead?.intakeCompletion
+    const sameReminderContent =
       existingCompletion?.missingSignature === incoming.intakeCompletion.missingSignature
-    const mergedCompletion = sameMissingItems
+    const priorApproval = existingCompletion?.followUp?.approvalSignature
+    const invalidatedExistingLead = !sameReminderContent && existingCompletion?.followUp?.workflowKey
+      ? cancelCompletionFollowUp(existingLead, {
+          actor: 'BK FastLane Intake',
+          now: incoming.intakePackage.submittedAt,
+          reason: 'New Intake content invalidated the prior simulated reminder schedule.',
+        })
+      : existingLead
+    const preservedCompletion = invalidatedExistingLead?.intakeCompletion
+    const mergedCompletion = sameReminderContent
       ? {
           ...incoming.intakeCompletion,
-          ...existingCompletion,
+          ...preservedCompletion,
           documentCompletion: incoming.intakeCompletion.documentCompletion,
           emailDraft: incoming.intakeCompletion.emailDraft,
           fieldCompletion: incoming.intakeCompletion.fieldCompletion,
@@ -336,28 +808,42 @@
           percent: incoming.intakeCompletion.percent,
           revision: incoming.intakeCompletion.revision,
         }
-      : incoming.intakeCompletion
+      : {
+          ...incoming.intakeCompletion,
+          approvalHistory: priorApproval
+            ? [...asArray(preservedCompletion?.approvalHistory), priorApproval]
+            : asArray(preservedCompletion?.approvalHistory),
+          events: dedupeById([
+            ...(priorApproval
+              ? [
+                  {
+                    action: 'approval_invalidated',
+                    actor: 'BK FastLane Intake',
+                    date: incoming.intakePackage.submittedAt,
+                    detail: 'Recipient, subject, body, resume URL, item instructions, or Matter revision changed.',
+                    id: `approval-invalidated-${incoming.intakeCompletion.missingSignature}`,
+                  },
+                ]
+              : []),
+            ...asArray(incoming.intakeCompletion.events),
+            ...asArray(preservedCompletion?.events),
+          ]),
+          followUp: {
+            ...incoming.intakeCompletion.followUp,
+            status: priorApproval ? 'stale' : incoming.intakeCompletion.followUp.status,
+          },
+        }
 
     const completedNow = incoming.intakeCompletion.status === 'complete'
+    const suppressNow = completedNow || incoming.intakeCompletion.suppressionReason === 'client_response'
 
-    return list.map((lead, index) =>
-      index === existingIndex
-        ? {
+    return list.map((lead, index) => {
+      if (index !== existingIndex) return lead
+      const mergedLead = {
             ...incoming,
-            ...lead,
+            ...invalidatedExistingLead,
             bankruptcyType: incoming.bankruptcyType,
-            communications: completedNow
-              ? asArray(lead.communications).map((communication) =>
-                  communication?.deliveryMode === 'simulation' &&
-                  communication?.status === 'Scheduled'
-                    ? {
-                        ...communication,
-                        canceledAt: incoming.intakePackage.submittedAt,
-                        status: 'Canceled',
-                      }
-                    : communication,
-                )
-              : lead.communications,
+            communications: invalidatedExistingLead.communications,
             contacts: incoming.contacts,
             docChecklist: mergedChecklist,
             email: incoming.email,
@@ -368,29 +854,26 @@
             lastName: incoming.lastName,
             leadStage: incoming.leadStage,
             phone: incoming.phone,
-            tasks: completedNow
-              ? [
-                  ...incoming.tasks,
-                  ...asArray(lead.tasks)
-                    .filter((task) => task?.id !== incoming.tasks[0]?.id)
-                    .map((task) =>
-                      task?.title === 'Simulated intake reminder scheduled'
-                        ? { ...task, status: 'Canceled' }
-                        : task,
-                    ),
-                ]
-              : lead.tasks,
-            timeline: completedNow
+            tasks: suppressNow
+              ? dedupeById([...incoming.tasks, ...asArray(invalidatedExistingLead.tasks)])
+              : invalidatedExistingLead.tasks,
+            timeline: suppressNow
               ? [
                   ...incoming.timeline,
-                  ...asArray(lead.timeline).filter(
+                  ...asArray(invalidatedExistingLead.timeline).filter(
                     (event) => event?.id !== incoming.timeline[0]?.id,
                   ),
                 ]
-              : lead.timeline,
+              : invalidatedExistingLead.timeline,
           }
-        : lead,
-    )
+      return suppressNow
+        ? cancelCompletionFollowUp(mergedLead, {
+            actor: 'BK FastLane Intake',
+            now: incoming.intakePackage.submittedAt,
+            reason: 'Debtor completion or response suppressed the pending reminder.',
+          })
+        : mergedLead
+    })
   }
 
   const mergePackagesIntoLeads = (leads, packages) =>
@@ -413,7 +896,16 @@
 
   const enqueuePackage = (storage, candidate) => {
     const intakePackage = normalizePackage(candidate)
-    const existing = readQueuedPackages(storage).filter(
+    const queued = readQueuedPackages(storage)
+    const current = queued.find((item) => item.packageId === intakePackage.packageId)
+    if (
+      current &&
+      numberValue(current?.completion?.revision) >=
+        numberValue(intakePackage?.completion?.revision)
+    ) {
+      return current
+    }
+    const existing = queued.filter(
       (item) => item.packageId !== intakePackage.packageId,
     )
     storage.setItem(
@@ -429,6 +921,8 @@
     ORGANIZATION_EVENT,
     ORGANIZATION_STORAGE_KEY,
     PACKAGE_SCHEMA_VERSION,
+    approveCompletionReminder,
+    cancelCompletionFollowUp,
     debtorName,
     enqueuePackage,
     formatAddress,
@@ -439,8 +933,11 @@
     packageToLead,
     readOrganization,
     readQueuedPackages,
+    reminderContentHash,
+    reminderHashForCompletion,
     total,
     validatePackage,
+    updateCompletionReminderDraft,
     writeOrganization,
   }
 })
