@@ -80,3 +80,18 @@ we'll email you a secure upload link, and it stays open until we have everything
 Debtor-facing text is natural case and firm-voiced (no product terms like "Lead" or
 "Task"). Warm but plain: this audience is stressed; the page should feel like a short
 to-do list, not a portal.
+
+### Cross-check note (2026-07-13, verified programmatically)
+
+The document catalogs are in perfect sync: 32 doc_types on each side, ids match
+1:1 both directions, T1/required tiers agree, and the five skip-reason codes are
+identical. Rule going forward: **the doc_type id is the shared contract between
+the two windows; debtor-facing and firm-facing labels may differ per audience.**
+
+One doc update needed in THIS repo: DOC-LOGIC.md §4's "Follow-up behavior" column
+predates the CRM's ruling model (built 2026-07-12). Correct behavior now:
+`dont_have_copy`, `doesnt_apply`, and `didnt_file` do NOT self-close or auto-chase —
+they wait for a firm ruling in the CRM (Excuse closes the item; Keep Chasing puts it
+on the follow-up list). `will_send_later` and `not_taken_yet` still chase automatically.
+Debtor-facing behavior in the intake is unchanged; only the described downstream
+handling needs the correction.
