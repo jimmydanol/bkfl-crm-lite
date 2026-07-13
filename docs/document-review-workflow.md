@@ -140,7 +140,9 @@ Opening a row shows:
 - scheduled date/time;
 - **Approve & schedule reminder**.
 
-After approval, the UI shows the schedule, approver, immutable body snapshot, and a cancel action. The CRM also creates one scheduled communication, one follow-up task, one timeline entry, and one completion event.
+After approval, the UI shows the schedule, approver, immutable body snapshot, and a cancel action. The CRM also creates one scheduled communication, one scheduled-reminder task, one timeline entry, and one completion event.
+
+The fake pilot also creates two idempotent, browser-local cadence tasks under the same workflow key: suggest reminder 2 after five business days (within the 3-5 day policy window), and firm follow-up after ten days (within the 7-10 day window). Completion, any client response, reviewer cancellation/pause, an unavailable-item response, or the two-reminder maximum stops the cadence. Atomic cancellation closes the reminder communication, schedule, and all three related tasks together; nothing is delivered externally.
 
 ## Merge and concurrency rules
 

@@ -171,8 +171,11 @@ assert.equal(approvedOnce.intakeCompletion.followUp.status, 'approved_scheduled'
 assert.equal(approvedOnce.intakeCompletion.followUp.approvedBy, 'pilot reviewer')
 assert.equal(approvedOnce.intakeCompletion.followUp.deliveryMode, 'simulation')
 assert.equal(approvedOnce.communications.filter((item) => item.workflowKey).length, 1)
-assert.equal(approvedOnce.tasks.filter((item) => item.workflowKey).length, 1)
+assert.equal(approvedOnce.tasks.filter((item) => item.workflowKey).length, 3)
 assert.equal(approvedOnce.intakeCompletion.scheduledRecords.filter((item) => item.workflowKey).length, 1)
+assert.ok(approvedOnce.tasks.some((item) => item.title === 'Suggest reminder 2 if Intake is still incomplete' && item.due === '2026-07-21'))
+assert.ok(approvedOnce.tasks.some((item) => item.title === 'Firm follow-up if Intake is still incomplete' && item.due === '2026-07-24'))
+assert.equal(approvedOnce.intakeCompletion.followUp.cadencePolicy.maximumReminders, 2)
 assert.equal(approvedOnce.intakeCompletion.followUp.approvalSignature.recipient, approvalLead.intakeCompletion.emailDraft.recipient)
 assert.equal(approvedOnce.intakeCompletion.followUp.approvalSignature.subject, approvalLead.intakeCompletion.emailDraft.subject)
 assert.equal(approvedOnce.intakeCompletion.followUp.approvalSignature.body, approvalLead.intakeCompletion.emailDraft.bodySnapshot)
@@ -215,7 +218,7 @@ const reapproved = bridge.approveCompletionReminder(edited, {
 assert.equal(reapproved.intakeCompletion.followUp.status, 'approved_scheduled')
 assert.notEqual(reapproved.intakeCompletion.followUp.approvalId, approvedOnce.intakeCompletion.followUp.approvalId)
 assert.equal(reapproved.communications.filter((item) => item.workflowKey && item.status === 'Scheduled').length, 1)
-assert.equal(reapproved.tasks.filter((item) => item.workflowKey && item.status === 'Pending').length, 1)
+assert.equal(reapproved.tasks.filter((item) => item.workflowKey && item.status === 'Pending').length, 3)
 assert.equal(reapproved.intakeCompletion.scheduledRecords.filter((item) => item.workflowKey && item.status === 'active').length, 1)
 
 const canceled = bridge.cancelCompletionFollowUp(reapproved, {

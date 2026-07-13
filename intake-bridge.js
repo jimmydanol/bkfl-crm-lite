@@ -9,6 +9,13 @@
   const ORGANIZATION_EVENT = 'bkfl:organization-change'
   const ORGANIZATION_STORAGE_KEY = 'bkfl_lite_org_v1'
   const PACKAGE_SCHEMA_VERSION = 2
+  const SIMULATED_CADENCE_POLICY = Object.freeze({
+    deliveryMode: 'simulation',
+    firmFollowUpDays: 10,
+    maximumReminders: 2,
+    reminder2BusinessDays: 5,
+    stopOn: ['completion', 'client_response', 'reviewer_pause', 'unavailable_resolution', 'maximum_cadence'],
+  })
   const DEFAULT_ORGANIZATION = Object.freeze({
     city: 'Boulder',
     country: 'United States',
@@ -27,6 +34,17 @@
   const numberValue = (value) => {
     const parsed = Number(value)
     return Number.isFinite(parsed) ? parsed : 0
+  }
+
+  const dueDateAfter = (value, days, businessDays = false) => {
+    const date = new Date(`${clean(value).slice(0, 10)}T12:00:00Z`)
+    if (Number.isNaN(date.getTime())) return ''
+    let remaining = days
+    while (remaining > 0) {
+      date.setUTCDate(date.getUTCDate() + 1)
+      if (!businessDays || ![0, 6].includes(date.getUTCDay())) remaining -= 1
+    }
+    return date.toISOString().slice(0, 10)
   }
 
   const hashText = (value) => {
@@ -411,6 +429,7 @@
         ...completion,
         followUp: {
           ...completion.emailDraft,
+          cadencePolicy: SIMULATED_CADENCE_POLICY,
           approvedAt: undefined,
           approvedBy: undefined,
           id: `${stableId}-completion-reminder`,
@@ -587,6 +606,28 @@
       title: 'Simulated intake reminder scheduled',
       workflowKey,
     }
+    const cadenceTasks = [
+      {
+        assignee: actor,
+        description: 'After five business days, suggest reminder 2 only if Intake is still incomplete and no stop condition has occurred.',
+        due: dueDateAfter(scheduledFor, SIMULATED_CADENCE_POLICY.reminder2BusinessDays, true),
+        id: `reminder-2-suggestion-task-${hashText(workflowKey)}`,
+        stage: 'Intake Completion',
+        status: 'Pending',
+        title: 'Suggest reminder 2 if Intake is still incomplete',
+        workflowKey,
+      },
+      {
+        assignee: actor,
+        description: 'Firm follow-up at the end of the pilot window; stop on completion, response, reviewer pause, unavailable-item resolution, or maximum cadence.',
+        due: dueDateAfter(scheduledFor, SIMULATED_CADENCE_POLICY.firmFollowUpDays),
+        id: `firm-completion-follow-up-task-${hashText(workflowKey)}`,
+        stage: 'Intake Completion',
+        status: 'Pending',
+        title: 'Firm follow-up if Intake is still incomplete',
+        workflowKey,
+      },
+    ]
 
     return {
       ...lead,
@@ -614,7 +655,7 @@
           ...asArray(completion.scheduledRecords),
         ]),
       },
-      tasks: dedupeById([task, ...asArray(lead.tasks)]),
+      tasks: dedupeById([task, ...cadenceTasks, ...asArray(lead.tasks)]),
       timeline: dedupeById([
         {
           action: 'Incomplete Intake reminder approved',

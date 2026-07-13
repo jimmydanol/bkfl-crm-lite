@@ -1,12 +1,12 @@
 window.BKFL_INTAKE_SUBMISSIONS = {
   "demo": true,
-  "generatedAt": "2026-07-13T19:54:04.109Z",
+  "generatedAt": "2026-07-13T19:58:55.620Z",
   "packages": [
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -351,7 +351,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "urgentAttorneyTask": null
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-lina-morris-ch7-renter",
         "title": "Lina Morris fake client-entered Chapter 7 intake",
@@ -367,12 +367,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.159Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.738Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-af8cb423-2ab7-4914-92cd-cc96b1630e17",
+            "id": "debtor-bec90db3-0245-4573-84a1-a5340d9095a8",
             "firstName": "Lina",
             "middleName": "Claire",
             "lastName": "Morris",
@@ -397,7 +397,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-e0b9747e-4c4b-4043-a33d-ed929345309b",
+            "id": "asset-5dccb490-9e86-4471-8099-a67ed93898fe",
             "category": "Bank or financial account",
             "description": "Canvas Credit Union checking",
             "estimatedValue": 420,
@@ -406,7 +406,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-4bb45508-7171-4c07-b67c-14879a5b9f19",
+            "id": "asset-7cf360a8-9ed1-4e72-8161-a948c1e14cc2",
             "category": "Vehicle",
             "description": "2014 Kia Soul",
             "estimatedValue": 5100,
@@ -420,7 +420,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2014"
           },
           {
-            "id": "asset-0f424e19-af60-4ba2-a3eb-6980d044abd4",
+            "id": "asset-ac07c6ca-29c1-41c0-8614-9071f03de83d",
             "category": "Household goods and furnishings",
             "description": "Furniture, laptop, phone, clothes, kitchen items",
             "estimatedValue": 3100,
@@ -461,7 +461,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-019fca86-78d3-461b-902d-56ff59170865",
+            "id": "income-c108d2d3-3257-4a7e-b0b7-73e27a25e04d",
             "source": "Employment",
             "employer": "Denver Dental Supply",
             "amount": 2900,
@@ -469,7 +469,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 17400
           },
           {
-            "id": "income-7ca4bc1a-871a-40a7-8769-01714a1f00a7",
+            "id": "income-4f31aa02-a571-4442-8314-9ef4aed56e99",
             "source": "Business income",
             "employer": "Weekend delivery apps",
             "amount": 950,
@@ -480,43 +480,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-70065634-b5a7-4c2f-ba6d-b5fa8caff7be",
+            "id": "expense-6a415c93-14a5-4022-b8c9-6df1e2cb3c52",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1390,
             "notes": ""
           },
           {
-            "id": "expense-51f5a4f3-4b7a-4711-a044-8c58cdf9fccb",
+            "id": "expense-7ee65886-b4fb-4a35-bccb-d2d65dbd679d",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 165,
             "notes": ""
           },
           {
-            "id": "expense-f176046a-ee20-4d82-8aed-c54c18bcf81b",
+            "id": "expense-04c573a5-de37-475f-b537-572f02e0da64",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 155,
             "notes": ""
           },
           {
-            "id": "expense-1b39b170-28a2-4266-a086-3944b7aa86b2",
+            "id": "expense-d60a38c0-165f-44a9-875f-483d1c86837f",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 540,
             "notes": ""
           },
           {
-            "id": "expense-b1963fd1-1d2c-4db9-91ff-19e050388a36",
+            "id": "expense-ca28f6ac-7544-4d7d-a380-e5270b7bedc2",
             "category": "Medical & dental expenses",
             "monthlyAmount": 95,
             "notes": ""
           },
           {
-            "id": "expense-b9e19916-7bfd-4079-aca2-242f3e663810",
+            "id": "expense-56db0dd4-6ed9-4016-b45d-490894ca5995",
             "category": "Transportation",
             "monthlyAmount": 385,
             "notes": ""
           },
           {
-            "id": "expense-86b5c26f-73a2-442e-8439-8cbd15f9f21b",
+            "id": "expense-efe756d9-2189-48bb-9525-f3f719fe41a1",
             "category": "Vehicle insurance",
             "monthlyAmount": 148,
             "notes": ""
@@ -623,7 +623,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-9461b215-941f-485d-8c16-de8036ea794e",
+                "id": "fa-entry-5ef4f72c-6667-4f4c-98d2-4cf3c5e3a6e6",
                 "fields": {
                   "address": "1400 North Ogden Street, Denver, CO 80218",
                   "dates": "2022-09 to 2024-02"
@@ -839,13 +839,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "vehicle_retain"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "attorney_only",
@@ -1198,7 +1198,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-kevin-priya-shah-ch13",
         "title": "Kevin and Priya Shah fake client-entered Chapter 13 intake",
@@ -1214,12 +1214,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "Yes",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.191Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.769Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-bbe88619-8959-4bfd-acdd-96c6ba241cf1",
+            "id": "debtor-b1a9f83b-33b3-4af2-9049-653bc010ff0c",
             "firstName": "Kevin",
             "middleName": "Arun",
             "lastName": "Shah",
@@ -1237,7 +1237,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "dateOfBirth": "06/12/1984"
           },
           {
-            "id": "debtor-6bf88c98-982f-4529-adc3-10ee866682de",
+            "id": "debtor-93001010-d347-445e-94ea-7db4de0751ac",
             "firstName": "Priya",
             "middleName": "Meera",
             "lastName": "Shah",
@@ -1260,14 +1260,14 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "maritalStatus": "Married",
           "dependents": [
             {
-              "id": "dependent-1b831010-bb44-433c-a38a-c65d39947447",
+              "id": "dependent-8bad0dc6-e90e-4ce6-b819-c5a9abebcd2b",
               "name": "Fake minor child A",
               "age": "12",
               "relationship": "Child",
               "livesWithDebtor": "Yes"
             },
             {
-              "id": "dependent-8b3981c2-1122-4f5f-bffc-d54bd3fba040",
+              "id": "dependent-db1e5d21-30f8-4180-bd95-f8257fde775b",
               "name": "Fake minor child B",
               "age": "8",
               "relationship": "Child",
@@ -1277,7 +1277,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-317d55df-cba4-4f81-810a-3ba18417c5d6",
+            "id": "asset-cb403396-ce9d-45ab-9bd6-18e0f7ab701b",
             "category": "Real estate",
             "description": "Primary residence",
             "estimatedValue": 462000,
@@ -1290,7 +1290,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "propertyZipCode": "80013"
           },
           {
-            "id": "asset-a9fd0c33-def7-416e-9831-43ee047276ae",
+            "id": "asset-b91c0aa6-1041-46aa-b2a9-bd57e9ba7c6d",
             "category": "Vehicle",
             "description": "2019 Ford F-150",
             "estimatedValue": 28200,
@@ -1304,7 +1304,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2019"
           },
           {
-            "id": "asset-3aed1d99-ad7d-48fe-81d0-c395eadba9c7",
+            "id": "asset-a2257bbd-cc18-4f98-912d-b12f00b5a5f5",
             "category": "Bank or financial account",
             "description": "Chase joint checking",
             "estimatedValue": 2150,
@@ -1313,7 +1313,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-3694491e-f6c1-40fb-8845-9ab54ef9aa5d",
+            "id": "asset-02b09bf0-ce6a-4521-9a8b-33af3006c533",
             "category": "Retirement or pension account",
             "description": "Kevin 401(k)",
             "estimatedValue": 69000,
@@ -1364,7 +1364,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-d2996083-e7dd-44b9-8b42-a6166f3b0746",
+            "id": "income-21161230-9b65-48e1-a291-0cde8c4847b3",
             "source": "Employment",
             "employer": "Metro Facilities Group",
             "amount": 7100,
@@ -1372,7 +1372,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 42600
           },
           {
-            "id": "income-16a7e680-a2eb-40d6-b300-f26ca60b5d6a",
+            "id": "income-9f6a0936-3208-4779-a23a-af908b18d4dc",
             "source": "Employment",
             "employer": "Aurora Unified Schools",
             "amount": 3900,
@@ -1383,61 +1383,61 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-cf66d168-683d-44c2-8ff4-02b40bf905ca",
+            "id": "expense-52153f69-9348-4c51-a61c-d55e0dac0021",
             "category": "Mortgage payment",
             "monthlyAmount": 2680,
             "notes": ""
           },
           {
-            "id": "expense-000a7846-9447-4941-8528-06bf443a0e5a",
+            "id": "expense-d0350307-3b1b-4f13-8c6b-ce3dfe3a2d54",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 310,
             "notes": ""
           },
           {
-            "id": "expense-e7512fe1-0e84-4f43-9385-876bf3ab19d0",
+            "id": "expense-e78b6a33-9592-4e81-8c0c-82f09b2150cc",
             "category": "Water, sewer, garbage collection",
             "monthlyAmount": 115,
             "notes": ""
           },
           {
-            "id": "expense-72b4811f-115e-4c5a-a262-b09f58fb6576",
+            "id": "expense-bacae5fb-ac93-493a-a3a6-5ac6ba0f2a43",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 245,
             "notes": ""
           },
           {
-            "id": "expense-2a20285b-88af-4b35-94f1-3bbcf376731f",
+            "id": "expense-dfc0f941-24fe-4c4d-b322-472d0c51dd0b",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 925,
             "notes": ""
           },
           {
-            "id": "expense-0df2dcef-1005-44fa-939a-c8ff9751fb0f",
+            "id": "expense-126e66a4-9a4c-44d2-8814-1f0106dc29a2",
             "category": "Childcare & children education",
             "monthlyAmount": 640,
             "notes": ""
           },
           {
-            "id": "expense-39641321-db3c-4ad6-bccc-c34f01c9e0f4",
+            "id": "expense-2f8b54df-4ad1-46c1-b814-6c17a6de0f45",
             "category": "Transportation",
             "monthlyAmount": 560,
             "notes": ""
           },
           {
-            "id": "expense-db012807-af1a-478f-b10c-152d04b7f40f",
+            "id": "expense-d8c60abe-decb-4089-938d-3a707157b5dc",
             "category": "Vehicle payments",
             "monthlyAmount": 610,
             "notes": ""
           },
           {
-            "id": "expense-6cbb2c63-1769-40aa-9081-af1b08955252",
+            "id": "expense-f4b795f3-ce82-4b73-bad5-2569e013a6ba",
             "category": "Vehicle insurance",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-ca18a4fb-c84d-4015-80f1-51abb686a8ca",
+            "id": "expense-130ba8cd-f513-4883-aae3-f21a923e72ff",
             "category": "Taxes not deducted from wages",
             "monthlyAmount": 210,
             "notes": ""
@@ -1565,7 +1565,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-926a3a72-7f64-46f9-89b4-099821f1fbaa",
+                "id": "fa-entry-5b2c3800-292d-4465-b0af-d85609e5a6dd",
                 "fields": {
                   "creditor": "Frontier Mortgage Servicing",
                   "paymentDates": "2026-05 and 2026-06",
@@ -1592,7 +1592,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-1b2520b2-499d-4a73-8335-d232937bad4e",
+                "id": "fa-entry-6800bfe8-fcac-42df-aa55-ad496f1a739e",
                 "fields": {
                   "caseNumber": "",
                   "caseTitle": "Frontier Mortgage Servicing foreclosure",
@@ -1608,7 +1608,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-13a8f5a3-83d6-435e-97a4-124ea1445a82",
+                "id": "fa-entry-e8b8601b-a02c-4254-a835-35439893cea9",
                 "fields": {
                   "creditor": "Frontier Mortgage Servicing",
                   "date": "",
@@ -1783,13 +1783,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "prior_bankruptcy"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -2104,7 +2104,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "urgentAttorneyTask": null
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-rosa-whitaker-ch7-retired",
         "title": "Rosa Whitaker fake client-entered Chapter 7 intake",
@@ -2120,12 +2120,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "No",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.206Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.784Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-d5bc6d5a-b44b-49ec-a980-55fa84cd7c8e",
+            "id": "debtor-a93dbf8e-2f36-4590-87bb-25376ac0a3e5",
             "firstName": "Rosa",
             "middleName": "Elaine",
             "lastName": "Whitaker",
@@ -2150,7 +2150,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-f9f2b31a-1f58-421c-b881-baa0b5b4f828",
+            "id": "asset-f361ed5b-15f6-4318-8aea-ee44b84fddcd",
             "category": "Bank or financial account",
             "description": "Wells Fargo checking",
             "estimatedValue": 780,
@@ -2159,7 +2159,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-bfa8cc65-8349-4738-80fd-fa3f0eee80dd",
+            "id": "asset-1e49a2eb-bd3a-4e32-b8d6-60de2d229351",
             "category": "Bank or financial account",
             "description": "Wells Fargo savings",
             "estimatedValue": 1100,
@@ -2168,7 +2168,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Savings"
           },
           {
-            "id": "asset-573cdba6-231c-4c04-90fd-37a745f6b79f",
+            "id": "asset-dae95279-d1a2-4e33-a5fa-f0a9427c44e4",
             "category": "Retirement or pension account",
             "description": "Small rollover IRA",
             "estimatedValue": 14600,
@@ -2177,7 +2177,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "IRA"
           },
           {
-            "id": "asset-6c007184-3c21-40f9-b9d8-57d6c28fdc77",
+            "id": "asset-a95421a8-40b1-4978-8d6d-15f5c4a9db0a",
             "category": "Household goods and furnishings",
             "description": "Apartment furniture, clothing, television, mobility equipment",
             "estimatedValue": 3600,
@@ -2218,7 +2218,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-3acb1eac-3bee-4504-9266-10d9bca58bd8",
+            "id": "income-9b747262-5ffc-461b-9e58-3da65fb153b9",
             "source": "Social Security / public benefits",
             "employer": "Social Security Administration",
             "amount": 1980,
@@ -2226,7 +2226,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 11880
           },
           {
-            "id": "income-84d7d985-5f23-41a6-8466-805ead3bf925",
+            "id": "income-98b8a397-4833-45fa-a1a2-005ab92cc6aa",
             "source": "Pension / retirement",
             "employer": "Former employer pension",
             "amount": 500,
@@ -2237,43 +2237,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-6cb6ea9a-5475-4b63-b409-1cd18495b6fc",
+            "id": "expense-8e5e59d5-7395-450b-a021-896220280f5b",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1180,
             "notes": ""
           },
           {
-            "id": "expense-1150983f-3f30-47d7-8141-d98394a5d063",
+            "id": "expense-99b8b85a-9816-403b-b0e7-5e9e62f79b04",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 120,
             "notes": ""
           },
           {
-            "id": "expense-e4eea822-e489-4ac1-a4d7-906ceeaed77f",
+            "id": "expense-2a943369-d141-44c9-82f0-37f6fbffc190",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 135,
             "notes": ""
           },
           {
-            "id": "expense-b498bb5b-4cd3-41bb-bf13-48ad9e09d225",
+            "id": "expense-914ba1a4-7c70-48d7-a37a-89ac2ba88cb0",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 425,
             "notes": ""
           },
           {
-            "id": "expense-9df6036a-f0ff-465d-82c4-529f7bd68f6f",
+            "id": "expense-bf3cc9e9-0801-423f-9d1a-edecb24cae82",
             "category": "Medical & dental expenses",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-43d55234-3a70-4218-98fc-e80da9600863",
+            "id": "expense-5acd1612-9277-4a13-b45d-95b9b2bfc8ce",
             "category": "Transportation",
             "monthlyAmount": 160,
             "notes": ""
           },
           {
-            "id": "expense-64da4532-e71b-4f3d-856a-e78bc50145fc",
+            "id": "expense-b201a1a6-91b4-4012-96ee-f28eb228d16e",
             "category": "Other expenses",
             "monthlyAmount": 95,
             "notes": "Prescription delivery and mobility supplies"
@@ -2384,7 +2384,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-d7b814de-768b-45e9-aa23-fb3f961a5403",
+                "id": "fa-entry-5c63367f-f947-4df3-9aea-9e4e2657bda8",
                 "fields": {
                   "amount": "2480",
                   "frequency": "Monthly",
@@ -2483,7 +2483,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-face3607-1b75-4f34-b09e-593b663e8f05",
+                "id": "fa-entry-cd0c1e50-3fc6-452b-9b2d-b50970bb7011",
                 "fields": {
                   "account": "Mountain America Credit Union checking",
                   "closedDate": "2025-12",
@@ -2582,13 +2582,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "tax_return_unavailable"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -2881,7 +2881,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-nolan-brooks-ch7-renter",
         "title": "Nolan Brooks fake client-entered Chapter 7 intake",
@@ -2897,12 +2897,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "No",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.220Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.799Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-a3a9be75-2313-4cba-8c88-331dec471294",
+            "id": "debtor-62038c13-72fc-4df1-900b-6e3bfc56349a",
             "firstName": "Nolan",
             "middleName": "James",
             "lastName": "Brooks",
@@ -2927,7 +2927,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-d231a077-cf6e-4007-99b6-5fda78ddf36a",
+            "id": "asset-a5f60f01-a2ba-499f-8bc6-2ad711a8b1bb",
             "category": "Bank or financial account",
             "description": "Canvas Credit Union checking",
             "estimatedValue": 420,
@@ -2936,7 +2936,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-35304273-d253-48b9-8c4a-865777e4fb10",
+            "id": "asset-f72c2a53-9c18-45a7-b3f0-7cbb9e0de087",
             "category": "Vehicle",
             "description": "2014 Kia Soul",
             "estimatedValue": 5100,
@@ -2950,7 +2950,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2014"
           },
           {
-            "id": "asset-76eace9e-fc86-469a-84d8-5509452319aa",
+            "id": "asset-f8ccc027-6c3b-4d7c-9de7-e2a32c68af92",
             "category": "Household goods and furnishings",
             "description": "Furniture, laptop, phone, clothes, kitchen items",
             "estimatedValue": 3100,
@@ -2991,7 +2991,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-84a70880-7250-4b92-8cbf-f8b8d06e0ee9",
+            "id": "income-46cba82a-8198-4dc7-ad7a-f64ccac0d8de",
             "source": "Unemployment benefits",
             "employer": "Colorado Department of Labor",
             "amount": 1850,
@@ -3002,43 +3002,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-a4589328-be87-4823-8fb9-91d7447b3289",
+            "id": "expense-b001ca29-987d-4f5c-ba04-8ae4632c9c49",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1390,
             "notes": ""
           },
           {
-            "id": "expense-a3cba037-5bb7-4930-b71b-fbbf45432b1a",
+            "id": "expense-6a43bef7-8204-4c9e-8005-8e2a52bc0067",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 165,
             "notes": ""
           },
           {
-            "id": "expense-d492cf75-db2b-4991-8a1d-d0b2d7e17aca",
+            "id": "expense-ee846476-143f-4510-9d2e-22337fcd4778",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 155,
             "notes": ""
           },
           {
-            "id": "expense-b5c96a26-902f-461c-809f-cd70129a1f01",
+            "id": "expense-73243e75-c368-462f-a48d-0cc83dbc4d6f",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 540,
             "notes": ""
           },
           {
-            "id": "expense-1765f6bf-4d23-4df9-b672-03b8c0adaa73",
+            "id": "expense-3ba0cd3f-f873-46dd-99b4-a9a518b72f4c",
             "category": "Medical & dental expenses",
             "monthlyAmount": 95,
             "notes": ""
           },
           {
-            "id": "expense-b018cb43-73ac-4586-b92b-92a86deda56e",
+            "id": "expense-be49a25f-b22b-44fa-9e3b-c1d2ec6655ed",
             "category": "Transportation",
             "monthlyAmount": 385,
             "notes": ""
           },
           {
-            "id": "expense-20666933-65b4-4576-aa23-fc04c7f2fbb7",
+            "id": "expense-75bc154e-64f7-4bf8-b23e-7188eaea5972",
             "category": "Vehicle insurance",
             "monthlyAmount": 148,
             "notes": ""
@@ -3124,7 +3124,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-9461b215-941f-485d-8c16-de8036ea794e",
+                "id": "fa-entry-5ef4f72c-6667-4f4c-98d2-4cf3c5e3a6e6",
                 "fields": {
                   "address": "1400 North Ogden Street, Denver, CO 80218",
                   "dates": "2022-09 to 2024-02"
@@ -3150,7 +3150,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-c75aee09-34f8-4a2f-8a5e-df39ee325741",
+                "id": "fa-entry-3bd58eaf-c528-4eb6-b898-efa46d29a818",
                 "fields": {
                   "amount": "1850",
                   "frequency": "Monthly",
@@ -3183,7 +3183,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-f03202d5-b855-45b0-81a2-5edb4726a77d",
+                "id": "fa-entry-b76d129f-b4e2-48b8-8d15-0acbd69eb2df",
                 "fields": {
                   "caseNumber": "",
                   "court": "Boulder County Court",
@@ -3357,13 +3357,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "mobile_accessibility"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -3776,7 +3776,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-maya-patel-ch7-parent",
         "title": "Maya Patel fake client-entered Chapter 7 intake",
@@ -3792,12 +3792,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.234Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.813Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-2c723f11-31c5-4362-bf8c-4ccd2c20656a",
+            "id": "debtor-b7d9fa95-f570-4aff-89db-48d9b8dbe85b",
             "firstName": "Maya",
             "middleName": "Renee",
             "lastName": "Patel",
@@ -3815,7 +3815,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "dateOfBirth": "02/24/1990"
           },
           {
-            "id": "debtor-949b853b-a44b-4073-9f3f-9ea01275f8a5",
+            "id": "debtor-9e18b1de-2b2e-486b-8d08-fd71e46a9a65",
             "firstName": "Arun",
             "middleName": "Dev",
             "lastName": "Patel",
@@ -3838,14 +3838,14 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "maritalStatus": "Married",
           "dependents": [
             {
-              "id": "dependent-3357d825-c73b-4498-b937-f147dcbd5c75",
+              "id": "dependent-6375ba54-4459-4cec-a86e-ae0c5a09e910",
               "name": "Fake child A",
               "age": "9",
               "relationship": "Child",
               "livesWithDebtor": "Yes"
             },
             {
-              "id": "dependent-52ab243b-a278-4ecb-ab9a-529ded576322",
+              "id": "dependent-e8c340bf-2d49-4f6a-902a-72aca0937438",
               "name": "Fake child B",
               "age": "4",
               "relationship": "Child",
@@ -3855,7 +3855,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-9d384ad2-0c18-44c8-b478-ab4d776dd25f",
+            "id": "asset-de0eabae-fbaf-448d-a532-f8602135fe90",
             "category": "Bank or financial account",
             "description": "Canvas Credit Union checking",
             "estimatedValue": 420,
@@ -3864,7 +3864,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-6864cb25-8e8c-4915-a96b-f8900409601a",
+            "id": "asset-e94e2ea1-9006-4609-9aea-3c9f359cd452",
             "category": "Vehicle",
             "description": "2014 Kia Soul",
             "estimatedValue": 5100,
@@ -3878,7 +3878,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2014"
           },
           {
-            "id": "asset-2cd38529-1cf9-44db-b724-5d9617fb6abc",
+            "id": "asset-488ae808-3b28-4441-9c8b-a73e362fcda6",
             "category": "Household goods and furnishings",
             "description": "Furniture, laptop, phone, clothes, kitchen items",
             "estimatedValue": 3100,
@@ -3919,7 +3919,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-8dd60067-5acd-4e88-aa79-35c7d43322d2",
+            "id": "income-ee87851a-627c-4ea0-8eff-15ef7c30b5d7",
             "source": "Maya wages",
             "employer": "Aurora Medical Billing",
             "amount": 4100,
@@ -3927,7 +3927,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 24600
           },
           {
-            "id": "income-8b53b00e-a72f-40fa-82b5-6b2d773c790f",
+            "id": "income-7b4dfe4c-e53a-441f-a5ca-db0e6f2a3ee6",
             "source": "Nonfiling spouse household income",
             "employer": "Arun Patel nonfiling-spouse wages",
             "amount": 5200,
@@ -3938,43 +3938,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-7cdc2f17-e43c-4922-88ab-fab11a9fcc15",
+            "id": "expense-b3c833d0-4636-4570-884d-22a621a9ef21",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1390,
             "notes": ""
           },
           {
-            "id": "expense-760d63c3-95e2-45c7-8d84-1487b70c3c21",
+            "id": "expense-497834c8-2804-46d5-b867-56186c787572",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 165,
             "notes": ""
           },
           {
-            "id": "expense-3cd4c7bc-6343-45d3-a710-99eb702bb85a",
+            "id": "expense-40c14a99-8be6-472f-b8c7-e09962e9d42b",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 155,
             "notes": ""
           },
           {
-            "id": "expense-09d7f6a8-059e-4558-81c0-b5cb18bcd92e",
+            "id": "expense-7bb6abcf-8693-4a30-af3a-d6b744b10a61",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 540,
             "notes": ""
           },
           {
-            "id": "expense-2901523a-a755-409d-a5d1-ec7566545f21",
+            "id": "expense-0ab53574-7b44-4093-9313-25ffc8cf3432",
             "category": "Medical & dental expenses",
             "monthlyAmount": 95,
             "notes": ""
           },
           {
-            "id": "expense-75651313-1cf1-44cf-88c9-6badd911d1a2",
+            "id": "expense-00f7bea8-89ff-4eab-981c-45e23a55ad81",
             "category": "Transportation",
             "monthlyAmount": 385,
             "notes": ""
           },
           {
-            "id": "expense-1332bf27-b056-49cc-a26e-84277f31631b",
+            "id": "expense-2f88fe5e-8657-4876-9802-4264abc79193",
             "category": "Vehicle insurance",
             "monthlyAmount": 148,
             "notes": ""
@@ -4072,7 +4072,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-9461b215-941f-485d-8c16-de8036ea794e",
+                "id": "fa-entry-5ef4f72c-6667-4f4c-98d2-4cf3c5e3a6e6",
                 "fields": {
                   "address": "1400 North Ogden Street, Denver, CO 80218",
                   "dates": "2022-09 to 2024-02"
@@ -4106,7 +4106,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-b68495ff-7efa-4d15-83fa-8a7d6e8f25eb",
+                "id": "fa-entry-6eb2a734-55e0-451d-b8be-8b36130e70db",
                 "fields": {
                   "amount": "430",
                   "creditor": "Front Range Collections",
@@ -4297,13 +4297,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "renter"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -4716,7 +4716,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-zoe-kim-ch7-wage-earner",
         "title": "Zoe Kim fake client-entered Chapter 7 intake",
@@ -4732,12 +4732,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.248Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.828Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-b991ced0-c4af-4016-86ab-e05f6123f14a",
+            "id": "debtor-d5f1b82c-54cf-4417-97c9-c95487f9a922",
             "firstName": "Zoe",
             "middleName": "Harper",
             "lastName": "Kim",
@@ -4762,7 +4762,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-84e99a56-feb2-4148-9319-ffc64741bbf1",
+            "id": "asset-bce84e0a-03a7-4474-b6d8-9aee61f72eed",
             "category": "Bank or financial account",
             "description": "Canvas Credit Union checking",
             "estimatedValue": 420,
@@ -4771,7 +4771,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-7ede0b68-4523-4eef-a3d7-86f0a425239d",
+            "id": "asset-ad3333a2-1c12-4cef-81be-ddc8d6e93d86",
             "category": "Vehicle",
             "description": "2014 Kia Soul",
             "estimatedValue": 5100,
@@ -4785,7 +4785,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2014"
           },
           {
-            "id": "asset-b5efeb23-4dca-4954-b8f1-5701f847cbfd",
+            "id": "asset-3d07819b-6672-49da-977d-08bc6b645b2e",
             "category": "Household goods and furnishings",
             "description": "Furniture, laptop, phone, clothes, kitchen items",
             "estimatedValue": 3100,
@@ -4835,7 +4835,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-28734a49-6b02-4eba-a6a3-fcfdaf03b5c9",
+            "id": "income-d903ef8b-2069-4d3f-8b8d-d74a04325884",
             "source": "Employment",
             "employer": "Denver Dental Supply",
             "amount": 2900,
@@ -4843,7 +4843,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 17400
           },
           {
-            "id": "income-7968a3e8-2faf-415c-9bfb-9535109ec588",
+            "id": "income-42056c31-d446-4bef-9210-f6ed485d30ab",
             "source": "Business income",
             "employer": "Weekend delivery apps",
             "amount": 950,
@@ -4854,43 +4854,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-81c620d1-c14e-4f83-ac26-f3efcc9b0846",
+            "id": "expense-3832a6f2-0fb8-4f75-a56d-ddfb682f1f42",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1390,
             "notes": ""
           },
           {
-            "id": "expense-105e7d47-9be6-4bc6-b52d-b43274fd0dad",
+            "id": "expense-101dfa71-5534-4461-8724-6f9d7a41fe5c",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 165,
             "notes": ""
           },
           {
-            "id": "expense-2da3db6a-969e-4d10-a577-104d19ef194f",
+            "id": "expense-d509255f-9527-469d-83fa-0be456a408e6",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 155,
             "notes": ""
           },
           {
-            "id": "expense-15916ced-f313-4680-b358-25ec181efa2d",
+            "id": "expense-ab8c9465-1eec-4398-86a7-2aedd96c5bd7",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 540,
             "notes": ""
           },
           {
-            "id": "expense-c856e462-9bb9-41ff-b85f-ae212f00b2a3",
+            "id": "expense-70b13a5f-42c6-4867-b0b2-bf6935da4e0b",
             "category": "Medical & dental expenses",
             "monthlyAmount": 95,
             "notes": ""
           },
           {
-            "id": "expense-3df7516f-a8fa-4a8d-b7c6-8c6234bce2e8",
+            "id": "expense-24a8cc87-d2d6-47ac-9fad-6f0c13108297",
             "category": "Transportation",
             "monthlyAmount": 385,
             "notes": ""
           },
           {
-            "id": "expense-35bf35e3-7a40-456e-bf68-f90d962681a6",
+            "id": "expense-1421d23c-0dec-4250-9c19-04e381fef06e",
             "category": "Vehicle insurance",
             "monthlyAmount": 148,
             "notes": ""
@@ -4983,7 +4983,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-9461b215-941f-485d-8c16-de8036ea794e",
+                "id": "fa-entry-5ef4f72c-6667-4f4c-98d2-4cf3c5e3a6e6",
                 "fields": {
                   "address": "1400 North Ogden Street, Denver, CO 80218",
                   "dates": "2022-09 to 2024-02"
@@ -5200,13 +5200,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "illegible_document"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "attorney_only",
@@ -5559,7 +5559,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-daniel-sofia-reyes-ch13",
         "title": "Daniel Reyes fake client-entered Chapter 13 intake",
@@ -5575,12 +5575,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "Yes",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.261Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.842Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-ccfaf7e8-e813-4b1f-b769-ffadf3fd9ea0",
+            "id": "debtor-25fa7e2d-0f11-4030-8811-ee95b1298067",
             "firstName": "Daniel",
             "middleName": "Luis",
             "lastName": "Reyes",
@@ -5598,7 +5598,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "dateOfBirth": "05/17/1982"
           },
           {
-            "id": "debtor-2661f776-9ae2-47ad-84e9-6f67c7e6f040",
+            "id": "debtor-9de270ca-02f1-4fe3-a903-b0fcb0fe7443",
             "firstName": "Sofia",
             "middleName": "Marisol",
             "lastName": "Reyes",
@@ -5621,14 +5621,14 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "maritalStatus": "Married",
           "dependents": [
             {
-              "id": "dependent-2a8139ff-bfe0-4fab-93a5-1178ad3a1b49",
+              "id": "dependent-887e195e-cb15-4280-906c-c7d2a5224e97",
               "name": "Fake minor child A",
               "age": "12",
               "relationship": "Child",
               "livesWithDebtor": "Yes"
             },
             {
-              "id": "dependent-4b1ac04e-756c-43ad-8bb2-e096cc3c3376",
+              "id": "dependent-60e5ef58-bd9f-4460-ad7c-eaa15331221d",
               "name": "Fake minor child B",
               "age": "8",
               "relationship": "Child",
@@ -5638,7 +5638,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-bb611c68-b0e2-4571-9089-c996b7241dd4",
+            "id": "asset-4a1a551e-dab9-4dc4-aeb0-66e006913fd0",
             "category": "Bank or financial account",
             "description": "Chase joint checking",
             "estimatedValue": 2150,
@@ -5647,7 +5647,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-4ccea618-dae4-424d-b400-138605d41cf4",
+            "id": "asset-cd7b9dc7-c4dc-4bd7-989b-c815cc93d228",
             "category": "Retirement or pension account",
             "description": "Daniel 401(k)",
             "estimatedValue": 69000,
@@ -5656,7 +5656,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "401(k)"
           },
           {
-            "id": "asset-e9b32185-f36f-4833-b525-6b38956d2122",
+            "id": "asset-bfc58899-bf08-4a64-9d4f-b658db759b77",
             "category": "Vehicle",
             "description": "2021 Honda Odyssey",
             "estimatedValue": 23800,
@@ -5698,7 +5698,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-12db0ff9-05e4-4c2f-ab26-de9bf1d45a74",
+            "id": "income-3af5785b-4dce-4a03-a3c4-b81f87894c30",
             "source": "Employment",
             "employer": "Metro Facilities Group",
             "amount": 7100,
@@ -5706,7 +5706,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 42600
           },
           {
-            "id": "income-90dc13cc-80f8-4652-beea-91971aecff06",
+            "id": "income-97b0be05-8bb9-4278-a0a5-7859ce80ef0a",
             "source": "Employment",
             "employer": "Aurora Unified Schools",
             "amount": 3900,
@@ -5717,61 +5717,61 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-c67a4e5f-62d5-486a-a179-5d10ebfb784a",
+            "id": "expense-01be8c4b-f07f-4e68-a8cf-77525ebb03f7",
             "category": "Housing contribution",
             "monthlyAmount": 1450,
             "notes": "Household contribution; no real estate claimed."
           },
           {
-            "id": "expense-0488b879-6d29-4177-b580-b5d234af2110",
+            "id": "expense-43511dc0-d685-4f87-abf2-447f0129c5f7",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 310,
             "notes": ""
           },
           {
-            "id": "expense-2875433e-a183-4945-b701-31e1b60ff32b",
+            "id": "expense-9114a616-9c33-4efe-b102-1b27055873c1",
             "category": "Water, sewer, garbage collection",
             "monthlyAmount": 115,
             "notes": ""
           },
           {
-            "id": "expense-06df0d69-7a8e-4902-9ca7-e587a50dec37",
+            "id": "expense-7eedb03c-867c-4800-9c92-b7106630a17a",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 245,
             "notes": ""
           },
           {
-            "id": "expense-f64fca85-d8f7-49aa-ac5a-b0c5b11b3f4d",
+            "id": "expense-21411c48-42ee-42ad-8d0c-5f9fcaf11b96",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 925,
             "notes": ""
           },
           {
-            "id": "expense-a099278a-2882-42f1-9851-5683f5c0a13b",
+            "id": "expense-1d1452ce-6e92-4431-a05e-4510f682d54d",
             "category": "Childcare & children education",
             "monthlyAmount": 640,
             "notes": ""
           },
           {
-            "id": "expense-ab60f0a0-63ef-4812-a941-d880bb944715",
+            "id": "expense-643bf61f-ec65-4a94-b801-944611a25a3b",
             "category": "Transportation",
             "monthlyAmount": 560,
             "notes": ""
           },
           {
-            "id": "expense-ae320979-7ea1-4179-af3b-bb421400ea64",
+            "id": "expense-5489007c-b43b-4901-888b-9ef565610ff3",
             "category": "Vehicle payments",
             "monthlyAmount": 610,
             "notes": ""
           },
           {
-            "id": "expense-e024d72b-9ebb-469b-b68c-93c3eade0b27",
+            "id": "expense-b542d1a3-7845-43f3-aad5-b3034956ea3a",
             "category": "Vehicle insurance",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-53eb2928-5ed7-4d36-a45e-6f2c6e841832",
+            "id": "expense-46ee1219-4056-40aa-aafc-989ef824b52f",
             "category": "Taxes not deducted from wages",
             "monthlyAmount": 210,
             "notes": ""
@@ -5897,7 +5897,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-867fc60e-6e58-44f3-a880-25a8cfcf3ef4",
+                "id": "fa-entry-65ccab61-1605-4355-9217-52d4e9345907",
                 "fields": {
                   "creditor": "Honda Financial Services",
                   "paymentDates": "2026-05 and 2026-06",
@@ -5930,7 +5930,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-761fa077-b37e-458a-9b64-1f0772f1e453",
+                "id": "fa-entry-35efc14e-252e-41f9-adb9-1a43cfdae1c2",
                 "fields": {
                   "creditor": "Honda Financial Services",
                   "date": "2026-07-14",
@@ -6104,13 +6104,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "joint_case"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -6343,7 +6343,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         }
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-erin-cole-mitchell-ch13",
         "title": "Erin Mitchell fake client-entered Chapter 13 intake",
@@ -6359,12 +6359,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "Yes",
         "isEmployed": "Yes",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.277Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.856Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-61afcff6-c3f2-4e62-b7f4-11d88b795e43",
+            "id": "debtor-c8bc4add-3dae-42ae-a24d-4ee0f741a29a",
             "firstName": "Erin",
             "middleName": "Claire",
             "lastName": "Mitchell",
@@ -6382,7 +6382,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "dateOfBirth": "12/04/1979"
           },
           {
-            "id": "debtor-e5c015d9-0bc6-4559-b6d0-36d89e470b6e",
+            "id": "debtor-a7a21a5b-409b-4431-a513-53f4f3a6b866",
             "firstName": "Cole",
             "middleName": "Andrew",
             "lastName": "Mitchell",
@@ -6405,14 +6405,14 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "maritalStatus": "Married",
           "dependents": [
             {
-              "id": "dependent-078847aa-f8b2-45f2-82c2-67ded8f09379",
+              "id": "dependent-f3779a11-eeb2-4eca-8afe-c9cf1eee4c11",
               "name": "Fake minor child A",
               "age": "12",
               "relationship": "Child",
               "livesWithDebtor": "Yes"
             },
             {
-              "id": "dependent-506d7efc-96cc-42c6-8eee-51cfa45e1848",
+              "id": "dependent-6a5a4e01-a3c7-4726-91b0-a600516f6e90",
               "name": "Fake minor child B",
               "age": "8",
               "relationship": "Child",
@@ -6422,7 +6422,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-bae2bea9-fac5-48f9-8cdb-79972c1aa0e4",
+            "id": "asset-5135e33b-9745-40f7-8013-901b16638ec3",
             "category": "Vehicle",
             "description": "2019 Ford F-150",
             "estimatedValue": 28200,
@@ -6436,7 +6436,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "year": "2019"
           },
           {
-            "id": "asset-6ea2ed49-cd9d-4ed7-a253-f99c7a15e60f",
+            "id": "asset-a8ecbb88-2358-428c-a616-2aec04d25367",
             "category": "Bank or financial account",
             "description": "Chase joint checking",
             "estimatedValue": 2150,
@@ -6445,7 +6445,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-8ad2e073-7a64-4459-863a-df6c823f4ea6",
+            "id": "asset-21f6f1bc-e7c8-4dee-9eaf-a455aa9de01a",
             "category": "Retirement or pension account",
             "description": "Erin 401(k)",
             "estimatedValue": 69000,
@@ -6487,7 +6487,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-2878e2e3-d148-4695-b357-62f17870d35c",
+            "id": "income-e4c20aac-cd3e-4c7c-b889-92a4500d0527",
             "source": "Employment",
             "employer": "Metro Facilities Group",
             "amount": 7100,
@@ -6495,7 +6495,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 42600
           },
           {
-            "id": "income-fa236a1f-0bac-423e-b790-7e9914969be6",
+            "id": "income-ee64f2a1-2d02-4bec-868b-57f682cf04f6",
             "source": "Employment",
             "employer": "Aurora Unified Schools",
             "amount": 3900,
@@ -6506,61 +6506,61 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-6cdc9bae-24c9-470a-af69-619638eac755",
+            "id": "expense-16635a18-f4df-4f4c-8af4-bf5d3cfd7654",
             "category": "Rent",
             "monthlyAmount": 2100,
             "notes": "Rental residence involved in eviction case."
           },
           {
-            "id": "expense-37f0f7c1-f098-4d8c-8316-7f6e74c65787",
+            "id": "expense-fc14e2c4-1cd2-48f6-8d30-470e17f07ca2",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 310,
             "notes": ""
           },
           {
-            "id": "expense-c06e7dc6-0a66-43c2-9ea7-c2006db83266",
+            "id": "expense-d294db26-44b7-464f-87c7-0743d3f06fd8",
             "category": "Water, sewer, garbage collection",
             "monthlyAmount": 115,
             "notes": ""
           },
           {
-            "id": "expense-1b51cd25-99c2-4138-8de5-b7c45d8bab2a",
+            "id": "expense-fede0e0d-3955-4064-9b6f-5d233833a95f",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 245,
             "notes": ""
           },
           {
-            "id": "expense-d716ea81-16dd-4b94-9960-625e3082846b",
+            "id": "expense-1fc0b184-f76c-4460-b5aa-b9b0b68a716c",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 925,
             "notes": ""
           },
           {
-            "id": "expense-6e1828de-7ec3-4aa1-aa58-929d160905bf",
+            "id": "expense-6460428a-5cbb-4585-9a11-b20749c242a1",
             "category": "Childcare & children education",
             "monthlyAmount": 640,
             "notes": ""
           },
           {
-            "id": "expense-d59d445a-d85d-4864-bdbd-99321fb37860",
+            "id": "expense-6e81cbf7-2626-4c7d-b169-5dcf8e8b8e20",
             "category": "Transportation",
             "monthlyAmount": 560,
             "notes": ""
           },
           {
-            "id": "expense-ce6d6229-cbf6-4bea-aa5b-e22eb874ec90",
+            "id": "expense-10d69ab6-8b34-4c35-a1d9-c8c45f481aeb",
             "category": "Vehicle payments",
             "monthlyAmount": 610,
             "notes": ""
           },
           {
-            "id": "expense-4e701f0c-9203-4617-b22a-8453a09b71dc",
+            "id": "expense-44bde824-87fe-43c3-a458-c4ff4f402e98",
             "category": "Vehicle insurance",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-a6f553f1-5a6f-4e9b-a3c9-cdfd37df63e6",
+            "id": "expense-546a01ae-7e39-41c4-a8ad-45423cff9132",
             "category": "Taxes not deducted from wages",
             "monthlyAmount": 210,
             "notes": ""
@@ -6680,7 +6680,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-deb41c7c-2fae-4c0d-8a1d-0650da81d35a",
+                "id": "fa-entry-ffdebb41-f71a-4d15-ba5b-ae759e5886aa",
                 "fields": {
                   "creditor": "Fake Residential Landlord",
                   "paymentDates": "2026-05 and 2026-06",
@@ -6707,7 +6707,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-7aac6a56-0aa1-4519-90b9-3eee1ef75dee",
+                "id": "fa-entry-87cce1dc-f837-4fde-aad8-a4bfcaf4886b",
                 "fields": {
                   "caseNumber": "FAKE-EV-2026-114",
                   "court": "Salt Lake County Justice Court",
@@ -6887,13 +6887,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "joint_case"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -7358,7 +7358,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "urgentAttorneyTask": null
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-theo-bennett-ch7-retired",
         "title": "Theo Bennett fake client-entered Chapter 7 intake",
@@ -7374,12 +7374,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "No",
         "hasOtherHouseholdIncome": "Yes",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.292Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.871Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-57a87f1d-c249-4c20-9369-6238e94fd178",
+            "id": "debtor-d3a815fc-8df9-490a-9a39-552fe0d8bf24",
             "firstName": "Theo",
             "middleName": "James",
             "lastName": "Bennett",
@@ -7404,7 +7404,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-7dee0597-e762-4c4c-b020-f98aa5d3d7ff",
+            "id": "asset-0df6492d-e7f5-430e-8309-87cb6ba9cdcc",
             "category": "Bank or financial account",
             "description": "Wells Fargo checking",
             "estimatedValue": 780,
@@ -7413,7 +7413,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-60b29b35-0981-4b04-a8f6-1b4022b5d48b",
+            "id": "asset-26afef33-b871-46d2-8fba-ccaa8c0c097b",
             "category": "Bank or financial account",
             "description": "Wells Fargo savings",
             "estimatedValue": 1100,
@@ -7422,7 +7422,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Savings"
           },
           {
-            "id": "asset-6bf3a42c-18cb-48e8-99ff-6648ee13873a",
+            "id": "asset-07651a6b-d862-45ba-bf35-74958059df1f",
             "category": "Retirement or pension account",
             "description": "Small rollover IRA",
             "estimatedValue": 14600,
@@ -7431,7 +7431,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "IRA"
           },
           {
-            "id": "asset-ba3df21e-a65b-4839-8764-97a42259e2c0",
+            "id": "asset-690ea594-bca0-41c9-8f83-a2d2b5d17660",
             "category": "Household goods and furnishings",
             "description": "Apartment furniture, clothing, television, mobility equipment",
             "estimatedValue": 3600,
@@ -7472,7 +7472,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-55b317d6-79b5-4d83-8143-706cc5ab88d7",
+            "id": "income-58764c5f-8de0-49c8-84b0-3fcb888d125f",
             "source": "Social Security / public benefits",
             "employer": "Social Security Administration",
             "amount": 1980,
@@ -7480,7 +7480,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "sixMonthTotal": 11880
           },
           {
-            "id": "income-2990c926-76bc-4456-a02a-cec376927997",
+            "id": "income-b6037b10-57dc-4033-8545-aeba2a914486",
             "source": "Pension / retirement",
             "employer": "Former employer pension",
             "amount": 500,
@@ -7491,43 +7491,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-97e8e150-05f4-4142-8a8b-eaa0a7871b9a",
+            "id": "expense-febbce33-0df3-4ea5-a871-15345b855a30",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1180,
             "notes": ""
           },
           {
-            "id": "expense-ee021347-a81f-4e69-b49c-23edc63ffca6",
+            "id": "expense-1028fa0b-c26a-4255-831f-cc45aa116342",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 120,
             "notes": ""
           },
           {
-            "id": "expense-691cf00c-829b-4ac0-bcba-f33eddd6edd6",
+            "id": "expense-a5ec4ebe-4999-4825-8bca-8588bde01d75",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 135,
             "notes": ""
           },
           {
-            "id": "expense-526301f9-eee7-4137-b945-64a16df6826a",
+            "id": "expense-4f66ba00-724a-4457-9568-35296d21b589",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 425,
             "notes": ""
           },
           {
-            "id": "expense-3e68f054-2cb2-4902-bbd2-597f1d3f3823",
+            "id": "expense-054d1228-8868-4911-89db-9a9c00a6568c",
             "category": "Medical & dental expenses",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-c60d2e47-a7ed-450d-b8e7-d0d51993e14d",
+            "id": "expense-9badbb0f-59ab-4a19-879f-6a98112787ad",
             "category": "Transportation",
             "monthlyAmount": 160,
             "notes": ""
           },
           {
-            "id": "expense-4209bb48-f61f-4c59-ae1c-2d1057161e21",
+            "id": "expense-f8e42036-a577-4123-948a-fc769585be29",
             "category": "Other expenses",
             "monthlyAmount": 95,
             "notes": "Prescription delivery and mobility supplies"
@@ -7637,7 +7637,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-d7b814de-768b-45e9-aa23-fb3f961a5403",
+                "id": "fa-entry-5c63367f-f947-4df3-9aea-9e4e2657bda8",
                 "fields": {
                   "amount": "2480",
                   "frequency": "Monthly",
@@ -7658,7 +7658,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-9555cd79-2c0f-49ed-af0d-5ce66cbcc651",
+                "id": "fa-entry-15260f29-a3e3-4dd0-bd5b-6fbbef9e82de",
                 "fields": {
                   "amount": "4200",
                   "date": "2026-05-18",
@@ -7735,7 +7735,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-cd925474-be36-40b7-a9c5-1b2d0679415b",
+                "id": "fa-entry-7624f340-1268-49a8-93e2-3c4e28af1e6e",
                 "fields": {
                   "date": "2026-04-02",
                   "property": "2012 utility trailer",
@@ -7757,7 +7757,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-face3607-1b75-4f34-b09e-593b663e8f05",
+                "id": "fa-entry-cd0c1e50-3fc6-452b-9b2d-b50970bb7011",
                 "fields": {
                   "account": "Mountain America Credit Union checking",
                   "closedDate": "2025-12",
@@ -7856,13 +7856,13 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "retired"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     },
     {
       "completion": {
         "bundle": {
           "bundleVersion": 2,
-          "generatedAt": "2026-07-13T19:54:04.109Z",
+          "generatedAt": "2026-07-13T19:58:55.620Z",
           "items": [
             {
               "applicability": "essential_now",
@@ -8207,7 +8207,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "urgentAttorneyTask": null
       },
       "demo": true,
-      "generatedAt": "2026-07-13T19:54:04.109Z",
+      "generatedAt": "2026-07-13T19:58:55.620Z",
       "matter": {
         "id": "fake-matter-lucas-romero-ch7-retired",
         "title": "Lucas Romero fake client-entered Chapter 7 intake",
@@ -8223,12 +8223,12 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "spouseFilingJointly": "No",
         "isEmployed": "No",
         "hasOtherHouseholdIncome": "No",
-        "personalInfoSubmittedAt": "2026-07-13T19:54:04.109Z",
-        "createdAt": "2026-07-13T19:54:05.309Z",
-        "updatedAt": "2026-07-13T19:54:04.109Z",
+        "personalInfoSubmittedAt": "2026-07-13T19:58:55.620Z",
+        "createdAt": "2026-07-13T19:58:56.889Z",
+        "updatedAt": "2026-07-13T19:58:55.620Z",
         "debtors": [
           {
-            "id": "debtor-b4486bb9-bdef-46f8-9cf6-e039b6dab291",
+            "id": "debtor-c3fc032d-bb92-4a51-b5b8-cf47524e3917",
             "firstName": "Lucas",
             "middleName": "Miguel",
             "lastName": "Romero",
@@ -8253,7 +8253,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         },
         "assets": [
           {
-            "id": "asset-a320eb45-f307-4d7a-96e1-c0c76a7fe8f3",
+            "id": "asset-06e19660-3507-40d6-ba57-d64a3f69f94d",
             "category": "Bank or financial account",
             "description": "Wells Fargo checking",
             "estimatedValue": 780,
@@ -8262,7 +8262,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Checking"
           },
           {
-            "id": "asset-681ec64e-754e-4d40-b6d7-d552f2bef3a3",
+            "id": "asset-45ac3116-d752-429c-9a34-b6334c9ca69d",
             "category": "Bank or financial account",
             "description": "Wells Fargo savings",
             "estimatedValue": 1100,
@@ -8271,7 +8271,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "Savings"
           },
           {
-            "id": "asset-f50b13b0-cc8a-4ca0-a4c8-0f73908c8218",
+            "id": "asset-13dcc9c2-0461-4c50-8248-76caa55f9240",
             "category": "Retirement or pension account",
             "description": "Small rollover IRA",
             "estimatedValue": 14600,
@@ -8280,7 +8280,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "accountType": "IRA"
           },
           {
-            "id": "asset-ddb77d55-64c2-4174-b847-95a5e66f6781",
+            "id": "asset-c70dd9cf-c6fe-4c18-adfb-0df9a282ca44",
             "category": "Household goods and furnishings",
             "description": "Apartment furniture, clothing, television, mobility equipment",
             "estimatedValue": 3600,
@@ -8321,7 +8321,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "codebtors": [],
         "income": [
           {
-            "id": "income-d1eb348a-cbd6-464e-b5f0-2017e346f056",
+            "id": "income-f53f5057-c4b5-4b6f-8d6a-7dd6bf192f93",
             "source": "Public benefits",
             "employer": "Colorado SNAP and cash assistance",
             "amount": 620,
@@ -8332,43 +8332,43 @@ window.BKFL_INTAKE_SUBMISSIONS = {
         "payStubIncomeEvidence": [],
         "expenses": [
           {
-            "id": "expense-84249426-e131-4965-af51-2bec01d56e91",
+            "id": "expense-14efc0cc-c487-4d6b-8b26-84f7b306fe82",
             "category": "Rent or home/mortgage payment",
             "monthlyAmount": 1180,
             "notes": ""
           },
           {
-            "id": "expense-b3997289-73f8-4ee5-bad9-6dc96ee84d63",
+            "id": "expense-744d85ab-8545-473b-bd43-ede949dbcf6f",
             "category": "Electricity, heat, natural gas",
             "monthlyAmount": 120,
             "notes": ""
           },
           {
-            "id": "expense-b9363222-aab3-4942-9017-8be1d7e83935",
+            "id": "expense-0c4f11dd-e07b-4d00-b059-08df856f1ffb",
             "category": "Phone, cell, internet, satellite & cable",
             "monthlyAmount": 135,
             "notes": ""
           },
           {
-            "id": "expense-cb819620-74ae-46e4-92c9-372d5e281516",
+            "id": "expense-9196bed2-f24a-4968-98f9-c0f1a66ac378",
             "category": "Food & housekeeping supplies",
             "monthlyAmount": 425,
             "notes": ""
           },
           {
-            "id": "expense-5b0b4e9d-5c86-4bd3-ad11-85076c0cd3fc",
+            "id": "expense-8dfebb55-f66d-4db1-aae2-786f7ebbf31f",
             "category": "Medical & dental expenses",
             "monthlyAmount": 220,
             "notes": ""
           },
           {
-            "id": "expense-3db0394d-62dc-4f6c-8e6d-f719dfe63e34",
+            "id": "expense-42834da5-c7d4-4eaf-9978-03734a8dda3c",
             "category": "Transportation",
             "monthlyAmount": 160,
             "notes": ""
           },
           {
-            "id": "expense-a446a10c-a4b6-4f9f-a048-f978c9210ec8",
+            "id": "expense-e503dfc5-7683-4153-9bee-46df6a87d341",
             "category": "Other expenses",
             "monthlyAmount": 95,
             "notes": "Prescription delivery and mobility supplies"
@@ -8470,7 +8470,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-93d18f6f-b657-4206-9600-0806656803a8",
+                "id": "fa-entry-9b1a9122-e7f3-4c2b-af39-54ebf0618801",
                 "fields": {
                   "amount": "620",
                   "frequency": "Monthly",
@@ -8569,7 +8569,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
             "answer": "Yes",
             "entries": [
               {
-                "id": "fa-entry-face3607-1b75-4f34-b09e-593b663e8f05",
+                "id": "fa-entry-cd0c1e50-3fc6-452b-9b2d-b50970bb7011",
                 "fields": {
                   "account": "Mountain America Credit Union checking",
                   "closedDate": "2025-12",
@@ -8668,7 +8668,7 @@ window.BKFL_INTAKE_SUBMISSIONS = {
           "need_help"
         ]
       },
-      "submittedAt": "2026-07-13T19:54:04.109Z"
+      "submittedAt": "2026-07-13T19:58:55.620Z"
     }
   ],
   "schemaVersion": 1,
