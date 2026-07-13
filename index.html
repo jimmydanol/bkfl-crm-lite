@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BK FastLane — CRM Lite (v1 Dev Build)</title>
+<title>BK FastLane — Review Command Center</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -12,7 +12,7 @@
 <script src="./prototype-case-contract.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;}
+body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#f3f6f5;color:#17313b;}
 #root{display:flex;min-height:100vh;}
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -23,7 +23,91 @@ a{text-decoration:none;}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #214e5f;outline-offset:2px;}
 .prototype-badge{position:fixed;right:16px;bottom:14px;z-index:9998;background:#214e5f;color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:0 4px 16px rgba(0,0,0,.2);border-radius:999px;padding:7px 13px;font-size:11px;font-weight:700;letter-spacing:.2px;}
 .triage-grid{display:grid;grid-template-columns:minmax(180px,1.2fr) repeat(5,minmax(80px,.55fr));gap:8px;align-items:center;}
-@media(max-width:800px){aside{width:68px!important}.app-shell{margin-left:68px!important;min-width:0!important;width:calc(100vw - 68px)!important;max-width:calc(100vw - 68px)!important}.prototype-badge{right:8px;bottom:8px;max-width:210px;text-align:center}.triage-grid{grid-template-columns:1fr 1fr}.triage-grid .triage-name{grid-column:1/-1}}
+.crm-sidebar{background:#12323b!important;border-right:1px solid rgba(255,255,255,.08);box-shadow:8px 0 30px rgba(18,50,59,.08);}
+.crm-sidebar .brand-block{background:#f7faf8!important;border-bottom:0!important;margin:12px;border-radius:14px;min-height:72px!important;}
+.crm-sidebar .nav-item{background:transparent!important;color:#c8d7d4!important;border:1px solid transparent;border-radius:10px!important;margin:5px 12px!important;font-weight:600!important;letter-spacing:.08em!important;}
+.crm-sidebar .nav-item:hover{background:rgba(255,255,255,.08)!important;color:#fff!important;}
+.crm-sidebar .nav-item.active{background:#dff0e6!important;color:#173f3d!important;box-shadow:0 8px 20px rgba(0,0,0,.12);}
+.crm-sidebar .sidebar-collapse{border-color:rgba(255,255,255,.1)!important;}
+.crm-sidebar .sidebar-collapse path{stroke:#98b9b1!important;}
+.crm-sidebar .sidebar-account{border-color:rgba(255,255,255,.1)!important;}
+.crm-sidebar .sidebar-account>div>div:last-child>div{color:#d9e8e4!important;}
+.crm-topbar{height:68px!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #dfe8e5!important;padding:0 32px!important;backdrop-filter:blur(12px);}
+.dashboard-shell{padding:30px 34px 48px;flex:1;max-width:1480px;width:100%;margin:0 auto;}
+.dashboard-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px;}
+.dashboard-eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#4b776e;text-transform:uppercase;margin-bottom:8px;}
+.dashboard-title{font-size:34px;line-height:1.08;letter-spacing:-.035em;color:#17313b;margin:0 0 8px;font-weight:750;}
+.dashboard-subtitle{font-size:14px;color:#61736f;line-height:1.55;max-width:720px;}
+.dashboard-date{font-size:12px;font-weight:700;color:#4b776e;background:#e7f0ec;border:1px solid #cbded6;border-radius:999px;padding:8px 12px;white-space:nowrap;}
+.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px;}
+.metric-card{background:#fff;border:1px solid #dce7e3;border-radius:16px;padding:18px 18px 16px;box-shadow:0 10px 28px rgba(22,54,61,.06);position:relative;overflow:hidden;}
+.metric-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--metric-accent,#6e9d8c);}
+.metric-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#71827e;margin-bottom:9px;}
+.metric-value{font-size:30px;line-height:1;font-weight:760;color:#17313b;letter-spacing:-.04em;}
+.metric-note{font-size:11px;color:#7d8c88;margin-top:7px;}
+.section-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#4b776e;}
+.section-title{font-size:20px;color:#17313b;font-weight:730;letter-spacing:-.02em;margin-top:4px;}
+.pipeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.stage-mini{background:#fff;border:1px solid #dce7e3;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(22,54,61,.05);}
+.stage-mini-head{display:flex;align-items:center;gap:10px;padding:15px 17px;border-bottom:1px solid #e7eeeb;}
+.stage-number{font-size:10px;font-weight:850;letter-spacing:.1em;color:#4b776e;background:#e7f0ec;border-radius:999px;padding:5px 8px;}
+.stage-name{font-size:13px;font-weight:750;color:#17313b;}
+.stage-count{margin-left:auto;font-size:12px;font-weight:800;color:#fff;background:#355f57;border-radius:999px;min-width:26px;text-align:center;padding:4px 8px;}
+.stage-list{max-height:168px;overflow:auto;}
+.stage-person{display:flex;align-items:center;gap:10px;padding:12px 17px;border-bottom:1px solid #eff3f1;cursor:pointer;}
+.stage-person:last-child{border-bottom:0;}
+.stage-person:hover{background:#f5f9f7;}
+.person-avatar{width:30px;height:30px;border-radius:10px;background:#e1eee8;color:#315f55;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none;}
+.person-name{font-size:12.5px;font-weight:700;color:#1d3b43;}
+.person-meta{font-size:10.5px;color:#7b8986;margin-top:2px;}
+.empty-lane{padding:22px;text-align:center;color:#9aa7a3;font-size:12px;}
+.review-board{background:#173740;border:1px solid #173740;border-radius:18px;overflow:hidden;box-shadow:0 18px 38px rgba(16,48,57,.15);margin-bottom:18px;}
+.review-board-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:20px 22px;color:#fff;}
+.review-board .section-kicker{color:#99c9b7;}
+.review-board .section-title{color:#fff;}
+.review-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.review-controls label{font-size:10px;font-weight:800;color:#c8d9d5;text-transform:uppercase;letter-spacing:.08em;}
+.review-controls select{margin-left:5px;background:#fff;color:#24464d;border:0;border-radius:8px;padding:7px 9px;font-size:11px;}
+.review-list{background:#f8fbf9;padding:8px;}
+.review-row{display:grid;grid-template-columns:minmax(190px,1.25fr) 130px minmax(180px,.9fr) minmax(180px,1fr) 110px;gap:16px;align-items:center;background:#fff;border:1px solid #e1eae7;border-radius:12px;padding:15px 16px;margin:6px;cursor:pointer;box-shadow:0 4px 14px rgba(22,54,61,.04);}
+.review-row:hover{border-color:#8db3a5;transform:translateY(-1px);box-shadow:0 8px 20px rgba(22,54,61,.08);}
+.priority-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:9.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;}
+.priority-urgent{background:#fde7e4;color:#9b3328;}
+.priority-high{background:#fff0cf;color:#805800;}
+.priority-standard{background:#e4f1eb;color:#2e6557;}
+.progress-track{height:7px;border-radius:999px;background:#e5ece9;overflow:hidden;margin-top:7px;}
+.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,#4f8a78,#82b09f);}
+.review-stat{font-size:11px;color:#667975;line-height:1.5;}
+.review-stat strong{display:block;color:#1d3b43;font-size:12px;}
+.review-action{font-size:11px;color:#48625d;line-height:1.4;}
+.review-action strong{display:block;color:#173740;font-size:11.5px;margin-bottom:3px;}
+.open-review{justify-self:end;border:0;border-radius:9px;background:#dff0e6;color:#214f45;padding:8px 11px;font-size:10.5px;font-weight:800;cursor:pointer;}
+.ready-board{background:linear-gradient(135deg,#e4f2ec,#f4faf7);border:1px solid #c9ded5;border-radius:16px;padding:18px 20px;margin-bottom:18px;}
+.ready-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ready-list{display:flex;gap:10px;flex-wrap:wrap;}
+.ready-chip{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #cfe1da;border-radius:12px;padding:10px 12px;cursor:pointer;}
+.ready-chip:hover{border-color:#6f9f8e;}
+.ops-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr);gap:18px;}
+.ops-card{background:#fff;border:1px solid #dce7e3;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(22,54,61,.05);}
+.ops-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e7eeeb;}
+.ops-task{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:11px;align-items:center;padding:12px 18px;border-bottom:1px solid #eff3f1;cursor:pointer;}
+.ops-task:hover{background:#f6f9f8;}
+.ops-dot{width:9px;height:9px;border-radius:50%;background:#d19a3c;box-shadow:0 0 0 4px #fbf0dd;}
+.quick-actions{padding:14px;display:grid;gap:9px;}
+.quick-action{border:1px solid #d7e3df;background:#f7faf8;color:#24464d;border-radius:10px;padding:11px 12px;text-align:left;font-size:11.5px;font-weight:700;cursor:pointer;}
+.quick-action:hover{background:#e8f2ed;border-color:#a9c7bb;}
+.case-workspace{background:#f3f6f5;}
+.case-header{background:linear-gradient(135deg,#153740,#1f4d4f)!important;border-bottom:0!important;color:#fff;box-shadow:0 12px 30px rgba(19,55,64,.16);}
+.case-header h1{color:#fff!important;font-size:26px!important;letter-spacing:-.025em;}
+.case-header button{color:#d9ebe5!important;}
+.case-snapshot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 32px 16px;}
+.case-snapshot-card{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:11px;padding:10px 12px;}
+.case-snapshot-label{font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#a9cbc0;margin-bottom:5px;}
+.case-snapshot-value{font-size:13px;font-weight:750;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.case-body{background:#f3f6f5!important;padding:24px 30px!important;}
+[data-testid="readiness-panel"]{border-radius:14px!important;box-shadow:0 8px 22px rgba(22,54,61,.06);}
+@media(max-width:1100px){.metric-grid{grid-template-columns:repeat(2,1fr)}.review-row{grid-template-columns:minmax(170px,1fr) 120px 1fr}.review-row .review-action{grid-column:1/3}.open-review{grid-column:3;grid-row:2}.ops-grid{grid-template-columns:1fr}.case-snapshot{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){aside{width:68px!important}.app-shell{margin-left:68px!important;min-width:0!important;width:calc(100vw - 68px)!important;max-width:calc(100vw - 68px)!important}.prototype-badge{right:8px;bottom:8px;max-width:210px;text-align:center}.triage-grid{grid-template-columns:1fr 1fr}.triage-grid .triage-name{grid-column:1/-1}.crm-topbar{padding:0 14px!important}.dashboard-shell{padding:22px 16px 40px}.dashboard-hero{align-items:flex-start;flex-direction:column}.dashboard-title{font-size:28px}.metric-grid,.pipeline-grid{grid-template-columns:1fr}.review-board-head{align-items:flex-start;flex-direction:column}.review-controls{justify-content:flex-start}.review-row{grid-template-columns:1fr;gap:10px}.review-row .review-action,.open-review{grid-column:auto;grid-row:auto;justify-self:start}.case-snapshot{grid-template-columns:1fr 1fr;padding-left:16px;padding-right:16px}.case-body{padding:18px 16px!important}}
 </style>
 </head>
 <body>
@@ -820,27 +904,27 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
   const nav=(p)=>{setPage(p);setSelectedMatter(null);};
   const w=collapsed?68:250;
   return(
-    <aside style={{width:w,minHeight:"100vh",background:"#e7eae5",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,bottom:0,zIndex:20,transition:"width 0.25s ease",overflow:"hidden"}}>
-      <div onClick={()=>nav("dashboard")} style={{padding:collapsed?"14px 8px":"14px 16px",display:"flex",alignItems:"center",justifyContent:"center",borderBottom:"1px solid rgba(0,0,0,0.08)",cursor:"pointer",minHeight:60}}>
+    <aside className="crm-sidebar" style={{width:w,minHeight:"100vh",background:"#e7eae5",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,bottom:0,zIndex:20,transition:"width 0.25s ease",overflow:"hidden"}}>
+      <div className="brand-block" onClick={()=>nav("dashboard")} style={{padding:collapsed?"14px 8px":"14px 16px",display:"flex",alignItems:"center",justifyContent:"center",borderBottom:"1px solid rgba(0,0,0,0.08)",cursor:"pointer",minHeight:60}}>
         {collapsed?<span style={{fontSize:18,fontWeight:800,color:"#214e5f",letterSpacing:"1px"}}>BK</span>:<img src="data:image/png;base64,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" alt="BK FastLane" style={{width:210,height:"auto"}}/>}
       </div>
       <nav style={{flex:1,padding:"12px 0",overflowY:"auto"}}>
         {sidebarItems.map(n=>{
           const active=page===n.key||(n.key==="leads"&&page==="lead-detail")||(n.key==="contacts"&&page==="contact-detail");
           return(
-          <a key={n.key} onClick={()=>nav(n.key)} title={collapsed?n.label:undefined} style={{display:"flex",alignItems:"center",gap:collapsed?0:14,justifyContent:collapsed?"center":"flex-start",padding:collapsed?"11px 0":"11px 20px",cursor:"pointer",fontSize:13,fontWeight:500,letterSpacing:"0.5px",color:active?"#fff":"#fff",background:active?"#5a7c60":"#7a9c80",borderRadius:8,margin:collapsed?"4px 6px":"4px 12px",transition:"all 0.15s",opacity:n.comingSoon?0.6:1,whiteSpace:"nowrap",overflow:"hidden"}}>
+          <a className={"nav-item"+(active?" active":"")} key={n.key} onClick={()=>nav(n.key)} title={collapsed?n.label:undefined} style={{display:"flex",alignItems:"center",gap:collapsed?0:14,justifyContent:collapsed?"center":"flex-start",padding:collapsed?"11px 0":"11px 20px",cursor:"pointer",fontSize:13,fontWeight:500,letterSpacing:"0.5px",color:active?"#fff":"#fff",background:active?"#5a7c60":"#7a9c80",borderRadius:8,margin:collapsed?"4px 6px":"4px 12px",transition:"all 0.15s",opacity:n.comingSoon?0.6:1,whiteSpace:"nowrap",overflow:"hidden"}}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{flexShrink:0}}><path d={n.d} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
             {!collapsed&&<React.Fragment><span style={{display:"flex",flexDirection:"column",lineHeight:1.2}}><span>{n.label}</span>{n.comingSoon&&<span style={{fontSize:9,opacity:0.7}}>(coming soon)</span>}</span></React.Fragment>}
           </a>);
         })}
       </nav>
       {/* Collapse / Expand toggle */}
-      <div onClick={()=>setCollapsed(!collapsed)} style={{padding:"10px 0",display:"flex",justifyContent:"center",cursor:"pointer",borderTop:"1px solid rgba(0,0,0,0.08)",borderBottom:"1px solid rgba(0,0,0,0.08)"}}>
+      <div className="sidebar-collapse" onClick={()=>setCollapsed(!collapsed)} style={{padding:"10px 0",display:"flex",justifyContent:"center",cursor:"pointer",borderTop:"1px solid rgba(0,0,0,0.08)",borderBottom:"1px solid rgba(0,0,0,0.08)"}}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{transform:collapsed?"rotate(180deg)":"none",transition:"transform 0.25s ease"}}>
           <path d="M15 19l-7-7 7-7" stroke="#333" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
-      <div style={{padding:collapsed?"16px 8px":"16px 20px",borderTop:"1px solid rgba(0,0,0,0.08)"}}>
+      <div className="sidebar-account" style={{padding:collapsed?"16px 8px":"16px 20px",borderTop:"1px solid rgba(0,0,0,0.08)"}}>
         <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:collapsed?"center":"flex-start"}}>
           <div style={{width:34,height:34,borderRadius:"50%",background:"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             <span style={{color:"#fff",fontSize:14,fontWeight:700,letterSpacing:"0.5px"}}>ML</span>
@@ -912,7 +996,7 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
   const labelStyle={fontSize:12,fontWeight:600,color:"#555",marginBottom:4,display:"block"};
   return(
     <React.Fragment>
-    <header style={{height:56,background:"#e7eae5",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",position:"sticky",top:0,zIndex:15,borderBottom:"1px solid rgba(0,0,0,0.08)"}}>
+    <header className="crm-topbar" style={{height:56,background:"#e7eae5",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 24px",position:"sticky",top:0,zIndex:15,borderBottom:"1px solid rgba(0,0,0,0.08)"}}>
       <div style={{flex:1,maxWidth:500,position:"relative"}}>
         <div style={{display:"flex",alignItems:"center",background:"rgba(0,0,0,0.06)",borderRadius:8,padding:"7px 14px",gap:8}}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="rgba(0,0,0,0.35)" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="rgba(0,0,0,0.35)" strokeWidth="1.8" strokeLinecap="round"/></svg>
@@ -1297,8 +1381,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const saveEdit=(f,isCF)=>{if(isCF)updateCF(f,editVal);else update({[f]:editVal});setEditField(null);};
 
   return(
-    <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
-      <div style={{background:"#fff",borderBottom:"1px solid #e0e0e0",padding:"20px 28px 0"}}>
+    <div className="case-workspace" style={{flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
+      <div className="case-header" style={{background:"#fff",borderBottom:"1px solid #e0e0e0",padding:"20px 28px 0"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
           <button onClick={()=>{setPage("leads");setSelectedLead(null);}} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex"}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#7A9C80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
           <h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:0}}>{lead.firstName} {lead.lastName}</h1>
@@ -1306,6 +1390,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           {lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate&&<span style={{fontSize:12.5,color:"#00695c",fontWeight:700}}>{prepAge(lead)}</span>}
           {lead.dashHidden&&<button onClick={()=>update({dashHidden:false})} title="This Lead is hidden from the Dashboard. Click to show it there again." style={{fontSize:11,fontWeight:600,color:"#888",background:"#f5f5f5",border:"1px solid #ddd",borderRadius:5,padding:"3px 10px",cursor:"pointer"}}>Hidden from Dashboard {"\u2014"} click to restore</button>}
         </div>
+        {(()=>{const t=lead.triage||{};const r=CASE_ENGINE.evaluateReadiness(lead);const passed=(r.gates||[]).filter(g=>g.passed).length;return <div className="case-snapshot">
+          <div className="case-snapshot-card"><div className="case-snapshot-label">Intake completion</div><div className="case-snapshot-value">{typeof t.completionPercentage==="number"?t.completionPercentage+"%":"Needs package review"}</div></div>
+          <div className="case-snapshot-card"><div className="case-snapshot-label">Document blockers</div><div className="case-snapshot-value">{typeof t.documentBlockerCount==="number"?t.documentBlockerCount:(lead.docChecklist||[]).filter(d=>d.status!=="approved"&&d.status!=="excused").length}</div></div>
+          <div className="case-snapshot-card"><div className="case-snapshot-label">Risk candidates</div><div className="case-snapshot-value">{(t.urgentDeadlineCount||0)+(t.highFlagCount||0)} high-priority</div></div>
+          <div className="case-snapshot-card"><div className="case-snapshot-label">Readiness</div><div className="case-snapshot-value">{r.ready?"All gates passed":passed+" of "+(r.gates||[]).length+" gates passed"}</div></div>
+        </div>;})()}
         <div style={{display:"flex",gap:8,marginBottom:16,paddingLeft:32}}>
           {lead.leadStage==="Intake Sent"&&<span style={{display:"inline-flex",alignItems:"center",gap:8,padding:"5px 7px",border:"1px dashed #b8963e",borderRadius:7,background:"#fffaf0"}}><span style={{fontSize:10,fontWeight:800,color:"#856404",textTransform:"uppercase"}}>Prototype tools</span><button onClick={()=>{
             const _t=new Date().toISOString().split("T")[0];
@@ -1323,7 +1413,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
         </div>
       </div>
 
-      <div style={{padding:"20px 28px",flex:1,background:"#FBFAF7",overflowY:"auto"}}>
+      <div className="case-body" style={{padding:"20px 28px",flex:1,background:"#FBFAF7",overflowY:"auto"}}>
         {tab==="dashboard"&&(<div>
           <ReadinessPanel lead={lead} onReviewUpdate={caseReview=>update({caseReview,docChecklist:lead.docChecklist||[]})}/>
           <Widget title="Lead Details">
@@ -3033,6 +3123,95 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
     {label:"Intake Form Link — New Lead",icon:"M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1",url:"https://dev-mccunelegal.bkfastlane.com/filer/signin"},
     {label:"McCune Legal Website",icon:"M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18",url:"https://mccunelegal.com"},
   ];
+
+  const commandStage1=_.orderBy(leads.filter(l=>l.leadStage==="New Lead"&&!l.dashHidden),"createdDate","desc");
+  const commandStage2=_.orderBy(leads.filter(l=>l.leadStage==="Intake Sent"&&!l.dashHidden),"intakeSentDate","desc");
+  const commandFiltered=leads.filter(l=>l.leadStage==="Intake Submitted"&&!l.dashHidden).filter(l=>{const t=triageFor(l);return inboxFilter==="all"||(inboxFilter==="missing"&&t.missingAnswerCount>0)||(inboxFilter==="deadline"&&t.urgentDeadlineCount>0)||(inboxFilter==="flags"&&t.highFlagCount>0);});
+  const commandSubmitted=[...commandFiltered].sort((a,b)=>{const ta=triageFor(a),tb=triageFor(b);if(inboxSort==="completion")return Number(ta.completionPercentage||0)-Number(tb.completionPercentage||0);if(inboxSort==="submitted")return String(b.intakeSubmittedDate||"").localeCompare(String(a.intakeSubmittedDate||""));const pa=ta.urgentDeadlineCount*100+ta.highFlagCount*20+ta.contradictionCount*10+ta.missingAnswerCount*5+ta.documentBlockerCount;const pb=tb.urgentDeadlineCount*100+tb.highFlagCount*20+tb.contradictionCount*10+tb.missingAnswerCount*5+tb.documentBlockerCount;return pb-pa;});
+  const commandReady=_.orderBy(leads.filter(l=>l.leadStage==="Ready for Petition Prep"&&!l.dashHidden),"prepReadyDate","desc");
+  const commandBlockedFacts=leads.reduce((sum,l)=>{const t=triageFor(l);return sum+(t.missingAnswerCount||0)+(t.contradictionCount||0);},0);
+  const commandCritical=leads.filter(l=>{const t=triageFor(l);return (t.urgentDeadlineCount||0)>0||(t.highFlagCount||0)>0;}).length;
+  const openLead=(l)=>{setSelectedLead(l.id);setPage("lead-detail");};
+
+  return(
+    <main className="dashboard-shell">
+      <section className="dashboard-hero">
+        <div>
+          <div className="dashboard-eyebrow">Firm operations / Intake review</div>
+          <h1 className="dashboard-title">Review Command Center</h1>
+          <p className="dashboard-subtitle">One queue for what needs attention now: incomplete answers, document gaps, risk candidates, staff review, and attorney decisions.</p>
+        </div>
+        <div className="dashboard-date">{dateStr}</div>
+      </section>
+
+      <section className="metric-grid" aria-label="Intake health summary">
+        <div className="metric-card" style={{"--metric-accent":"#5a8d7b"}}><div className="metric-label">Active intake</div><div className="metric-value">{commandStage2.length+commandSubmitted.length}</div><div className="metric-note">Sent or submitted</div></div>
+        <div className="metric-card" style={{"--metric-accent":"#d39b3b"}}><div className="metric-label">Needs firm review</div><div className="metric-value">{commandSubmitted.length}</div><div className="metric-note">Prioritized by case risk</div></div>
+        <div className="metric-card" style={{"--metric-accent":"#c86455"}}><div className="metric-label">Blocked facts</div><div className="metric-value">{commandBlockedFacts}</div><div className="metric-note">Missing answers or conflicts</div></div>
+        <div className="metric-card" style={{"--metric-accent":"#2e7564"}}><div className="metric-label">Ready for prep</div><div className="metric-value">{commandReady.length}</div><div className="metric-note">Every readiness gate passed</div></div>
+      </section>
+
+      <div style={{marginBottom:10}}><div className="section-kicker">Intake pipeline</div><div className="section-title">Early-stage movement</div></div>
+      <section className="pipeline-grid">
+        {[{number:1,name:"New Lead",cases:commandStage1,dateField:"createdDate",meta:"Intake link not sent"},{number:2,name:"Intake Sent",cases:commandStage2,dateField:"intakeSentDate",meta:"Waiting on debtor"}].map(lane=><div className="stage-mini" key={lane.number}>
+          <div className="stage-mini-head"><span className="stage-number">STAGE {lane.number}</span><span className="stage-name">{lane.name}</span><span className="stage-count">{lane.cases.length}</span></div>
+          <div className="stage-list">
+            {lane.cases.length===0&&<div className="empty-lane">No cases in this stage</div>}
+            {lane.cases.map(l=><div className="stage-person" key={l.id} onClick={()=>openLead(l)}>
+              <div className="person-avatar">{(l.firstName||"").slice(0,1)}{(l.lastName||"").slice(0,1)}</div>
+              <div style={{minWidth:0,flex:1}}><div className="person-name">{l.firstName} {l.lastName}</div><div className="person-meta">{lane.meta}</div></div>
+              <div className="person-meta">{l[lane.dateField]?new Date(l[lane.dateField]+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}):"—"}</div>
+            </div>)}
+          </div>
+        </div>)}
+      </section>
+
+      <section className="review-board">
+        <div className="review-board-head">
+          <div><div className="section-kicker">STAGE 3 / Attorney + paralegal</div><div className="section-title">Priority Review Queue</div><div style={{fontSize:11,color:"#b8ceca",marginTop:6}}>Cases are ranked by deadlines, high-risk flags, conflicts, missing answers, and document blockers.</div></div>
+          <div className="review-controls">
+            <label>Filter<select aria-label="Filter Intake Inbox" value={inboxFilter} onChange={e=>setInboxFilter(e.target.value)}><option value="all">All submitted</option><option value="missing">Missing answers</option><option value="deadline">Urgent deadlines</option><option value="flags">High flags</option></select></label>
+            <label>Sort<select aria-label="Sort Intake Inbox" value={inboxSort} onChange={e=>setInboxSort(e.target.value)}><option value="priority">Review priority</option><option value="completion">Lowest completion</option><option value="submitted">Newest submitted</option></select></label>
+          </div>
+        </div>
+        <div className="review-list">
+          {commandSubmitted.length===0&&<div className="empty-lane">No submitted intakes match this view</div>}
+          {commandSubmitted.map(l=>{const t=triageFor(l);const urgent=(t.urgentDeadlineCount||0)>0||(t.highFlagCount||0)>0;const high=!urgent&&((t.contradictionCount||0)>0||(t.missingAnswerCount||0)>0||(t.documentBlockerCount||0)>4);const priority=urgent?"Immediate":high?"High":"Standard";const completion=typeof t.completionPercentage==="number"?t.completionPercentage:0;return <div className="review-row" key={l.id} onClick={()=>openLead(l)}>
+            <div><div style={{display:"flex",alignItems:"center",gap:9,marginBottom:4}}><span className={"priority-pill "+(urgent?"priority-urgent":high?"priority-high":"priority-standard")}>{priority}</span><span className="person-name">{l.firstName} {l.lastName}</span></div><div className="person-meta">{(t.complexity||["Consumer debt"]).join(" / ")}</div></div>
+            <div className="review-stat"><strong>{typeof t.completionPercentage==="number"?t.completionPercentage+"%":"Unavailable"}</strong>Intake complete<div className="progress-track"><div className="progress-fill" style={{width:Math.max(3,completion)+"%"}}/></div></div>
+            <div className="review-stat"><strong>{t.missingAnswerCount||0} missing / {t.contradictionCount||0} conflicts</strong>{t.documentBlockerCount||0} document blockers</div>
+            <div className="review-action"><strong>{t.responsibleRole||"Staff"}</strong>{t.nextAction||"Review submitted Intake Package"}</div>
+            <button className="open-review" onClick={e=>{e.stopPropagation();openLead(l);}}>Open review</button>
+          </div>;})}
+        </div>
+      </section>
+
+      <section className="ready-board">
+        <div className="ready-head"><span className="stage-number">STAGE 4</span><div><div className="stage-name">Ready for Petition Prep</div><div className="person-meta">Required answers, documents, staff review, and attorney gates are complete.</div></div><span className="stage-count">{commandReady.length}</span></div>
+        <div className="ready-list">
+          {commandReady.length===0&&<div className="empty-lane" style={{padding:8}}>No cases have passed every gate yet</div>}
+          {commandReady.map(l=><div className="ready-chip" key={l.id} onClick={()=>openLead(l)}><div className="person-avatar">✓</div><div><div className="person-name">{l.firstName} {l.lastName}</div><div className="person-meta">{prepAge(l)}</div></div></div>)}
+        </div>
+      </section>
+
+      <section className="ops-grid">
+        <div className="ops-card">
+          <div className="ops-head"><div><div className="section-kicker">Human approval queue</div><div className="section-title" style={{fontSize:17}}>Outstanding Tasks <span style={{color:"#7d8c88"}}>({tasks.length})</span></div></div><button onClick={runBatch} title="Synthetic prototype tool: runs the local daily document-review sweep" style={{padding:"7px 10px",fontSize:10,fontWeight:800,border:"1px dashed #b8963e",borderRadius:8,background:"#fffaf0",color:"#856404",cursor:"pointer"}}>Prototype tools · Run 5:00 AM Batch</button></div>
+          <div>{tasks.length===0?<div className="empty-lane">Everything is cleared.</div>:tasks.slice(0,7).map((t,i)=><div className="ops-task" key={i} onClick={()=>openTask(t)}><span className="ops-dot"/><div style={{minWidth:0}}><div className="person-name" style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.title}</div><div className="person-meta">{t.leadName} / {t.leadStage}</div></div><div className="person-meta">{t.due?new Date(t.due+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}):""}</div></div>)}</div>
+        </div>
+        <div className="ops-card">
+          <div className="ops-head"><div><div className="section-kicker">Shortcuts</div><div className="section-title" style={{fontSize:17}}>Quick actions</div></div></div>
+          <div className="quick-actions">
+            <button className="quick-action" onClick={()=>setPage("leads")}>View every Lead →</button>
+            {quickLinks.map((ql,i)=><button className="quick-action" key={i} onClick={()=>{if(ql.url)window.open(ql.url,"_blank");}}>{ql.label} →</button>)}
+            <div style={{marginTop:6,padding:"11px 12px",borderRadius:10,background:commandCritical?"#fff0ed":"#edf7f2",color:commandCritical?"#8e3d33":"#316456",fontSize:11,fontWeight:700}}>{commandCritical?commandCritical+" case(s) contain a deadline or high-risk candidate.":"No urgent deadline or high-risk candidates in the current queue."}</div>
+          </div>
+        </div>
+      </section>
+      {taskModal&&(()=>{const l=leads.find(x=>x.id===taskModal.leadId);return <TaskApprovalModal task={taskModal} lead={l} onClose={()=>setTaskModal(null)} onApprove={approveTaskEmail} onOpenLead={()=>{setTaskModal(null);setSelectedLead(l.id);setPage("lead-detail");}}/>;})()}
+      {confirmModal}
+    </main>
+  );
 
   const cardStyle={background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",overflow:"hidden"};
   const headerStyle={padding:"14px 20px",borderBottom:"1px solid #eee",fontSize:14,fontWeight:600,color:"#434343",display:"flex",alignItems:"center",gap:8};

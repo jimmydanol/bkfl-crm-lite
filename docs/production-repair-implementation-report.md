@@ -21,6 +21,7 @@ The repair replaces the fixed four-review/three-missing simulation with one vers
 - Added Documents provenance, AI review state, risk/waivability metadata, rationale-required rejection and override decisions, non-waivable enforcement, attorney escalation for high-risk exceptions, and guarded low-risk bulk approval.
 - Replaced document-only readiness with gates for required answers, contradictions, applicable documents, AI flags, high-risk exceptions, staff review, and attorney review.
 - Added persistent synthetic-prototype labeling, visible prototype-tool grouping, keyboard focus styles, and a mobile breakpoint.
+- Rebuilt the visible CRM shell as a Review Command Center: operational health metrics, compact early-stage lanes, a risk-ranked attorney/paralegal queue, a separate Ready lane, and a case header that keeps completion, document blockers, risk candidates, and readiness visible across every case tab.
 - Updated the 50-case runner, before/after evidence, contract tests, and Intake implementation handoff.
 
 ## Findings resolved
@@ -60,7 +61,7 @@ P0/P1 items materially resolved in the prototype:
 - Contract test: 50 scenarios; 25 document-requirement signatures; 45 CRM missing/review signatures; all 50 explicitly resolved cases Ready.
 - Full source-backed evaluation: 50 completed, 0 failed, 200 Dashboard stage observations, 500 Intake page visits, 45 CRM review signatures, 25 requirement signatures, all explicit readiness gates passed.
 - Before/after: 1 to 45 CRM review signatures; 0 Ready on import; 50 Ready after explicit resolution; no file bytes stored; no production mutations or external messages.
-- Local browser: contract import, Dashboard triage, Intake Package schema/triage, provenance, guarded bulk approval, non-waivable block, staff-to-attorney exception escalation, review gates, synthetic file upload, automatic transition to Ready for Petition Prep, focus outline, and 390px layout verified. At 390px, document width matched the viewport with no page-level horizontal overflow.
+- Local browser: redesigned Review Command Center, risk-ranked queue, case snapshot header, contract import, Dashboard triage, Intake Package schema/triage, provenance, guarded bulk approval, non-waivable block, staff-to-attorney exception escalation, review gates, synthetic file upload, automatic transition to Ready for Petition Prep, focus outline, and 390px layout verified. At 390px, document width matched the viewport with no page-level horizontal overflow.
 - Browser console: zero runtime errors after the final responsive repair reload.
 
 ## Files
