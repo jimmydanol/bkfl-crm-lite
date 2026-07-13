@@ -1,0 +1,56 @@
+{
+  "calibratedAt": "2026-07-13T22:04:00Z",
+  "sites": {
+    "crm": "https://mmccune22.github.io/bkfl-crm-lite/",
+    "intake": "https://mmccune22.github.io/mccune-legal-intake-mockups/Intake%20Pages/login.html"
+  },
+  "crmSyntheticLead": {
+    "name": "Alex Synthetic001",
+    "email": "alex.synthetic001@example.test",
+    "syntheticOnly": true,
+    "stagesCompletedInLiveBrowser": [
+      "New Lead",
+      "Intake Sent",
+      "Intake Submitted",
+      "Ready for Petition Prep"
+    ],
+    "documentReview": {
+      "initialReviewItems": 4,
+      "initialMissingItems": 3,
+      "approved": 4,
+      "approvedAnyway": 1,
+      "excused": 3,
+      "resolved": 7,
+      "readyStateConfirmed": true
+    },
+    "handoffControl": "Simulate Submission (dev)",
+    "actualIntakePackageReceived": false
+  },
+  "intakeCalibration": {
+    "routesInspected": [
+      "login.html",
+      "personal.html",
+      "income.html",
+      "assets.html",
+      "debts.html",
+      "expenses.html",
+      "financial-affairs.html",
+      "counseling.html",
+      "documents.html",
+      "confirmation.html"
+    ],
+    "staticLoginConfirmed": true,
+    "sessionStoragePersistenceConfirmed": true,
+    "simulatedUploadButtonsConfirmed": true,
+    "actualFileBytesUploaded": false,
+    "staticHeaderIdentity": "Jordan Sample",
+    "internalCollaborationRouteVisibleToClient": "jimmy-changes.html"
+  },
+  "automationBoundary": {
+    "fiftyLiveBrowserSubmissionsClaimed": false,
+    "reason": "The public mockups have no Intake-to-CRM bridge, no authentication, and no document-byte storage. The 50-scenario acceptance evidence is therefore a deterministic replay against live-source snapshots, separately labeled source-backed-model.",
+    "chromeFileUploadBlocker": "Chrome extension file-URL access was disabled; the mockup itself also has no file input on documents.html."
+  },
+  "productionSystemsMutated": false,
+  "externalMessagesSent": false
+}

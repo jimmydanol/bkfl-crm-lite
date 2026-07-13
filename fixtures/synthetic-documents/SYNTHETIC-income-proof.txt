@@ -1,0 +1,7 @@
+BK FASTLANE SYNTHETIC TEST DOCUMENT
+Document type: Income proof
+Debtor: Avery Looptest01
+Scenario: 01
+Gross monthly income: $4,250.00
+Purpose: UI workflow evaluation only
+NOT A REAL PAY STUB. NOT FOR FILING OR LEGAL USE.

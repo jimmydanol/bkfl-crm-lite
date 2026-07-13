@@ -1,0 +1,7 @@
+BK FASTLANE SYNTHETIC TEST DOCUMENT
+Document type: Bank statement
+Debtor: Avery Looptest01
+Scenario: 01
+Ending balance: $1,437.82
+Purpose: UI workflow evaluation only
+NOT A REAL BANK STATEMENT. NOT FOR FILING OR LEGAL USE.

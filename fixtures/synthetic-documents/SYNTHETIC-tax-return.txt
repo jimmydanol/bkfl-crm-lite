@@ -1,0 +1,7 @@
+BK FASTLANE SYNTHETIC TEST DOCUMENT
+Document type: Federal tax return
+Debtor: Avery Looptest01
+Scenario: 01
+Tax year: 2025
+Purpose: UI workflow evaluation only
+NOT A REAL TAX RETURN. NOT FOR FILING OR LEGAL USE.
