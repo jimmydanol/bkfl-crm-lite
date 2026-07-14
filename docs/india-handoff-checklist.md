@@ -13,6 +13,7 @@ Status key: ✅ have it · 🔶 exists, needs extraction or updating before hand
 - ⬜ Architecture one-pager — four layers (data / orchestrator / agents / presentation), event list, agent roster with inputs & outputs (parked as task; write when both windows feel done)
 - 🔶 Task rulebook — fully written, but it lives in the app (Settings → Tasks + Lead Stages); extract into the spec verbatim
 - 🔶 Document pipeline rules — same: Settings → Documents (32-type catalog, requirement tiers, reason codes, follow-up rules, category lifecycle) is the source of truth; extract
+- ✅ AI Intake Summary content spec — docs/ai-intake-summary-spec.md (sections, means-test rules, exclusions, who-changes-what). THE control surface for what goes to the client
 - ⬜ Data model reference — entities and fields: Lead, Contact, Task (statuses incl. Removed), docChecklist item states, intakePackage schema, communications, timeline
 - ⬜ Agent output contracts — the frozen JSON memo shape for each agent (pay stub analyzer, document classifier, intake analyst, follow-up drafter)
 - 🔶 API surface between the two windows — what the intake posts to the CRM backend on submit (packet shape, tokenized-link rules), PLUS the Upload Center pair (decided, see section 4): GET outstanding-items by upload token, POST file/reason per item
