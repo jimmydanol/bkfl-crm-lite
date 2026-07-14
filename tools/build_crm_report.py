@@ -178,6 +178,7 @@ def add_heading(doc, text, level=1):
 
 def add_callout(doc, label, text, fill=LIGHT_GREEN, accent=GREEN):
     table = doc.add_table(rows=1, cols=1)
+    set_repeat_header(table.rows[0])
     set_table_geometry(table, [9360], indent=120)
     set_table_borders(table, color=BORDER)
     cell = table.cell(0, 0)
@@ -298,7 +299,7 @@ def build_report(output, dashboard, contact):
 
     subtitle = doc.add_paragraph()
     subtitle.paragraph_format.space_after = Pt(14)
-    subtitle_run = subtitle.add_run("Plain-English product review for Jimmy Stein and Matt McCune")
+    subtitle_run = subtitle.add_run("Plain-English product review for Jimmy Stein and Matt McCune · Glade + Clio competitive pass")
     set_run_font(subtitle_run, size=13.5, color=MUTED)
 
     for label, value in (
@@ -321,14 +322,15 @@ def build_report(output, dashboard, contact):
     add_callout(
         doc,
         "VERDICT",
-        "The product direction is now clear enough to explain to a solo bankruptcy attorney in a few minutes. Keep this design and make the workflow secure, reliable, and connected before adding more screens.",
+        "The product direction is clear enough to explain to a solo bankruptcy attorney in a few minutes. The revised Document workflow adds the best practical lessons from Glade and Clio while preserving Matt's lean four-part structure.",
     )
 
     add_heading(doc, "Executive verdict", 1)
-    add_body(doc, "The CRM is now centered on one job: move a potential bankruptcy client from first contact to a complete file that can be used to start preparing the petition.")
+    add_body(doc, "The CRM is now centered on one job: move a potential bankruptcy client from first contact to a complete, firm-reviewed file that can be used to start preparing the petition.")
     add_body(doc, "The record name changes automatically based on what the firm actually has, not on a staff member's guess.")
 
     lifecycle = doc.add_table(rows=2, cols=3)
+    set_repeat_header(lifecycle.rows[0])
     set_table_geometry(lifecycle, [3120, 3120, 3120], indent=120)
     set_table_borders(lifecycle)
     headers = (("LEAD", LIGHT_BLUE, RGBColor(26, 115, 232)), ("CONTACT", LIGHT_GREEN, GREEN), ("MATTER", "E0F2F1", RGBColor(0, 105, 92)))
@@ -348,7 +350,7 @@ def build_report(output, dashboard, contact):
     doc.add_paragraph().paragraph_format.space_after = Pt(1)
 
     add_heading(doc, "Recommendation", 2)
-    add_body(doc, "Use this version as the product-design baseline. Do not add broad case-management or post-filing features yet. First connect this workflow to secure storage, the live Intake, and a controlled pilot.")
+    add_body(doc, "Use this version as the product-design baseline. Keep improving the Intake-to-petition-prep path; do not add broad case-management or post-filing features yet. First connect this workflow to secure storage, the live Intake, and a controlled pilot.")
 
     doc.add_page_break()
     add_heading(doc, "What changed", 1)
@@ -362,6 +364,13 @@ def build_report(output, dashboard, contact):
         "A Matter returns to Contacts if new activity reopens data or document work.",
         "Each debtor file has four focused tabs: Overview, Intake Data, Documents, and Activity.",
         "The document resolved count now includes only approved or excused requests.",
+        "The Contact Document Review queue now comes before the follow-up action and shows debtor/spouse ownership, upload date, and version count.",
+        "Home Base contains only approved or excused Documents; unresolved work no longer appears in the resolved list.",
+        "Replacement uploads preserve history, and every firm decision records the reviewer and a Contact activity event.",
+        "Rejections separate the explanation sent to the client from the firm's internal note.",
+        "AI-flag overrides require a written firm reason.",
+        "Client follow-up remains disabled until all review decisions are finished and the assigned Task is open.",
+        "The follow-up draft is editable, repeat reminders retain prior rejection reasons, and the demo does not overstate portal security.",
         "Hover explanations and a fake-data-only banner make the demo easier and safer to understand.",
     ]
     for item in changes:
@@ -388,16 +397,27 @@ def build_report(output, dashboard, contact):
             add_heading(doc, heading, 2)
             add_body(doc, text)
 
-        add_figure(doc, contact_crop, "Figure 2. A Contact record shows the next step and keeps Intake data and document readiness separate.", width=6.25)
+        add_figure(doc, contact_crop, "Figure 2. Contact Document Review keeps firm decisions above resolved work and the client chase list.", width=6.25)
 
-    doc.add_page_break()
+        add_heading(doc, "The revised Document decision loop", 2)
+        for item in (
+            "Review every new upload or debtor explanation before contacting the client.",
+            "Approve, reject, excuse, or record a reason when overriding an AI flag.",
+            "Keep prior files and decisions in the Contact history instead of replacing evidence silently.",
+            "Open the editable follow-up only when the review queue is empty and the assigned Task is ready.",
+            "Use an expiring, per-Contact portal link in production and record delivery.",
+        ):
+            add_bullet(doc, item)
+
     add_heading(doc, "What works well now", 1)
     strengths = [
         ("The language matches a small bankruptcy firm.", "Lead, Contact, and Matter describe real changes in the file, not vague sales stages."),
         ("The Dashboard answers what to do next.", "It shows counts, progress, and one short work list instead of acting as a general control center."),
         ("Data and documents stay separate.", "A complete questionnaire does not mean the documents are complete, and complete documents do not cure missing answers."),
         ("A Matter cannot be created too early.", "The file must earn the Matter label from actual readiness."),
-        ("Firm judgment remains in control.", "AI may flag or preliminarily accept an upload, but the firm approves, rejects, or excuses it."),
+        ("Firm judgment remains in control.", "AI may flag or preliminarily accept an upload, but the firm approves, rejects, excuses, or explains an override."),
+        ("The client request follows the review.", "A follow-up cannot be sent while a Document decision is unfinished, and the responsible Task must be open."),
+        ("Replacement evidence stays visible.", "The design now keeps an upload history and shows who made the most recent decision."),
         ("The design stays narrow.", "The CRM stops at a clean, reviewable package instead of trying to replace mature petition-preparation software."),
     ]
     for label, explanation in strengths:
@@ -430,9 +450,10 @@ def build_report(output, dashboard, contact):
     ):
         add_bullet(doc, item)
 
-    doc.add_page_break()
     add_heading(doc, "Competitive lessons applied", 1)
     competitors = [
+        ("Glade", "Glade is the closest comparison because it is designed around bankruptcy work. Its strongest lesson is to let Intake, Documents, communication, and case work build one continuous bankruptcy file instead of forcing staff to re-enter information across disconnected tools."),
+        ("Clio", "Clio demonstrates the operating discipline expected from legal software: work belongs to an owner and due date; Documents carry useful metadata; decisions appear in the record history; workflows follow stages; and client sharing uses controlled portal access."),
         ("BK Questionnaire", "Guided mobile Intake, exact document requests, organized uploads, and reminders show the value of making missing information obvious and the next request easy."),
         ("NextChapter / MyChapter", "A clean debtor-portal handoff keeps client entry separate from firm review and avoids redundant entry."),
         ("Jubilee", "Client data, documents, and communications belong on one debtor file rather than across disconnected tools."),
@@ -441,6 +462,14 @@ def build_report(output, dashboard, contact):
     for name, lesson in competitors:
         add_heading(doc, name, 2)
         add_body(doc, lesson)
+
+    add_heading(doc, "What BK FastLane adopted", 2)
+    for item in (
+        "From Glade: bankruptcy-specific language, one Contact case file, and automation that handles administration while the firm keeps legal judgment.",
+        "From Clio: assigned Tasks, Document metadata and history, editable communications, controlled client access, and auditable decisions.",
+        "From both: keep the client journey and the firm's work connected, but do not bury a small firm under configuration.",
+    ):
+        add_bullet(doc, item)
 
     add_callout(doc, "BEST POSITIONING", "The fastest, clearest way for a solo bankruptcy firm to turn debtor information and documents into a complete petition-prep package.")
 
@@ -451,7 +480,8 @@ def build_report(output, dashboard, contact):
             "Define the authoritative Intake and document data model.",
             "Add authentication, permissions, secure storage, and audit history.",
             "Connect the live Intake to the CRM.",
-            "Complete the real document-review and follow-up loop.",
+            "Implement the append-only Document bundle, real inline viewer, and complete review/follow-up loop.",
+            "Issue expiring, per-Contact client-portal invitations and record message delivery.",
         ]),
         ("Phase 2 - Run a controlled synthetic pilot", [
             "Use varied fake clients with missing, inconsistent, and incomplete information.",
@@ -485,6 +515,7 @@ def build_report(output, dashboard, contact):
 
     add_heading(doc, "Go / no-go recommendation", 1)
     go_table = doc.add_table(rows=1, cols=2)
+    set_repeat_header(go_table.rows[0])
     decisions = [
         ("Share this fake-data demo", "YES"),
         ("Use this design as the CRM baseline", "YES"),
@@ -518,12 +549,13 @@ def build_report(output, dashboard, contact):
     build_rows = [
         ("Matt's unchanged base", "a94e1793dac7d08d8e1632f74c2b05b1a9a4a517"),
         ("Jimmy feature branch", "codex/jimmy-contact-to-petition-ready"),
-        ("CRM feature commit", "d59accaa6dab9c26e94d261a0c287cf6295f429e"),
+        ("CRM feature commit", "See current head of codex/jimmy-contact-to-petition-ready"),
         ("GitHub Pages branch", "Jimmy"),
         ("Live verification", "Lifecycle checks, JSX parsing, four rendered routes, Pages build, HTTP response, and browser inspection"),
         ("Matt's branch", "Not changed"),
     ]
     build_table = doc.add_table(rows=1, cols=2)
+    set_repeat_header(build_table.rows[0])
     for _ in range(len(build_rows) - 1):
         build_table.add_row()
     set_table_geometry(build_table, [2700, 6660], indent=120)
@@ -542,8 +574,17 @@ def build_report(output, dashboard, contact):
         set_run_font(r2, size=9.5, color=MUTED)
     doc.add_paragraph().paragraph_format.space_after = Pt(1)
 
+    doc.add_page_break()
     add_heading(doc, "Sources", 1)
     source_rows = [
+        ("Glade", "https://www.glade.ai/"),
+        ("Glade Help Center", "https://help.glade.ai/"),
+        ("Clio features", "https://www.clio.com/features/"),
+        ("Clio Grow", "https://www.clio.com/grow/"),
+        ("Clio Tasks", "https://help.clio.com/hc/en-us/articles/9204917906971-Manage-Tasks-in-Clio-Manage"),
+        ("Clio Documents", "https://help.clio.com/hc/en-us/articles/9290308200091-Generate-Manage-and-Share-Documents"),
+        ("Clio automated workflows", "https://help.clio.com/hc/en-150/articles/35132279298843-Clio-Manage-Automated-Workflows"),
+        ("Clio client portal", "https://help.clio.com/hc/en-150/articles/9156800144283-Clio-for-Clients-Client-Actions"),
         ("BK Questionnaire", "https://www.bkquestionnaire.com/"),
         ("BK Questionnaire pricing", "https://www.bkquestionnaire.com/public/pricing"),
         ("NextChapter / MyChapter", "https://app.nextchapterbk.com/sign_in_attempts/new"),
@@ -551,7 +592,12 @@ def build_report(output, dashboard, contact):
         ("Stretto Best Case", "https://www.stretto.com/bankruptcy-software-services/best-case/"),
     ]
     for label, url in source_rows:
-        add_bullet(doc, f"{label}: {url}")
+        paragraph = doc.add_paragraph(style="List Bullet")
+        paragraph.paragraph_format.left_indent = Inches(0.5)
+        paragraph.paragraph_format.first_line_indent = Inches(-0.25)
+        paragraph.paragraph_format.space_before = Pt(0)
+        paragraph.paragraph_format.space_after = Pt(3)
+        add_hyperlink(paragraph, label, url)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     doc.save(output)

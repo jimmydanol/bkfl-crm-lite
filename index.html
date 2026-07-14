@@ -523,6 +523,14 @@ const DOC_TYPES=[
 const DOC_REASONS={will_send_later:"I'll send it later",not_taken_yet:"I haven't taken the class yet",doesnt_apply:"Doesn't apply to me",didnt_file:"I didn't file that year",dont_have_copy:"I don't have a copy",filed_together:"We filed together"};
 const CHASE_REASONS=["will_send_later","not_taken_yet"]; /* keep the item on the chase list */
 const REVIEW_REASONS=["doesnt_apply","didnt_file","dont_have_copy"]; /* debtor's reason \u2014 waits for a firm ruling: Excuse or Keep Chasing */
+const REJECT_PRESETS=[
+  "Missing pages or months",
+  "Unreadable or incomplete",
+  "Wrong document",
+  "Too old for the requested period",
+  "Password protected",
+  "Duplicate upload",
+];
 const docMeta=(docId)=>DOC_TYPES.find(d=>d.id===docId)||{name:docId,req:"optional"};
 const reqBadge={required:{label:"Required to Submit",bg:"#fde8e8",text:"#c0392b",border:"#f5b7b1"},needed:{label:"Upload or Reason",bg:"#fef3cd",text:"#856404",border:"#ffc107"},optional:{label:"Optional",bg:"#f0f0ed",text:"#888",border:"#ccc"}};
 
@@ -1248,11 +1256,17 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const [leavingDir,setLeavingDir]=useState("home");
   const [rejectingDoc,setRejectingDoc]=useState(null);
   const [rejectNote,setRejectNote]=useState("");
+  const [rejectPreset,setRejectPreset]=useState("");
+  const [rejectInternalNote,setRejectInternalNote]=useState("");
+  const [overrideDoc,setOverrideDoc]=useState(null);
+  const [overrideNote,setOverrideNote]=useState("");
   const [addingRequest,setAddingRequest]=useState(false);
   const [requestDocId,setRequestDocId]=useState("");
   const [requestCustom,setRequestCustom]=useState("");
   const [followUpPreview,setFollowUpPreview]=useState(()=>{const v=window.__openFollowUp;window.__openFollowUp=null;return !!v;});
   const [followUpSentAt,setFollowUpSentAt]=useState(null);
+  const [followUpSubject,setFollowUpSubject]=useState("");
+  const [followUpBody,setFollowUpBody]=useState("");
   const intakePkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||null;
   const printIntakePackage=()=>{if(!intakePkg)return;const w=window.open("","_blank","width=860,height=940");w.document.write(buildIntakePackageHtml(lead,intakePkg));w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},350);};
   const [taskNotify,setTaskNotify]=useState(null);
@@ -1489,7 +1503,14 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             total:"Every Document on this case, in every state. Document types this intake never requested don\u2019t appear at all.",
           };
           const shown=buckets[docFilter]||checklist;
-          const patchDoc=(id,patch)=>{
+          const docFiles=(d)=>{
+            if(Array.isArray(d.files)&&d.files.length)return d.files;
+            const legacy=[];
+            if(d.rejectedFile)legacy.push({id:"legacy-rejected-"+d.id,name:d.rejectedFile,uploadedAt:d.date||"Earlier upload",status:"rejected"});
+            if(d.fileName&&!legacy.some(f=>f.name===d.fileName))legacy.push({id:"legacy-current-"+d.id,name:d.fileName,uploadedAt:d.date||"Earlier upload",status:d.reason==="rejected"?"rejected":"current"});
+            return legacy;
+          };
+          const patchDoc=(id,patch,event)=>{
             const next=checklist.map(d=>d.id===id?{...d,...patch}:d);
             const remaining=next.filter(d=>isUploadedReview(d)||isPendingRuling(d)).length;
             let tk2=lead.tasks||[];
@@ -1497,36 +1518,52 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               const _d=new Date().toISOString().split("T")[0];
               tk2=tk2.map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.batchDigest?{...tk,status:"Completed",completedDate:_d,completedBy:CURRENT_USER}:tk);
             }
-            update({docChecklist:next,tasks:tk2});
+            const timeline=event?[{id:Date.now()+11,date:new Date().toISOString().split("T")[0],action:event.action,detail:event.detail,user:CURRENT_USER},...(lead.timeline||[])]:lead.timeline;
+            update({docChecklist:next,tasks:tk2,timeline});
           };
-          const animatePatch=(id,patch)=>{setLeavingDoc(id);setTimeout(()=>{setLeavingDoc(null);patchDoc(id,patch);},240);};
+          const animatePatch=(id,patch,event)=>{setLeavingDoc(id);setTimeout(()=>{setLeavingDoc(null);patchDoc(id,patch,event);},240);};
           const pickFile=(cb)=>{const el=document.createElement("input");el.type="file";el.onchange=()=>{const fl=el.files&&el.files[0];if(fl)cb(fl.name);};el.click();};
           const today=new Date().toISOString().split("T")[0];
           const chase=buckets.missing.filter(d=>!isPendingRuling(d));
           const pendingRulings=buckets.missing.filter(isPendingRuling).length;
           const toReview=buckets.required.length+buckets.requested.length;
           const availableToRequest=DOC_TYPES.filter(dt=>!checklist.some(c=>c.docId===dt.id));
-          const saveReject=(d)=>{flyGhost(d.id,"chase");setLeavingDir("chase");animatePatch(d.id,{status:"open",reason:"rejected",note:rejectNote||"Needs to be re-uploaded",rejectedFile:d.fileName,fileName:undefined,date:undefined,aiNote:undefined});setRejectingDoc(null);setRejectNote("");};
+          const uploadDoc=(d,name)=>{
+            const prior=docFiles(d).map(f=>f.status==="current"?{...f,status:"superseded"}:f);
+            const files=[...prior,{id:Date.now(),name,uploadedAt:today,status:"current"}];
+            patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:name,date:today,files,reason:undefined,clientNote:undefined,internalNote:undefined},{action:"Replacement document received",detail:dName(d)+" — "+name+" added as version "+files.length});
+          };
+          const saveReject=(d)=>{
+            const clientNote=[rejectPreset,rejectNote.trim()].filter(Boolean).join(" — ");
+            if(!clientNote)return;
+            const files=docFiles(d).map(f=>f.status==="current"?{...f,status:"rejected",reviewedAt:today}:f);
+            flyGhost(d.id,"chase");setLeavingDir("chase");
+            animatePatch(d.id,{status:"open",reason:"rejected",note:clientNote,clientNote,internalNote:rejectInternalNote.trim(),rejectedFile:d.fileName||d.rejectedFile,fileName:undefined,date:undefined,aiNote:undefined,files,reviewedBy:CURRENT_USER,reviewedDate:today},{action:"Document rejected",detail:dName(d)+" — client note: "+clientNote});
+            setRejectingDoc(null);setRejectNote("");setRejectPreset("");setRejectInternalNote("");
+          };
           const addRequest=()=>{
             if(requestDocId==="custom"&&!requestCustom.trim())return;
             if(!requestDocId)return;
             const item=requestDocId==="custom"
               ?{id:Date.now(),docId:"custom",customName:requestCustom.trim(),status:"open",manual:true}
               :{id:Date.now(),docId:requestDocId,status:"open",manual:true};
-            update({docChecklist:[...checklist,item]});
+            update({docChecklist:[...checklist,item],timeline:[{id:Date.now()+12,date:new Date().toISOString().split("T")[0],action:"Document requested by firm",detail:(item.customName||docMeta(item.docId).name)+" added to the Contact checklist",user:CURRENT_USER},...(lead.timeline||[])]});
             setAddingRequest(false);setRequestDocId("");setRequestCustom("");
           };
           const followUpDraft=(()=>{
             if(!chase.length)return null;
-            const listText=chase.map(d=>"\u2022 "+dName(d)+(d.reason==="rejected"&&d.note?" \u2014 "+d.note:d.reason&&DOC_REASONS[d.reason]?" ("+DOC_REASONS[d.reason]+")":"")).join("\n");
+            const listText=chase.map(d=>"\u2022 "+dName(d)+(d.reason==="rejected"&&(d.clientNote||d.note)?" \u2014 "+(d.clientNote||d.note):d.reason&&DOC_REASONS[d.reason]?" ("+DOC_REASONS[d.reason]+")":"")).join("\n");
             const isRepeatReq=(lead.communications||[]).some(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");
+            const portalUrl="https://intake.bkfastlane.com/upload/demo-"+lead.id;
             return isRepeatReq
-              ?{tpl:"Document Request \u2014 Reminder",subject:"Still looking for a few documents",body:"Hi "+lead.firstName+",\n\nJust a quick reminder \u2014 we're still looking for a few additional documents to complete your file:\n\n"+listText+"\n\nUpload them through your secure client portal \u2014 the link takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"}
-              :{tpl:"Document Request \u2014 Initial",subject:"A few documents we still need",body:"Hi "+lead.firstName+",\n\nThanks again for submitting your intake. To keep your case moving, we still need the following:\n\n"+listText+"\n\nUpload these through your secure client portal \u2014 the link takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"};
+              ?{tpl:"Document Request \u2014 Reminder",subject:"Still looking for a few documents",body:"Hi "+lead.firstName+",\n\nJust a quick reminder \u2014 we're still looking for a few additional documents to complete your file:\n\n"+listText+"\n\nUpload them through your secure client portal \u2014 the link takes you straight to the list above:\n\n"+portalUrl+"\n\nMcCune Legal"}
+              :{tpl:"Document Request \u2014 Initial",subject:"A few documents we still need",body:"Hi "+lead.firstName+",\n\nThanks again for submitting your intake. To keep your case moving, we still need the following:\n\n"+listText+"\n\nUpload these through your secure client portal \u2014 the link takes you straight to the list above:\n\n"+portalUrl+"\n\nMcCune Legal"};
           })();
           const sendFollowUp=()=>{
-            if(!followUpDraft)return;
-            const comm={id:Date.now(),date:today,type:"Email",direction:"Outgoing",subject:followUpDraft.subject,body:followUpDraft.body,to:lead.firstName+" "+lead.lastName,email:lead.email||""};
+            if(!followUpDraft||!followUpReady)return;
+            const subject=followUpSubject||followUpDraft.subject;
+            const body=followUpBody||followUpDraft.body;
+            const comm={id:Date.now(),date:today,type:"Email",direction:"Outgoing",subject,body,to:lead.firstName+" "+lead.lastName,email:lead.email||""};
             const next=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
             let tasks=(lead.tasks||[]);
             const openTask=tasks.find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
@@ -1535,18 +1572,21 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               tasks=[{...openTask,id:Date.now()+5,status:"Pending",due:next,completedDate:undefined},...tasks];
             }
             update({
-              docChecklist:checklist.map(d=>isChaseDoc(d)?(d.reason==="rejected"?{...d,requestedDate:today,reason:undefined}:{...d,requestedDate:today}):d),
+              docChecklist:checklist.map(d=>isChaseDoc(d)?{...d,requestedDate:today,requestCount:(d.requestCount||0)+1}:d),
               communications:[comm,...(lead.communications||[])],
               tasks,
-              timeline:[{id:Date.now()+1,date:today,action:"Document follow-up sent",detail:chase.length+" document"+(chase.length===1?"":"s")+" requested",user:"Matt McCune"},...(lead.timeline||[])]
+              timeline:[{id:Date.now()+1,date:today,action:"Document follow-up sent",detail:chase.length+" document"+(chase.length===1?"":"s")+" requested; client-facing rejection reasons preserved",user:CURRENT_USER},...(lead.timeline||[])]
             });
             setFollowUpPreview(false);
             setFollowUpSentAt(today);
+            setFollowUpSubject("");setFollowUpBody("");
           };
           const required=checklist.filter(d=>docMeta(d.docId).req==="required");
           const others=checklist.filter(d=>docMeta(d.docId).req!=="required");
           const needsDecision=(d)=>isUploadedReview(d)||isPendingRuling(d);
           const queue=[...required,...others].filter(needsDecision);
+          const openFollowUpTask=(lead.tasks||[]).find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
+          const followUpReady=queue.length===0&&chase.length>0&&!!openFollowUpTask;
           const flyGhost=(docId,dir)=>{
             try{
               const card=document.getElementById("doccard-"+docId)||document.getElementById("chasecard-"+docId);
@@ -1568,16 +1608,47 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               setTimeout(()=>ghost.remove(),560);
             }catch(err){}
           };
-          const decide=(id,patch,dir)=>{flyGhost(id,dir||"home");setLeavingDir(dir||"home");animatePatch(id,patch);};
+          const decide=(id,patch,dir,action)=>{
+            const d=checklist.find(x=>x.id===id);
+            const eventAction=action||(patch.status==="approved"?"Document approved":patch.status==="excused"?"Document excused":"Document returned to chase list");
+            const detail=(d?dName(d):"Document")+(patch.overrideReason?" — override: "+patch.overrideReason:patch.reason&&DOC_REASONS[patch.reason]?" — "+DOC_REASONS[patch.reason]:"");
+            flyGhost(id,dir||"home");setLeavingDir(dir||"home");animatePatch(id,{...patch,reviewedBy:CURRENT_USER,reviewedDate:today},{action:eventAction,detail});
+          };
           const PdfBtn=(d)=>{
-            const f=d.fileName||d.rejectedFile;
+            const files=docFiles(d);
+            const f=d.fileName||d.rejectedFile||(files.length?files[files.length-1].name:null);
             if(!f)return null;
             const open=previewDoc===d.id;
             return(
-            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,padding:"6px 11px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
+            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f+" · "+files.length+" upload"+(files.length===1?"":"s")} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,padding:"6px 11px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.8"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.8"/></svg>
-              <span style={{fontSize:10,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
+              <span style={{fontSize:10,fontWeight:700,color:"#3d5c43"}}>{open?"Close":"Preview"}{files.length>1?" ("+files.length+")":""}</span>
             </button>);
+          };
+          const DocPreview=(d)=>{
+            if(previewDoc!==d.id)return null;
+            const files=docFiles(d);
+            if(!files.length)return null;
+            const latest=files[files.length-1];
+            const owner=d.docId&&d.docId.startsWith("sp_")?"Spouse":"Debtor";
+            return <div style={{marginTop:9,border:"1px solid #d8ded9",borderRadius:8,background:"#f8faf8",padding:10}}>
+              <div style={{display:"grid",gridTemplateColumns:"minmax(220px,1fr) minmax(210px,0.8fr)",gap:12}}>
+                <div style={{minHeight:154,background:"#fff",border:"1px solid #d7d7d2",boxShadow:"0 2px 7px rgba(0,0,0,0.06)",padding:"16px 20px",boxSizing:"border-box"}}>
+                  <div style={{fontSize:9.5,fontWeight:800,color:"#a94438",letterSpacing:"0.7px"}}>SYNTHETIC DOCUMENT PREVIEW</div>
+                  <div style={{fontSize:15,fontWeight:700,color:"#434343",marginTop:12}}>{dName(d)}</div>
+                  <div style={{fontSize:11.5,color:"#666",marginTop:8,lineHeight:1.55}}>Filed by: {owner}<br/>Latest upload: {latest.name}<br/>Received: {latest.uploadedAt||d.date||"Earlier upload"}</div>
+                  <div style={{fontSize:10.5,color:"#999",marginTop:12}}>The production viewer should render the actual file here without covering the review controls.</div>
+                </div>
+                <div>
+                  <div style={{fontSize:10.5,fontWeight:800,color:"#777",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:6}}>Upload history</div>
+                  {files.slice().reverse().map((f,i)=><div key={f.id||f.name+"-"+i} style={{fontSize:10.8,color:"#555",padding:"6px 7px",background:"#fff",border:"1px solid #e4e4df",borderRadius:5,marginBottom:5}}>
+                    <div style={{fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
+                    <div style={{color:f.status==="rejected"?"#a94438":"#888",marginTop:2}}>{f.uploadedAt||"Earlier upload"} · {f.status||"received"}</div>
+                  </div>)}
+                  {(d.reviewedBy||d.internalNote)&&<div style={{fontSize:10.5,color:"#777",lineHeight:1.45,marginTop:7}}>Reviewed by {d.reviewedBy||CURRENT_USER}{d.reviewedDate?" on "+d.reviewedDate:""}{d.internalNote?<React.Fragment><br/>Internal note: {d.internalNote}</React.Fragment>:null}</div>}
+                </div>
+              </div>
+            </div>;
           };
           const railIcon=(d)=>{
             if(d.status==="approved")return <span style={{color:"#7a9c80",fontWeight:900,fontSize:12,width:14,flexShrink:0}}>{"\u2713"}</span>;
@@ -1601,10 +1672,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           return(<div>
             <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16,maxWidth:1240,marginLeft:"auto",marginRight:"auto"}}>
               <div style={{padding:"13px 20px",borderBottom:"1px solid #eee",textAlign:"center",position:"relative"}}>
-                <span style={{fontSize:16,fontWeight:700,color:"#434343"}}>Document Review</span>
+                <span style={{fontSize:16,fontWeight:700,color:"#434343"}}>Contact Document Review</span>
                 {queue.length>0
                   ?<span style={{marginLeft:10,background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>{queue.length} to review</span>
                   :checklist.length>0?<span style={{marginLeft:10,background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>review complete</span>:null}
+                <div style={{fontSize:10.8,color:"#888",marginTop:5}}>Intake data makes this person a Contact. Approved or excused Documents move the Contact toward Petition Prep. <span title="Glade lesson: keep intake, documents, and bankruptcy work in one continuous case file." style={{color:"#5a7c60",fontWeight:700,cursor:"help"}}>One case file</span> · <span title="Clio lesson: tie review work, ownership, due dates, communications, and history to the same Contact record." style={{color:"#5a7c60",fontWeight:700,cursor:"help"}}>One accountable task trail</span></div>
               </div>
               {checklist.length>0&&<span style={{display:"block",padding:"5px 20px",fontSize:11.5,color:"#8a918c",whiteSpace:"nowrap",borderBottom:"1px solid #f0f0ed"}}>{buckets.home.length+buckets.excused.length} of {checklist.length} resolved</span>}
               {checklist.length===0?(
@@ -1624,37 +1696,42 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       <div style={{fontSize:12,color:"#777",marginTop:5,lineHeight:1.6}}>
                         {chase.length>0
                           ?<span>The Chase List has {chase.length} item{chase.length===1?"":"s"} {"\u2014"} the {"\u201c"}Approve document follow-up request{"\u201d"} Task is open, and the draft is ready below: Review &amp; Send, bottom right.</span>
-                          :<span>Nothing left to chase {"\u2014"} every Document is Approved or Excused{lead.leadStage==="Ready for Petition Prep"?<span>, and this Lead is <strong>Ready for Petition Prep</strong></span>:null}.</span>}
+                          :<span>Nothing left to chase {"\u2014"} every Document is Approved or Excused{lead.leadStage==="Ready for Petition Prep"?<span>, and this Contact has become a <strong>Matter ready for Petition Prep</strong></span>:null}.</span>}
                       </div>
                     </div>
                   )}
                   {queue.map(d=>{
                     const stx=d.status==="ai_accepted"?{t:"AI accepted",c:"#7a9c80"}:d.status==="ai_flagged"?{t:"AI flagged \u2014 "+(d.aiNote||"needs your review"),c:"#a94438"}:{t:"Debtor: \u201c"+(DOC_REASONS[d.reason]||d.reason)+"\u201d \u2014 your ruling",c:"#856404"};
+                    const files=docFiles(d);
+                    const owner=d.docId&&d.docId.startsWith("sp_")?"Spouse":"Debtor";
                     return(
                     <div key={d.id} id={"doccard-"+d.id} style={{border:"1px solid #e4e4df",borderRadius:8,padding:"8px 14px",marginBottom:7,background:"#fff",transition:"opacity 0.22s ease, transform 0.22s ease",opacity:leavingDoc===d.id?0:1,transform:leavingDoc===d.id?("translate("+(leavingDir==="chase"?"70px":"-70px")+",60px)"):"none"}}>
                       <div style={{display:"flex",gap:12,alignItems:"center"}}>
-                        <span style={{fontSize:13,fontWeight:700,color:"#434343",flexShrink:0,maxWidth:250,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}{d.manual&&<span style={{fontSize:9.5,color:"#999",fontWeight:400}}> (staff)</span>}</span>
+                        <div style={{flexShrink:0,maxWidth:285,minWidth:220}}><div style={{fontSize:13,fontWeight:700,color:"#434343",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}{d.manual&&<span style={{fontSize:9.5,color:"#999",fontWeight:400}}> (staff)</span>}</div><div style={{fontSize:10,color:"#999",marginTop:2}}>{owner}{files.length?" · "+files.length+" upload"+(files.length===1?"":"s"):""}{d.date?" · received "+d.date:""}</div></div>
                         <span title={stx.t} style={{flex:1,minWidth:0,fontSize:11.5,fontWeight:600,color:stx.c,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stx.t}</span>
                         {PdfBtn(d)}
                         <div style={{display:"flex",gap:6,flexShrink:0}}>
                           {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
-                            <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now()},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
-                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
-                            <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Excuse</button>
+                            <button onClick={()=>d.status==="ai_flagged"?setOverrideDoc(overrideDoc===d.id?null:d.id):decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now()},"home","Document approved")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
+                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");setRejectPreset("");setRejectInternalNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
+                            <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now()},"home","Document excused")} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Excuse</button>
                           </React.Fragment>}
                           {d.status==="reason_given"&&<React.Fragment>
-                            <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>
-                            <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"chase")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"5px 11px",fontSize:11.5}}>Keep Chasing</button>
-                            <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
+                            <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today,excusedAt:Date.now()},"home","Debtor reason accepted; document excused")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>
+                            <button onClick={()=>decide(d.id,{status:"open",reason:d.reason},"chase","Debtor reason reviewed; keep chasing")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"5px 11px",fontSize:11.5}}>Keep Chasing</button>
+                            <button onClick={()=>pickFile(nm=>uploadDoc(d,nm))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
                           </React.Fragment>}
                         </div>
                       </div>
+                      {overrideDoc===d.id&&<div style={{marginTop:8,padding:9,border:"1px solid #e5cf8f",borderRadius:7,background:"#fdf6e7"}}><div style={{fontSize:11,fontWeight:700,color:"#856404",marginBottom:6}}>Why is the flagged document acceptable?</div><div style={{display:"flex",gap:6}}><input autoFocus value={overrideNote} onChange={ev=>setOverrideNote(ev.target.value)} placeholder="Required override reason" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #d9c27e",borderRadius:6,outline:"none",fontFamily:"inherit"}}/><button disabled={!overrideNote.trim()} onClick={()=>{if(!overrideNote.trim())return;decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now(),overrideReason:overrideNote.trim()},"home","AI flag overridden by firm");setOverrideDoc(null);setOverrideNote("");}} style={{...btn,background:overrideNote.trim()?"#7a9c80":"#ddd",color:"#fff",border:"none"}}>Approve</button></div></div>}
                       {rejectingDoc===d.id&&(
-                        <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8}}>
-                          <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
-                          <button onClick={()=>saveReject(d)} style={{...btn,background:"#dc3545",color:"#fff",border:"none",fontSize:11}}>Reject</button>
+                        <div style={{marginTop:8,padding:9,border:"1px solid #f5b7b1",borderRadius:7,background:"#fdf0ef"}}>
+                          <div style={{fontSize:11,fontWeight:700,color:"#a94438",marginBottom:6}}>Client-facing reason (required)</div>
+                          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:6}}>{REJECT_PRESETS.map(p=><button key={p} onClick={()=>setRejectPreset(p)} style={{...btn,padding:"3px 7px",fontSize:10.2,borderColor:rejectPreset===p?"#dc3545":"#e2c9c5",background:rejectPreset===p?"#fff":"#fdf8f7",color:rejectPreset===p?"#a94438":"#777"}}>{p}</button>)}</div>
+                          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr auto",gap:6}}><input value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} placeholder="Add helpful detail for the client" style={{padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/><input value={rejectInternalNote} onChange={ev=>setRejectInternalNote(ev.target.value)} placeholder="Internal note (not sent)" style={{padding:"7px 9px",fontSize:11.5,border:"1px solid #ddd",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/><button disabled={!rejectPreset&&!rejectNote.trim()} onClick={()=>saveReject(d)} style={{...btn,background:(rejectPreset||rejectNote.trim())?"#dc3545":"#ddd",color:"#fff",border:"none",fontSize:11}}>Reject</button></div>
                         </div>
                       )}
+                      {DocPreview(d)}
                     </div>);})}
                 </div>
               </div>
@@ -1667,7 +1744,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     <div style={{fontSize:11.5,color:"#5a7c60",marginTop:2}}>Everything this case requires {"\u2014"} crossed off as approved or excused</div>
                   </div>
                   <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
-                    {[...required,...others].map((d,i)=>({d:d,i:i})).sort((a,b)=>{const ov=(x)=>x.d.status==="approved"?0:x.d.status==="excused"?1:2;const ts=(x)=>x.d.approvedAt||x.d.excusedAt||0;return ov(a)-ov(b)||ts(b)-ts(a)||a.i-b.i;}).map(({d})=>{
+                    {[...buckets.home,...buckets.excused].map((d,i)=>({d:d,i:i})).sort((a,b)=>{const ov=(x)=>x.d.status==="approved"?0:1;const ts=(x)=>x.d.approvedAt||x.d.excusedAt||0;return ov(a)-ov(b)||ts(b)-ts(a)||a.i-b.i;}).map(({d})=>{
                       const doneA=d.status==="approved";const doneE=d.status==="excused";const done=doneA||doneE;
                       const hint=done?null:(isPendingRuling(d)?{t:"awaiting your ruling",c:"#c0392b"}:isUploadedReview(d)?{t:"in To Review",c:"#b8963e"}:{t:"on the Chase List",c:"#c07267"});
                       return(
@@ -1681,12 +1758,13 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                               <span style={{fontSize:13,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:done?"#999":"#777",fontWeight:600,textDecoration:done?"line-through":"none"}}>{dName(d)}</span>
                               {doneE&&<span style={{fontSize:9.5,fontWeight:700,color:"#aaa",border:"1px solid #ddd",borderRadius:4,padding:"0 5px",flexShrink:0}}>N/A</span>}
                             </div>
-                            {doneA&&<span style={{fontSize:10.5,color:"#7a9c80",fontWeight:600}}>Approved{d.approvedDate?" "+d.approvedDate:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>re-review</span></span>}
-                            {doneE&&<span style={{fontSize:10.5,color:"#aaa",fontWeight:600}}>Excused{d.reason&&DOC_REASONS[d.reason]?" \u2014 \u201c"+DOC_REASONS[d.reason]+"\u201d":""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>reopen</span></span>}
+                            {doneA&&<span style={{fontSize:10.5,color:"#7a9c80",fontWeight:600}}>Approved{d.approvedDate?" "+d.approvedDate:""}{d.reviewedBy?" by "+d.reviewedBy:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined},{action:"Document reopened for review",detail:dName(d)})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>re-review</span></span>}
+                            {doneE&&<span style={{fontSize:10.5,color:"#aaa",fontWeight:600}}>Excused{d.reason&&DOC_REASONS[d.reason]?" \u2014 \u201c"+DOC_REASONS[d.reason]+"\u201d":""}{d.reviewedBy?" by "+d.reviewedBy:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined},{action:"Excused document reopened",detail:dName(d)})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>reopen</span></span>}
                             {hint&&<span style={{fontSize:10.5,color:hint.c,fontWeight:600}}>{hint.t}</span>}
                           </div>
                           {doneA&&PdfBtn(d)}
                         </div>
+                        {DocPreview(d)}
                       </div>);})}
                   </div>
                 </div>
@@ -1703,22 +1781,25 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         <div style={{display:"flex",gap:10,alignItems:"center"}}>
                         <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:600,color:"#434343",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</div>
-                        <div title={d.note||""} style={{fontSize:11.5,color:"#999",margin:"3px 0 6px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
+                        <div title={d.clientNote||d.note||""} style={{fontSize:11.5,color:"#999",margin:"3px 0 3px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{(d.clientNote||d.note)?" \u2014 "+(d.clientNote||d.note):""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
+                        <div style={{fontSize:10,color:"#aaa",marginBottom:6}}>{d.requestCount?"Requested "+d.requestCount+" time"+(d.requestCount===1?"":"s")+(d.requestedDate?" · last "+d.requestedDate:""):"Not yet sent"}{docFiles(d).length?" · "+docFiles(d).length+" upload"+(docFiles(d).length===1?"":"s"):""}</div>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={btn}>Upload</button>
-                          <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now(),note:undefined},"home")} style={btn}>Excuse</button>
+                          <button onClick={()=>pickFile(nm=>uploadDoc(d,nm))} style={btn}>Upload replacement</button>
+                          <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now()},"home","Document request excused")} style={btn}>Excuse</button>
                         </div>
                         </div>
                         {PdfBtn(d)}
                         </div>
+                        {DocPreview(d)}
                       </div>);})}
                   </div>
                   <div style={{borderTop:"1px solid #eee",padding:"10px 12px",flexShrink:0}}>
                     {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
                     <div style={{display:"flex",gap:8}}>
                       <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,flex:1,padding:"8px 10px"}}>+ Request a Document</button>
-                      <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,flex:2,background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default",animation:(queue.length===0&&chase.length>0)?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
+                      <button onClick={()=>{if(!followUpReady)return;setFollowUpSubject(followUpDraft?followUpDraft.subject:"");setFollowUpBody(followUpDraft?followUpDraft.body:"");setFollowUpPreview(true);}} disabled={!followUpReady} title={queue.length?"Finish every review decision first":!chase.length?"Nothing needs follow-up":!openFollowUpTask?"The follow-up Task is not open yet":"Review the draft before sending"} style={{...btn,flex:2,background:followUpReady?"#7a9c80":"#eee",color:followUpReady?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:followUpReady?"pointer":"default",animation:followUpReady?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                     </div>
+                    {!followUpReady&&chase.length>0&&<div style={{fontSize:10.5,color:queue.length?"#a94438":"#856404",marginTop:6,lineHeight:1.4}}>{queue.length?"Finish "+queue.length+" review decision"+(queue.length===1?"":"s")+" before contacting the client.":"Waiting for the assigned follow-up Task to open."}</div>}
                     {addingRequest&&(
                       <div style={{marginTop:8}}>
                         <select value={requestDocId} onChange={ev=>setRequestDocId(ev.target.value)} style={{width:"100%",padding:"7px 9px",fontSize:11.5,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",marginBottom:5}}>
@@ -1736,23 +1817,6 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               </div>
               </React.Fragment>
               )}
-              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const f=d&&(d.fileName||d.rejectedFile);if(!f)return null;return(
-                <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:60}} onClick={()=>setPreviewDoc(null)}>
-                  <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:560,maxWidth:"92vw",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 22px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-                      <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
-                      {d.rejectedFile&&!d.fileName&&<span style={{fontSize:10,fontWeight:700,color:"#a94438",background:"#fdf0ef",border:"1px solid #f0b9b1",borderRadius:4,padding:"1px 7px"}}>REJECTED UPLOAD</span>}
-                    </div>
-                    <div style={{border:"1px dashed #ccc",borderRadius:8,padding:"46px 20px",textAlign:"center",background:"#fbfbf9",marginBottom:12}}>
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
-                      <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
-                      <div style={{fontSize:11,color:"#aaa",marginTop:4}}>In production the PDF renders here, with {"\u201c"}Open full size{"\u201d"} in a new tab. Never a download.</div>
-                    </div>
-                    <div style={{display:"flex",justifyContent:"flex-end"}}>
-                      <button onClick={()=>setPreviewDoc(null)} style={{...btn,padding:"6px 16px",fontSize:12}}>Close</button>
-                    </div>
-                  </div>
-                </div>);})()}
               {followUpSentAt&&!followUpPreview&&(
                 <div style={{padding:"10px 20px",background:"#eef6ef",borderTop:"1px solid #cfe3d2",fontSize:12.5,color:"#3d5c43",fontWeight:600}}>
                   Follow-up sent and logged to Communications. The completed Task is in the Task history, and the next {"\u201c"}Approve document follow-up request{"\u201d"} Task is due in one week.
@@ -1764,12 +1828,13 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     <div style={{fontSize:10.5,fontWeight:700,color:"#7a9c80",textTransform:"uppercase",letterSpacing:"0.6px",marginBottom:8}}>{followUpDraft.tpl} {"\u2014"} drafted by AI, waiting on you</div>
                     <div style={{display:"grid",gridTemplateColumns:"64px 1fr",rowGap:4,columnGap:10,fontSize:12.5,marginBottom:10}}>
                       <span style={{color:"#999",fontWeight:600}}>To</span><span style={{color:"#434343"}}>{lead.firstName} {lead.lastName} {"\u00b7"} {lead.email}</span>
-                      <span style={{color:"#999",fontWeight:600}}>Subject</span><span style={{color:"#434343",fontWeight:600}}>{followUpDraft.subject}</span>
+                      <span style={{color:"#999",fontWeight:600}}>Subject</span><input value={followUpSubject||followUpDraft.subject} onChange={e=>setFollowUpSubject(e.target.value)} style={{padding:"6px 8px",fontSize:12.5,fontWeight:600,border:"1px solid #d8ded9",borderRadius:5,fontFamily:"inherit"}}/>
                     </div>
-                    <div style={{background:"#FBFAF7",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,whiteSpace:"pre-wrap",marginBottom:12}}>{followUpDraft.body}</div>
+                    <textarea value={followUpBody||followUpDraft.body} onChange={e=>setFollowUpBody(e.target.value)} rows={14} style={{width:"100%",boxSizing:"border-box",background:"#FBFAF7",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,marginBottom:8,fontFamily:"inherit",resize:"vertical"}}/>
+                    <div title="Clio lesson: client sharing should use a protected portal and time-limited access. This static demo only shows the intended workflow." style={{fontSize:10.5,color:"#856404",background:"#fdf6e7",border:"1px solid #e5cf8f",borderRadius:6,padding:"7px 9px",marginBottom:12}}>Demo portal link only. Production must issue an expiring, per-Contact upload link and log delivery.</div>
                     <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
                       <button onClick={()=>setFollowUpPreview(false)} style={btn}>Cancel</button>
-                      <button onClick={sendFollowUp} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 16px",fontSize:12}}>Approve &amp; Send</button>
+                      <button onClick={sendFollowUp} disabled={!followUpReady} style={{...btn,background:followUpReady?"#7a9c80":"#ddd",color:"#fff",border:"none",padding:"6px 16px",fontSize:12}}>Approve &amp; Send</button>
                     </div>
                   </div>
                 </div>
@@ -2711,7 +2776,7 @@ function SettingsPage(){
           {[
             {name:"New Lead",desc:"A Contact and Lead exist, but the intake form has not been sent. Created manually by staff after a phone call, or automatically when a debtor first enters the system.",tasks:[{t:"Send the intake link",w:"Created with the Lead when the link isn\u2019t sent at creation. Completes automatically the moment the link is sent."}]},
             {name:"Intake Sent",desc:"The intake form link has been emailed to the debtor. Set automatically when the link is sent — by approving the send-intake Task, or at Lead creation with the send box checked.",tasks:[{t:"Approve follow-up email — intake not completed",w:"Created 1 week after the link is sent and repeats weekly until the debtor submits. The law firm approves the AI-drafted reminder email before it goes to the Lead."}]},
-            {name:"Intake Submitted",desc:"The debtor's intake has been received. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Lead, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created the moment the initial Document review is complete and Documents are still missing. Repeats weekly until the Chase List is empty — the law firm approves every request email before it goes out."}]},
+            {name:"Intake Submitted",desc:"The debtor's intake has been received, so the record is now a Contact. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Contact, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created the moment the initial Document review is complete and Documents are still missing. Repeats weekly until the Chase List is empty — the law firm approves every request email before it goes out."}]},
             {name:"Ready for Petition Prep",desc:"The finish line of this workflow. Every requested Document is Approved or Excused by your firm \u2014 nothing is awaiting upload, review, ruling, or follow-up. Set automatically the moment the Document checklist is complete; if new Document activity reopens the checklist (a new request, upload, or rejection), the Lead moves back to Intake Submitted automatically. The Stage shows how many days the case has been ready.",tasks:[],empty:"No automatic Tasks \u2014 the case is ready for petition prep."},
           ].map(s=>{
             const sc=leadStageColors[s.name]||{bg:"#f5f5f5",border:"#999",text:"#555"};
@@ -2746,8 +2811,8 @@ function SettingsPage(){
             {title:"Send the intake link",stage:"New Lead",created:"Automatically, when a new Lead is created without “Send Intake Form Link” checked — the intake email hasn’t gone out, so sending it becomes the first Task",repeats:"Never — a one-time Task. It stays open until the link is sent, so a new Lead can't sit silently. The law firm can also remove it, which closes it as Removed in the Task history",desc:"To send the link, open the Task — from Dashboard → Outstanding Tasks, or from the Lead's Tasks tab — and click Approve & Send on the draft. That one click sends the “Intake Form Link” template email (see Settings → Communications) and completes this Task."},
             {title:"Approve follow-up email — intake not completed",stage:"Intake Sent",created:"1 week after the intake link is sent",repeats:"Weekly, until the debtor submits the intake",desc:"The AI drafts a reminder email nudging the debtor to complete their intake form. The law firm reviews and approves it before it goes out. When the debtor submits, any open copy of this Task is closed automatically."},
             {title:"Review & approve AI Intake Summary email",stage:"Intake Submitted",created:"Immediately when the intake is submitted",repeats:"Never — a one-time task",desc:"On submission, the AI analyzes everything the debtor submitted and produces the AI Intake Summary — the same summary shown on the Lead’s AI tab. The law firm reviews it and approves the email before the debtor receives it. Nothing is sent without this approval."},
-            {title:"Review Documents — initial intake submission",stage:"Intake Submitted",created:"Immediately when the intake is submitted — every Document that came in with the intake is AI-analyzed and waiting for firm review",repeats:"Never — one Task covers the whole initial pile. It completes automatically when the review pile is cleared",desc:"The big review. The debtor's full Document set arrives with the intake, so staff should expect a longer workflow. The Task deep-links into the Lead's Documents tab, where each Document is approved, flagged, or rejected. The Task completes itself when every uploaded Document is ruled on and every skipped Document has a firm ruling — Excuse or Keep Chasing."},
-            {title:"Review Documents — follow-up uploads",stage:"Daily 5:00 AM Batch",batch:true,created:"By the daily 5:00 a.m. batch, for Documents uploaded after submission — the handful that arrive from follow-up requests",repeats:"At most one open Task per Lead — the batch refreshes the Document count on an existing open Task instead of stacking a new one",desc:"The small review. After follow-up requests go out, debtors upload a few Documents at a time; those are digested overnight rather than firing a Task per file. Same doorway as the initial review — the Lead's Documents tab — but staff should expect only a handful of Documents. The Dashboard's Intake Inbox still shows live counts between batches."},
+            {title:"Review Documents — initial intake submission",stage:"Intake Submitted",created:"Immediately when the intake is submitted — every Document that came in with the intake is AI-analyzed and waiting for firm review",repeats:"Never — one Task covers the whole initial pile. It completes automatically when the review pile is cleared",desc:"The big review. The debtor's full Document set arrives with the intake, so staff should expect a longer workflow. The Task deep-links into the Contact's Documents tab, where each Document is approved, flagged, or rejected. The Task completes itself when every uploaded Document is ruled on and every skipped Document has a firm ruling — Excuse or Keep Chasing."},
+            {title:"Review Documents — follow-up uploads",stage:"Daily 5:00 AM Batch",batch:true,created:"By the daily 5:00 a.m. batch, for Documents uploaded after submission — the handful that arrive from follow-up requests",repeats:"At most one open Task per Contact — the batch refreshes the Document count on an existing open Task instead of stacking a new one",desc:"The small review. After follow-up requests go out, debtors upload a few Documents at a time; those are digested overnight rather than firing a Task per file. Same doorway as the initial review — the Contact's Documents tab — but staff should expect only a handful of Documents. The Dashboard's Intake Inbox still shows live counts between batches."},
             {title:"Approve document follow-up request",stage:"Intake Submitted",created:"The moment the initial Document review is finished, if anything is left to chase — never on a blind timer. The Chase List is built by your review: rejected Documents and Keep Chasing rulings",repeats:"Weekly, while the Chase List is not empty. It stops re-arming — and any open copy auto-completes — the moment the Chase List clears",desc:"Opening the Task shows the AI-drafted request email — the “Document Request — Initial” template the first time, “Document Request — Reminder” on every repeat — and the law firm approves it before it is sent to the debtor."},
           ].map((task,i)=>{
             const enabled=taskToggles[task.title]!==false;
@@ -2834,7 +2899,7 @@ function SettingsPage(){
                   "On submission, the checklist is built from the intake answers. Uploads go straight to AI analysis; everything not uploaded starts on the Chase List.",
                   "A Document is a folder, not a file: every upload is stored individually and append-only \u2014 several PDFs and phone photos can make up one bundle, added across multiple visits. The PDF the firm views is a generated, stitched copy of the bundle, and the AI screens each file \u2014 so a partial rejection (\u201conly 3 of 6 months\u201d) never forces re-requesting everything.",
                   "The AI screens every upload and either accepts it or flags a problem. AI acceptance is a recommendation \u2014 never an approval: the law firm always makes the final decision on every Document (Approve, Reject, or Excuse), and no Document reaches Home Base without it.",
-                  "Your firm reviews every Document on the Lead\u2019s Documents tab: Approve or Excuse closes it to Home Base; Reject sends it to the Chase List with your note attached.",
+                  "Your firm reviews every Document on the Contact\u2019s Documents tab: Approve or Excuse closes it to Home Base; Reject sends it to the Chase List with a client-facing reason and an optional internal note.",
                   "A case is Document-complete when everything is Approved or Excused \u2014 the Lead Stage moves to Ready for Petition Prep automatically, and moves back to Intake Submitted if the law firm reopens any Document or requests a new one."
                 ]},
                 {h:"How and when we follow up",rules:[
