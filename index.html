@@ -523,6 +523,7 @@ const DOC_TYPES=[
 const DOC_REASONS={will_send_later:"I'll send it later",not_taken_yet:"I haven't taken the class yet",doesnt_apply:"Doesn't apply to me",didnt_file:"I didn't file that year",dont_have_copy:"I don't have a copy",filed_together:"We filed together"};
 const CHASE_REASONS=["will_send_later","not_taken_yet"]; /* keep the item on the chase list */
 const REVIEW_REASONS=["doesnt_apply","didnt_file","dont_have_copy"]; /* debtor's reason \u2014 waits for a firm ruling: Excuse or Keep Chasing */
+const REJECT_PRESETS=["Missing pages or months","Unreadable or incomplete","Wrong document","Too old for requested period","Password protected","Duplicate upload"];
 const docMeta=(docId)=>DOC_TYPES.find(d=>d.id===docId)||{name:docId,req:"optional"};
 const reqBadge={required:{label:"Required to Submit",bg:"#fde8e8",text:"#c0392b",border:"#f5b7b1"},needed:{label:"Upload or Reason",bg:"#fef3cd",text:"#856404",border:"#ffc107"},optional:{label:"Optional",bg:"#f0f0ed",text:"#888",border:"#ccc"}};
 
@@ -1223,11 +1224,17 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const [leavingDir,setLeavingDir]=useState("home");
   const [rejectingDoc,setRejectingDoc]=useState(null);
   const [rejectNote,setRejectNote]=useState("");
+  const [rejectPreset,setRejectPreset]=useState("");
+  const [rejectInternalNote,setRejectInternalNote]=useState("");
+  const [overrideDoc,setOverrideDoc]=useState(null);
+  const [overrideNote,setOverrideNote]=useState("");
   const [addingRequest,setAddingRequest]=useState(false);
   const [requestDocId,setRequestDocId]=useState("");
   const [requestCustom,setRequestCustom]=useState("");
   const [followUpPreview,setFollowUpPreview]=useState(()=>{const v=window.__openFollowUp;window.__openFollowUp=null;return !!v;});
   const [followUpSentAt,setFollowUpSentAt]=useState(null);
+  const [followUpSubject,setFollowUpSubject]=useState(null);
+  const [followUpBody,setFollowUpBody]=useState(null);
   const intakePkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||null;
   const printIntakePackage=()=>{if(!intakePkg)return;const w=window.open("","_blank","width=860,height=940");w.document.write(buildIntakePackageHtml(lead,intakePkg));w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},350);};
   const [taskNotify,setTaskNotify]=useState(null);
@@ -1442,7 +1449,14 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             total:"Every Document on this case, in every state. Document types this intake never requested don\u2019t appear at all.",
           };
           const shown=buckets[docFilter]||checklist;
-          const patchDoc=(id,patch)=>{
+          const docFiles=(d)=>{
+            if(Array.isArray(d.files)&&d.files.length)return d.files;
+            const legacy=[];
+            if(d.rejectedFile)legacy.push({id:"legacy-rejected-"+d.id,name:d.rejectedFile,uploadedAt:d.date||"Earlier upload",status:"rejected"});
+            if(d.fileName&&!legacy.some(f=>f.name===d.fileName))legacy.push({id:"legacy-current-"+d.id,name:d.fileName,uploadedAt:d.date||"Earlier upload",status:d.reason==="rejected"?"rejected":"current"});
+            return legacy;
+          };
+          const patchDoc=(id,patch,event)=>{
             const next=checklist.map(d=>d.id===id?{...d,...patch}:d);
             const remaining=next.filter(d=>isUploadedReview(d)||isPendingRuling(d)).length;
             let tk2=lead.tasks||[];
@@ -1450,36 +1464,51 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               const _d=new Date().toISOString().split("T")[0];
               tk2=tk2.map(tk=>tk.status!=="Completed"&&tk.status!=="Removed"&&tk.batchDigest?{...tk,status:"Completed",completedDate:_d,completedBy:CURRENT_USER}:tk);
             }
-            update({docChecklist:next,tasks:tk2});
+            const timeline=event?[{id:Date.now()+11,date:new Date().toISOString().split("T")[0],action:event.action,detail:event.detail,user:CURRENT_USER},...(lead.timeline||[])]:lead.timeline;
+            update({docChecklist:next,tasks:tk2,timeline});
           };
-          const animatePatch=(id,patch)=>{setLeavingDoc(id);setTimeout(()=>{setLeavingDoc(null);patchDoc(id,patch);},240);};
+          const animatePatch=(id,patch,event)=>{setLeavingDoc(id);setTimeout(()=>{setLeavingDoc(null);patchDoc(id,patch,event);},240);};
           const pickFile=(cb)=>{const el=document.createElement("input");el.type="file";el.onchange=()=>{const fl=el.files&&el.files[0];if(fl)cb(fl.name);};el.click();};
           const today=new Date().toISOString().split("T")[0];
           const chase=buckets.missing.filter(d=>!isPendingRuling(d));
           const pendingRulings=buckets.missing.filter(isPendingRuling).length;
           const toReview=buckets.required.length+buckets.requested.length;
           const availableToRequest=DOC_TYPES.filter(dt=>!checklist.some(c=>c.docId===dt.id));
-          const saveReject=(d)=>{flyGhost(d.id,"chase");setLeavingDir("chase");animatePatch(d.id,{status:"open",reason:"rejected",note:rejectNote||"Needs to be re-uploaded",rejectedFile:d.fileName,fileName:undefined,date:undefined,aiNote:undefined});setRejectingDoc(null);setRejectNote("");};
+          const uploadDoc=(d,name)=>{
+            const prior=docFiles(d).map(f=>f.status==="current"?{...f,status:"superseded"}:f);
+            const files=[...prior,{id:Date.now(),name,uploadedAt:today,status:"current"}];
+            patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:name,date:today,files,reason:undefined,note:undefined,clientNote:undefined,internalNote:undefined},{action:"Replacement document received",detail:dName(d)+" \u2014 "+name+" added as upload "+files.length});
+          };
+          const saveReject=(d)=>{
+            const clientNote=[rejectPreset,rejectNote.trim()].filter(Boolean).join(" \u2014 ");
+            if(!clientNote)return;
+            const files=docFiles(d).map(f=>f.status==="current"?{...f,status:"rejected",reviewedAt:today}:f);
+            flyGhost(d.id,"chase");setLeavingDir("chase");
+            animatePatch(d.id,{status:"open",reason:"rejected",note:clientNote,clientNote,internalNote:rejectInternalNote.trim(),rejectedFile:d.fileName||d.rejectedFile,fileName:undefined,date:undefined,aiNote:undefined,files,reviewedBy:CURRENT_USER,reviewedDate:today},{action:"Document rejected",detail:dName(d)+" \u2014 "+clientNote});
+            setRejectingDoc(null);setRejectNote("");setRejectPreset("");setRejectInternalNote("");
+          };
           const addRequest=()=>{
             if(requestDocId==="custom"&&!requestCustom.trim())return;
             if(!requestDocId)return;
             const item=requestDocId==="custom"
               ?{id:Date.now(),docId:"custom",customName:requestCustom.trim(),status:"open",manual:true}
               :{id:Date.now(),docId:requestDocId,status:"open",manual:true};
-            update({docChecklist:[...checklist,item]});
+            update({docChecklist:[...checklist,item],timeline:[{id:Date.now()+12,date:today,action:"Document requested by firm",detail:(item.customName||docMeta(item.docId).name)+" added to the checklist",user:CURRENT_USER},...(lead.timeline||[])]});
             setAddingRequest(false);setRequestDocId("");setRequestCustom("");
           };
           const followUpDraft=(()=>{
             if(!chase.length)return null;
-            const listText=chase.map(d=>"\u2022 "+dName(d)+(d.reason==="rejected"&&d.note?" \u2014 "+d.note:d.reason&&DOC_REASONS[d.reason]?" ("+DOC_REASONS[d.reason]+")":"")).join("\n");
-            const isRepeatReq=(lead.communications||[]).some(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");
+            const listText=chase.map(d=>"\u2022 "+dName(d)+(d.reason==="rejected"&&(d.clientNote||d.note)?" \u2014 "+(d.clientNote||d.note):d.reason&&DOC_REASONS[d.reason]?" ("+DOC_REASONS[d.reason]+")":"")).join("\n");
+            const isRepeatReq=(lead.communications||[]).some(c=>(c.template||"").startsWith("Document Request")||(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents"||(c.direction==="Outgoing"&&(c.body||"").includes("/upload/lead-docs")));
             return isRepeatReq
               ?{tpl:"Document Request \u2014 Reminder",subject:"Still looking for a few documents",body:"Hi "+lead.firstName+",\n\nJust a quick reminder \u2014 we're still looking for a few additional documents to complete your file:\n\n"+listText+"\n\nUpload them through your secure client portal \u2014 the link takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"}
               :{tpl:"Document Request \u2014 Initial",subject:"A few documents we still need",body:"Hi "+lead.firstName+",\n\nThanks again for submitting your intake. To keep your case moving, we still need the following:\n\n"+listText+"\n\nUpload these through your secure client portal \u2014 the link takes you straight to the list above:\n\nhttps://intake.mccunelegal.com/upload/lead-docs\n\nMcCune Legal"};
           })();
           const sendFollowUp=()=>{
-            if(!followUpDraft)return;
-            const comm={id:Date.now(),date:today,type:"Email",direction:"Outgoing",subject:followUpDraft.subject,body:followUpDraft.body,to:lead.firstName+" "+lead.lastName,email:lead.email||""};
+            if(!followUpDraft||!followUpReady)return;
+            const subject=followUpSubject??followUpDraft.subject;
+            const body=followUpBody??followUpDraft.body;
+            const comm={id:Date.now(),date:today,type:"Email",direction:"Outgoing",template:followUpDraft.tpl,subject,body,to:lead.firstName+" "+lead.lastName,email:lead.email||""};
             const next=new Date(Date.now()+7*86400000).toISOString().split("T")[0];
             let tasks=(lead.tasks||[]);
             const openTask=tasks.find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
@@ -1488,18 +1517,23 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               tasks=[{...openTask,id:Date.now()+5,status:"Pending",due:next,completedDate:undefined},...tasks];
             }
             update({
-              docChecklist:checklist.map(d=>isChaseDoc(d)?(d.reason==="rejected"?{...d,requestedDate:today,reason:undefined}:{...d,requestedDate:today}):d),
+              docChecklist:checklist.map(d=>isChaseDoc(d)?{...d,requestedDate:today,requestCount:(d.requestCount||0)+1}:d),
               communications:[comm,...(lead.communications||[])],
               tasks,
-              timeline:[{id:Date.now()+1,date:today,action:"Document follow-up sent",detail:chase.length+" document"+(chase.length===1?"":"s")+" requested",user:"Matt McCune"},...(lead.timeline||[])]
+              timeline:[{id:Date.now()+1,date:today,action:"Document follow-up sent",detail:chase.length+" document"+(chase.length===1?"":"s")+" requested",user:CURRENT_USER},...(lead.timeline||[])]
             });
             setFollowUpPreview(false);
             setFollowUpSentAt(today);
+            setFollowUpSubject(null);setFollowUpBody(null);
           };
           const required=checklist.filter(d=>docMeta(d.docId).req==="required");
           const others=checklist.filter(d=>docMeta(d.docId).req!=="required");
           const needsDecision=(d)=>isUploadedReview(d)||isPendingRuling(d);
           const queue=[...required,...others].filter(needsDecision);
+          const resolvedDocs=[...buckets.home,...buckets.excused];
+          const resolvedCount=resolvedDocs.length;
+          const openFollowUpTask=(lead.tasks||[]).find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
+          const followUpReady=queue.length===0&&chase.length>0&&!!openFollowUpTask;
           const flyGhost=(docId,dir)=>{
             try{
               const card=document.getElementById("doccard-"+docId)||document.getElementById("chasecard-"+docId);
@@ -1521,13 +1555,19 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               setTimeout(()=>ghost.remove(),560);
             }catch(err){}
           };
-          const decide=(id,patch,dir)=>{flyGhost(id,dir||"home");setLeavingDir(dir||"home");animatePatch(id,patch);};
+          const decide=(id,patch,dir,action)=>{
+            const d=checklist.find(x=>x.id===id);
+            const eventAction=action||(patch.status==="approved"?"Document approved":patch.status==="excused"?"Document excused":"Document kept on chase list");
+            const detail=(d?dName(d):"Document")+(patch.overrideReason?" \u2014 override: "+patch.overrideReason:patch.reason&&DOC_REASONS[patch.reason]?" \u2014 "+DOC_REASONS[patch.reason]:"");
+            flyGhost(id,dir||"home");setLeavingDir(dir||"home");animatePatch(id,{...patch,reviewedBy:CURRENT_USER,reviewedDate:today},{action:eventAction,detail});
+          };
           const PdfBtn=(d)=>{
-            const f=d.fileName||d.rejectedFile;
+            const files=docFiles(d);
+            const f=d.fileName||d.rejectedFile||(files.length?files[files.length-1].name:null);
             if(!f)return null;
             const open=previewDoc===d.id;
             return(
-            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,padding:"6px 11px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
+            <button onClick={()=>setPreviewDoc(open?null:d.id)} title={f+" \u00b7 "+files.length+" upload"+(files.length===1?"":"s")} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,padding:"6px 11px",border:"1px solid "+(open?"#7a9c80":"#d8ded9"),borderRadius:8,background:open?"#eef6ef":"#fbfbf9",cursor:"pointer"}}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#c0392b" strokeWidth="1.8"/><path d="M14 2v6h6" stroke="#c0392b" strokeWidth="1.8"/></svg>
               <span style={{fontSize:10,fontWeight:700,color:"#3d5c43"}}>View PDF</span>
             </button>);
@@ -1559,7 +1599,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   ?<span style={{marginLeft:10,background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>{queue.length} to review</span>
                   :checklist.length>0?<span style={{marginLeft:10,background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>review complete</span>:null}
               </div>
-              {checklist.length>0&&<span style={{marginLeft:10,fontSize:12,color:"#999",whiteSpace:"nowrap"}}>{"\u00b7"} {checklist.length-queue.length} of {checklist.length} resolved</span>}
+              {checklist.length>0&&<span style={{marginLeft:10,fontSize:12,color:"#999",whiteSpace:"nowrap"}}>{"\u00b7"} {resolvedCount} of {checklist.length} resolved</span>}
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
@@ -1591,21 +1631,29 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         {PdfBtn(d)}
                         <div style={{display:"flex",gap:6,flexShrink:0}}>
                           {(d.status==="ai_accepted"||d.status==="ai_flagged")&&<React.Fragment>
-                            <button onClick={()=>decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now()},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
-                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
+                            <button onClick={()=>d.status==="ai_flagged"?(()=>{setOverrideDoc(overrideDoc===d.id?null:d.id);setOverrideNote("");setRejectingDoc(null);})():decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now()},"home")} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"5px 13px",fontSize:11.5}}>{d.status==="ai_flagged"?"Approve Anyway":"Approve"}</button>
+                            <button onClick={()=>{setRejectingDoc(rejectingDoc===d.id?null:d.id);setRejectNote("");setRejectPreset("");setRejectInternalNote("");setOverrideDoc(null);}} style={{...btn,color:"#dc3545",border:"1px solid #f5b7b1",padding:"5px 11px",fontSize:11.5}}>Reject</button>
                             <button onClick={()=>decide(d.id,{status:"excused",reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Excuse</button>
                           </React.Fragment>}
                           {d.status==="reason_given"&&<React.Fragment>
                             <button onClick={()=>decide(d.id,{status:"excused",excusedDate:today,excusedAt:Date.now()},"home")} style={{...btn,color:"#3d5c43",border:"1px solid #9bba9f",padding:"5px 11px",fontSize:11.5}}>Excuse</button>
                             <button onClick={()=>decide(d.id,{status:"open",reason:undefined},"chase")} style={{...btn,color:"#b8963e",border:"1px solid #e5cf8f",padding:"5px 11px",fontSize:11.5}}>Keep Chasing</button>
-                            <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined}))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
+                            <button onClick={()=>pickFile(nm=>uploadDoc(d,nm))} style={{...btn,padding:"5px 10px",fontSize:11.5}}>Upload</button>
                           </React.Fragment>}
                         </div>
                       </div>
                       {rejectingDoc===d.id&&(
+                        <div style={{display:"grid",gridTemplateColumns:"minmax(155px,0.7fr) minmax(180px,1fr) minmax(180px,1fr) auto",gap:6,alignItems:"center",marginTop:8}}>
+                          <select autoFocus value={rejectPreset} onChange={ev=>setRejectPreset(ev.target.value)} style={{padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,background:"#fff",minWidth:0}}><option value="">Choose client reason...</option>{REJECT_PRESETS.map(r=><option key={r} value={r}>{r}</option>)}</select>
+                          <input value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} placeholder="Client detail (optional)" style={{padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
+                          <input value={rejectInternalNote} onChange={ev=>setRejectInternalNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Internal note (not sent)" style={{padding:"7px 9px",fontSize:11.5,border:"1px solid #ddd",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
+                          <button onClick={()=>saveReject(d)} disabled={!rejectPreset&&!rejectNote.trim()} style={{...btn,background:rejectPreset||rejectNote.trim()?"#dc3545":"#eee",color:rejectPreset||rejectNote.trim()?"#fff":"#aaa",border:"none",fontSize:11,cursor:rejectPreset||rejectNote.trim()?"pointer":"default"}}>Reject</button>
+                        </div>
+                      )}
+                      {overrideDoc===d.id&&(
                         <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8}}>
-                          <input autoFocus value={rejectNote} onChange={ev=>setRejectNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter")saveReject(d);}} placeholder="Why is it being rejected?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #f5b7b1",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
-                          <button onClick={()=>saveReject(d)} style={{...btn,background:"#dc3545",color:"#fff",border:"none",fontSize:11}}>Reject</button>
+                          <input autoFocus value={overrideNote} onChange={ev=>setOverrideNote(ev.target.value)} onKeyDown={ev=>{if(ev.key==="Enter"&&overrideNote.trim()){decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now(),overrideReason:overrideNote.trim()},"home","AI flag overridden");setOverrideDoc(null);setOverrideNote("");}}} placeholder="Why is this acceptable despite the AI flag?" style={{flex:1,padding:"7px 9px",fontSize:11.5,border:"1px solid #e5cf8f",borderRadius:6,outline:"none",fontFamily:"inherit",minWidth:0}}/>
+                          <button onClick={()=>{if(!overrideNote.trim())return;decide(d.id,{status:"approved",approvedDate:today,approvedAt:Date.now(),overrideReason:overrideNote.trim()},"home","AI flag overridden");setOverrideDoc(null);setOverrideNote("");}} disabled={!overrideNote.trim()} style={{...btn,background:overrideNote.trim()?"#7a9c80":"#eee",color:overrideNote.trim()?"#fff":"#aaa",border:"none",fontSize:11,cursor:overrideNote.trim()?"pointer":"default"}}>Approve</button>
                         </div>
                       )}
                     </div>);})}
@@ -1616,11 +1664,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
 
                 <div style={{borderRight:"1px solid #eee",display:"flex",flexDirection:"column",minHeight:0}}>
                   <div id="col-home" style={{height:64,boxSizing:"border-box",padding:"0 14px",display:"flex",flexDirection:"column",justifyContent:"center",borderBottom:"1px solid #f0f0ed",background:"#eef6ef",flexShrink:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:"#3d5c43",textTransform:"uppercase",letterSpacing:"0.5px"}}>Home Base <span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{buckets.home.length+buckets.excused.length} / {checklist.length}</span></div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#3d5c43",textTransform:"uppercase",letterSpacing:"0.5px"}}>Home Base <span style={{background:"#7a9c80",color:"#fff",borderRadius:10,padding:"0px 8px",fontSize:11,marginLeft:4}}>{resolvedCount} / {checklist.length}</span></div>
                     <div style={{fontSize:11.5,color:"#5a7c60",marginTop:2}}>Everything this case requires {"\u2014"} crossed off as approved or excused</div>
                   </div>
                   <div style={{flex:1,minHeight:0,padding:"10px 12px",overflowY:"auto"}}>
-                    {[...required,...others].map((d,i)=>({d:d,i:i})).sort((a,b)=>{const ov=(x)=>x.d.status==="approved"?0:x.d.status==="excused"?1:2;const ts=(x)=>x.d.approvedAt||x.d.excusedAt||0;return ov(a)-ov(b)||ts(b)-ts(a)||a.i-b.i;}).map(({d})=>{
+                    {resolvedDocs.length===0&&<div style={{fontSize:11.5,color:"#aaa",textAlign:"center",padding:"18px 6px"}}>Nothing resolved yet \u2014 approve or excuse items from To Review.</div>}
+                    {resolvedDocs.map((d,i)=>({d:d,i:i})).sort((a,b)=>{const ov=(x)=>x.d.status==="approved"?0:1;const ts=(x)=>x.d.approvedAt||x.d.excusedAt||0;return ov(a)-ov(b)||ts(b)-ts(a)||a.i-b.i;}).map(({d})=>{
                       const doneA=d.status==="approved";const doneE=d.status==="excused";const done=doneA||doneE;
                       const hint=done?null:(isPendingRuling(d)?{t:"awaiting your ruling",c:"#c0392b"}:isUploadedReview(d)?{t:"in To Review",c:"#b8963e"}:{t:"on the Chase List",c:"#c07267"});
                       return(
@@ -1634,8 +1683,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                               <span style={{fontSize:13,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:done?"#999":"#777",fontWeight:600,textDecoration:done?"line-through":"none"}}>{dName(d)}</span>
                               {doneE&&<span style={{fontSize:9.5,fontWeight:700,color:"#aaa",border:"1px solid #ddd",borderRadius:4,padding:"0 5px",flexShrink:0}}>N/A</span>}
                             </div>
-                            {doneA&&<span style={{fontSize:10.5,color:"#7a9c80",fontWeight:600}}>Approved{d.approvedDate?" "+d.approvedDate:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>re-review</span></span>}
-                            {doneE&&<span style={{fontSize:10.5,color:"#aaa",fontWeight:600}}>Excused{d.reason&&DOC_REASONS[d.reason]?" \u2014 \u201c"+DOC_REASONS[d.reason]+"\u201d":""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>reopen</span></span>}
+                            {doneA&&<span style={{fontSize:10.5,color:"#7a9c80",fontWeight:600}}>Approved{d.approvedDate?" "+d.approvedDate:""}{d.reviewedBy?" by "+d.reviewedBy:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"ai_accepted",approvedDate:undefined,reviewedBy:undefined,reviewedDate:undefined},{action:"Document reopened for review",detail:dName(d)})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>re-review</span></span>}
+                            {doneE&&<span style={{fontSize:10.5,color:"#aaa",fontWeight:600}}>Excused{d.reason&&DOC_REASONS[d.reason]?" \u2014 \u201c"+DOC_REASONS[d.reason]+"\u201d":""}{d.reviewedBy?" by "+d.reviewedBy:""} {"\u00b7"} <span onClick={()=>patchDoc(d.id,{status:"open",reason:undefined,excusedDate:undefined,reviewedBy:undefined,reviewedDate:undefined},{action:"Excused document reopened",detail:dName(d)})} style={{cursor:"pointer",textDecoration:"underline",color:"#999"}}>reopen</span></span>}
                             {hint&&<span style={{fontSize:10.5,color:hint.c,fontWeight:600}}>{hint.t}</span>}
                           </div>
                           {doneA&&PdfBtn(d)}
@@ -1656,9 +1705,9 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                         <div style={{display:"flex",gap:10,alignItems:"center"}}>
                         <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:600,color:"#434343",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{dName(d)}</div>
-                        <div title={d.note||""} style={{fontSize:11.5,color:"#999",margin:"3px 0 6px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{d.note?" \u2014 "+d.note:""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
+                        <div title={d.internalNote?"Internal: "+d.internalNote:(d.clientNote||d.note||"")} style={{fontSize:11.5,color:"#999",margin:"3px 0 6px",lineHeight:1.4,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{d.reason==="rejected"?<span style={{color:"#a94438"}}>Rejected{(d.clientNote||d.note)?" \u2014 "+(d.clientNote||d.note):""}</span>:(d.reason&&DOC_REASONS[d.reason]?"Debtor: \u201c"+DOC_REASONS[d.reason]+"\u201d":(d.requestedDate?"Requested "+d.requestedDate:"Never uploaded"))}</div>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>pickFile(nm=>patchDoc(d.id,{status:"ai_accepted",aiNote:"Passed AI analysis",fileName:nm,date:today,reason:undefined,note:undefined}))} style={btn}>Upload</button>
+                          <button onClick={()=>pickFile(nm=>uploadDoc(d,nm))} style={btn}>Upload</button>
                           <button onClick={()=>decide(d.id,{status:"excused",reason:d.reason&&d.reason!=="rejected"?d.reason:"doesnt_apply",excusedDate:today,excusedAt:Date.now(),note:undefined},"home")} style={btn}>Excuse</button>
                         </div>
                         </div>
@@ -1667,11 +1716,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       </div>);})}
                   </div>
                   <div style={{borderTop:"1px solid #eee",padding:"10px 12px",flexShrink:0}}>
-                    {(()=>{const lr=(lead.communications||[]).find(c=>(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents");return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
+                    {(()=>{const lr=(lead.communications||[]).find(c=>(c.template||"").startsWith("Document Request")||(c.subject||"")==="A few documents we still need"||(c.subject||"")==="Still looking for a few documents"||(c.direction==="Outgoing"&&(c.body||"").includes("/upload/lead-docs")));return lr?<div style={{fontSize:10.5,color:"#7a9c80",fontWeight:600,marginBottom:6}}>Last follow-up sent {new Date(lr.date+"T12:00:00").toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}</div>:null;})()}
                     <div style={{display:"flex",gap:8}}>
                       <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,flex:1,padding:"8px 10px"}}>+ Request a Document</button>
-                      <button onClick={()=>setFollowUpPreview(p=>!p)} disabled={!chase.length} style={{...btn,flex:2,background:chase.length?"#7a9c80":"#eee",color:chase.length?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:chase.length?"pointer":"default",animation:(queue.length===0&&chase.length>0)?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
+                      <button onClick={()=>{if(!followUpReady)return;if(followUpPreview){setFollowUpPreview(false);}else{setFollowUpSubject(followUpDraft.subject);setFollowUpBody(followUpDraft.body);setFollowUpPreview(true);}}} disabled={!followUpReady} style={{...btn,flex:2,background:followUpReady?"#7a9c80":"#eee",color:followUpReady?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:followUpReady?"pointer":"default",animation:followUpReady?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                     </div>
+                    {chase.length>0&&!followUpReady&&<div style={{fontSize:10.5,color:"#a94438",marginTop:6}}>{queue.length>0?"Finish "+queue.length+" review decision"+(queue.length===1?"":"s")+" before contacting the debtor.":"The assigned follow-up Task must be open before sending."}</div>}
                     {addingRequest&&(
                       <div style={{marginTop:8}}>
                         <select value={requestDocId} onChange={ev=>setRequestDocId(ev.target.value)} style={{width:"100%",padding:"7px 9px",fontSize:11.5,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",marginBottom:5}}>
@@ -1689,7 +1739,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               </div>
               </React.Fragment>
               )}
-              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const f=d&&(d.fileName||d.rejectedFile);if(!f)return null;return(
+              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const files=d?docFiles(d):[];const f=d&&(d.fileName||d.rejectedFile||(files.length?files[files.length-1].name:null));if(!f)return null;return(
                 <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:60}} onClick={()=>setPreviewDoc(null)}>
                   <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:560,maxWidth:"92vw",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 22px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
@@ -1701,6 +1751,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
                       <div style={{fontSize:11,color:"#aaa",marginTop:4}}>In production the PDF renders here, with {"\u201c"}Open full size{"\u201d"} in a new tab. Never a download.</div>
                     </div>
+                    {files.length>1&&<div style={{border:"1px solid #eee",borderRadius:7,padding:"8px 10px",marginBottom:12}}><div style={{fontSize:10.5,fontWeight:700,color:"#777",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:4}}>Upload history</div>{files.slice().reverse().map((file,i)=><div key={file.id||file.name+"-"+i} style={{fontSize:11,color:"#666",padding:"3px 0",display:"flex",justifyContent:"space-between",gap:12}}><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{file.name}</span><span style={{color:file.status==="rejected"?"#a94438":"#999",whiteSpace:"nowrap"}}>{file.uploadedAt||"Earlier upload"} {"\u00b7"} {file.status}</span></div>)}</div>}
+                    {(d.reviewedBy||d.internalNote)&&<div style={{fontSize:11,color:"#777",lineHeight:1.5,marginBottom:10}}>Reviewed by {d.reviewedBy||CURRENT_USER}{d.reviewedDate?" on "+d.reviewedDate:""}{d.internalNote?<React.Fragment><br/>Internal note: {d.internalNote}</React.Fragment>:null}</div>}
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                       <button onClick={()=>setPreviewDoc(null)} style={{...btn,padding:"6px 16px",fontSize:12}}>Close</button>
                     </div>
@@ -1717,9 +1769,9 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                     <div style={{fontSize:10.5,fontWeight:700,color:"#7a9c80",textTransform:"uppercase",letterSpacing:"0.6px",marginBottom:8}}>{followUpDraft.tpl} {"\u2014"} drafted by AI, waiting on you</div>
                     <div style={{display:"grid",gridTemplateColumns:"64px 1fr",rowGap:4,columnGap:10,fontSize:12.5,marginBottom:10}}>
                       <span style={{color:"#999",fontWeight:600}}>To</span><span style={{color:"#434343"}}>{lead.firstName} {lead.lastName} {"\u00b7"} {lead.email}</span>
-                      <span style={{color:"#999",fontWeight:600}}>Subject</span><span style={{color:"#434343",fontWeight:600}}>{followUpDraft.subject}</span>
+                      <span style={{color:"#999",fontWeight:600,paddingTop:7}}>Subject</span><input value={followUpSubject??followUpDraft.subject} onChange={ev=>setFollowUpSubject(ev.target.value)} style={{padding:"6px 8px",fontSize:12.5,fontWeight:600,border:"1px solid #ddd",borderRadius:6,fontFamily:"inherit",color:"#434343"}}/>
                     </div>
-                    <div style={{background:"#FBFAF7",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,whiteSpace:"pre-wrap",marginBottom:12}}>{followUpDraft.body}</div>
+                    <textarea value={followUpBody??followUpDraft.body} onChange={ev=>setFollowUpBody(ev.target.value)} rows={13} style={{width:"100%",boxSizing:"border-box",resize:"vertical",background:"#FBFAF7",border:"1px solid #e0e0e0",borderRadius:8,padding:"12px 14px",fontSize:12.5,color:"#555",lineHeight:1.6,whiteSpace:"pre-wrap",marginBottom:12,fontFamily:"inherit"}}/>
                     <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
                       <button onClick={()=>setFollowUpPreview(false)} style={btn}>Cancel</button>
                       <button onClick={sendFollowUp} style={{...btn,background:"#7a9c80",color:"#fff",border:"none",padding:"6px 16px",fontSize:12}}>Approve &amp; Send</button>
