@@ -601,7 +601,6 @@ function buildIntakeSummaryHtml(lead,pkg){
   const secured=(pkg.debts||[]).filter(d=>d.type==="secured").reduce((a,x)=>a+(x.balance||0),0);
   const unsecured=(pkg.debts||[]).filter(d=>d.type==="unsecured").reduce((a,x)=>a+(x.balance||0),0);
   const priority=(pkg.debts||[]).filter(d=>d.type==="priority").reduce((a,x)=>a+(x.balance||0),0);
-  const stillNeeded=(lead.docChecklist||[]).filter(d=>d.status==="open"||(d.status==="reason_given"&&CHASE_REASONS.includes(d.reason))).map(d=>d.customName||docMeta(d.docId).name);
   let b="";
   b+="<h2>What You Told Us</h2><p><strong>Your goals:</strong> "+(pkg.goals||"—")+"</p><p><strong>Your most urgent concern:</strong> "+(pkg.concerns||"—")+"</p>";
   b+="<h2>Your Numbers at a Glance</h2><table>";
@@ -611,9 +610,7 @@ function buildIntakeSummaryHtml(lead,pkg){
   b+="<tr><th>Total debt</th><td>"+money(totDebt)+" (secured "+money(secured)+" &middot; unsecured "+money(unsecured)+" &middot; priority "+money(priority)+")</td></tr>";
   b+="</table>";
   b+="<h2>Counseling Class</h2><p>"+(pkg.counseling||"—")+"</p>";
-  b+="<h2>Documents We Still Need</h2>";
-  b+=stillNeeded.length?("<ul>"+stillNeeded.map(x=>"<li>"+x+"</li>").join("")+"</ul>"):"<p>Everything we asked for has been received — thank you.</p>";
-  b+="<h2>What Happens Next</h2><p>Our team is reviewing your complete file. If anything above looks wrong, or your situation changes, reply to this email or call our office — corrections now save time later.</p>";
+  b+="<h2>What Happens Next</h2><p>Our team is now reviewing everything you submitted, including each of your documents. If we need anything else from you, you\u2019ll receive a separate email with a secure link to your client portal. If anything above looks wrong, or your situation changes, reply to this email or call our office — corrections now save time later.</p>";
   return "<html><head><title>AI Intake Summary — "+lead.firstName+" "+lead.lastName+"</title><style>"+
     "body{font-family:'Inter','Segoe UI',Arial,sans-serif;color:#333;max-width:700px;margin:0 auto;padding:36px;line-height:1.6;font-size:13px;}"+
     "h1{font-size:19px;color:#3d5c43;border-bottom:2px solid #7a9c80;padding-bottom:8px;margin:0 0 4px;}"+

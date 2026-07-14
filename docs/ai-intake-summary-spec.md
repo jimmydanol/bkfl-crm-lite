@@ -36,11 +36,17 @@ agent prompt all follow it. (Matt, 2026-07-13.)
      appears to be below/above the {state} median. Your attorney will confirm this."
      Never a promise of chapter eligibility or outcome.
 6. **Counseling Class** — status.
-7. **Documents We Still Need** — live from the Chase List at generation time.
-8. **What Happens Next** — review expectation + invitation to correct anything wrong.
+7. **What Happens Next** — review expectation, a note that a separate email with a
+   secure client portal link will follow IF documents are needed, and the invitation
+   to correct anything wrong.
 
 ## Explicitly EXCLUDED from the client document
 
+- **Missing-documents list** (decided 2026-07-13). The Summary Task fires immediately at
+  submission, but the Chase List is BUILT by the firm's document review (rulebook rule 11)
+  — it doesn't authoritatively exist yet. Missing documents have exactly one voice: the
+  Document Request emails and the Client Portal. The Summary only sets the expectation
+  that a separate email may follow.
 - **Complexity score** — firm's eyes only; lives on the Lead's AI tab (decided
   2026-07-13: telling a stressed client "your case scored complex" invites fee anxiety
   the firm hasn't chosen to address yet).
