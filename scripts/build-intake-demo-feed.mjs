@@ -46,6 +46,29 @@ const buildPackage = (report, sourceData, generatedAt) => {
   const documentsRequired = canonicalBundle.metrics.documentCollection.applicable
   const documentsReady = canonicalBundle.metrics.documentCollection.collected
   const completionPercent = canonicalBundle.metrics.intakeChecklistCompletion
+  const blankFields = (sourceData.missingLog || []).map((item) => ({
+    fieldId: item.fieldId,
+    label: item.label,
+    reason: item.reason || 'Debtor left this applicable answer blank.',
+    sourcePath: item.sourcePath,
+    stepId: item.stepId || 'case',
+  }))
+  const partialSections = [...new Set(
+    missingFields.map((item) => item.sectionId || 'case'),
+  )].map((sectionId) => ({
+    missingFieldCount: missingFields.filter((item) => (item.sectionId || 'case') === sectionId).length,
+    sectionId,
+    status: 'partially_completed',
+  }))
+  const untouchedDocumentRequests = matter.documents
+    .filter((document) => document.status === 'needed' && document.requestState === 'untouched')
+    .map((document) => ({
+      category: document.category,
+      id: document.id,
+      name: document.name,
+      status: document.status,
+    }))
+  const inconsistencies = sourceData.inconsistencies || []
 
   if (!matter?.id || matter.status !== 'review') {
     throw new Error(`${report.scenarioId} is not an incomplete review Matter.`)
@@ -55,6 +78,15 @@ const buildPackage = (report, sourceData, generatedAt) => {
   }
   if (!String(sourceData.reminder?.to || '').endsWith('@example.test')) {
     throw new Error(`${report.scenarioId} reminder recipient is not fake-safe.`)
+  }
+  if (!blankFields.length || !partialSections.length) {
+    throw new Error(`${report.scenarioId} must contain real blank fields in partially completed sections.`)
+  }
+  if (!untouchedDocumentRequests.length) {
+    throw new Error(`${report.scenarioId} must contain an untouched document request.`)
+  }
+  if (!inconsistencies.length) {
+    throw new Error(`${report.scenarioId} must contain a source-backed inconsistent answer.`)
   }
   if (
     !missingItems.every((item) =>
@@ -109,12 +141,16 @@ const buildPackage = (report, sourceData, generatedAt) => {
     matter,
     packageId,
     readiness: {
+      blankFields,
       documentsReady,
       documentsRequired,
       fieldsFilled,
       fieldsRequired,
+      inconsistencies,
+      partialSections,
       reviewFlagCount: (sourceData.reviewFlags || []).length,
       status: 'needs-client-action',
+      untouchedDocumentRequests,
     },
     reviewFlags: sourceData.reviewFlags || [],
     schemaVersion: 2,
@@ -132,8 +168,8 @@ const buildPackage = (report, sourceData, generatedAt) => {
 const index = await readJson(path.resolve(inputIndexPath))
 const reports = Array.isArray(index.reports) ? index.reports : []
 
-if (index.status !== 'passed' || reports.length !== 10) {
-  throw new Error('Expected one passed debtor-agent run with exactly ten reports.')
+if (index.status !== 'passed' || ![10, 50].includes(reports.length)) {
+  throw new Error('Expected one passed debtor-agent run with exactly ten or fifty reports.')
 }
 
 const packages = []

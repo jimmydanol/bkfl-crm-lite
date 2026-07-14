@@ -11,12 +11,13 @@ const publicPageSource = await readFile(path.resolve(import.meta.dirname, '../in
 
 assert.equal(feed.schemaVersion, 1)
 assert.equal(feed.demo, true)
-assert.equal(feed.packages.length, 10)
+const expectedPackageCount = feed.packages.length
+assert([10, 50].includes(expectedPackageCount), 'fixture feed must contain the ten-case regression set or fifty-case demo cohort')
 assert.ok(!publicPageSource.includes('mailto:'))
 assert.ok(!publicPageSource.includes('@mccunelegal.com'))
 assert.ok(!publicPageSource.includes('@uscourts.gov'))
-assert.ok(publicPageSource.includes('intake-bridge.js?v=20260713-intake-completion-v3'))
-assert.ok(publicPageSource.includes('intake-submissions.js?v=20260713-intake-completion-v3'))
+assert.ok(publicPageSource.includes('intake-bridge.js?v=20260714-intake-completion-50v1'))
+assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-intake-completion-50v1'))
 
 const requiredTraitCoverage = [
   'chapter_7',
@@ -102,19 +103,20 @@ for (const intakePackage of feed.packages) {
   clientNames.add(lead.clientFullName)
 }
 
-assert.equal(packageIds.size, 10)
-assert.equal(leadIds.size, 10)
-assert.equal(clientNames.size, 10)
+assert.equal(packageIds.size, expectedPackageCount)
+assert.equal(leadIds.size, expectedPackageCount)
+assert.equal(clientNames.size, expectedPackageCount)
 
 const scenario = (id) => feed.packages.find((item) => item.source.scenarioId === id)
 const kevin = scenario('kevin-priya-shah-ch13')
 assert.ok(kevin.completion.missingItems.some((item) => item.canonicalPath === 'matter.chapter13.foreclosureSaleDate'))
 
 const nolan = scenario('nolan-brooks-ch7-renter')
-assert.equal(nolan.matter.isEmployed, 'No')
+assert.equal(nolan.matter.isEmployed, 'Yes')
 assert.equal(nolan.matter.financialAffairs['job-or-business-income'].answer, 'No')
 assert.equal(nolan.matter.financialAffairs['other-income'].answer, 'Yes')
 assert.ok(nolan.matter.income.every((item) => !/\bbusiness|\bwages?\b|\bemployment\b/i.test(item.source)))
+assert.ok(nolan.readiness.inconsistencies.some((item) => item.sectionId === 'income'))
 
 const maya = scenario('maya-patel-ch7-parent')
 assert.ok(maya.matter.income.some((item) => item.source === 'Maya wages'))
@@ -150,8 +152,8 @@ assert.ok(!erin.completion.items.some((item) => item.canonicalPath === 'matter.c
 
 const firstImport = bridge.mergePackagesIntoLeads([], feed.packages)
 const repeatedImport = bridge.mergePackagesIntoLeads(firstImport, feed.packages)
-assert.equal(firstImport.length, 10)
-assert.equal(repeatedImport.length, 10)
+assert.equal(firstImport.length, expectedPackageCount)
+assert.equal(repeatedImport.length, expectedPackageCount)
 assert.deepEqual(repeatedImport.map((lead) => lead.id).sort(), firstImport.map((lead) => lead.id).sort())
 assert.deepEqual(
   repeatedImport.map((lead) => lead.docChecklist.map((document) => document.docId)),

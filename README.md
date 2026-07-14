@@ -38,7 +38,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for dated CRM behavior and deployment changes
 - Fake debtor Intake: `https://jimmydanol.github.io/bkfl-crm-lite/intake-demo.html`
 - Scope: fake data only. The browser-local handoff is for Matt/Jimmy workflow review, not real client data.
 
-The demo feed is generated from ten deterministic canonical Intake `Matter` records with diverse Chapter 7/13 facts and bounded missing-item sets. To rebuild it after running the Intake debtor-entry agent:
+The deployed demo feed is generated from 50 deterministic canonical Intake `Matter` records with diverse Chapter 7/13 facts, genuine blanks, partial sections, untouched document requests, reviewer-only inconsistencies, and 80-95% target completion. The ten-client mode remains the bounded regression cohort. To rebuild the deployed cohort after running the Intake debtor-entry agent with `BKFL_FAKE_DEBTOR_COUNT=50`:
 
 ```powershell
 node scripts/build-intake-demo-feed.mjs <path-to-debtor-agent-index.json>
