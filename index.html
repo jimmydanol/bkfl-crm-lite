@@ -609,6 +609,13 @@ function buildIntakeSummaryHtml(lead,pkg){
   b+="<tr><th>Total assets</th><td>"+money(totAssets)+"</td></tr>";
   b+="<tr><th>Total debt</th><td>"+money(totDebt)+" (secured "+money(secured)+" &middot; unsecured "+money(unsecured)+" &middot; priority "+money(priority)+")</td></tr>";
   b+="</table>";
+  const mtx=computeMeansDemo(lead,pkg);
+  b+="<h2>Preliminary Means Test</h2>";
+  if(mtx.months===0){
+    b+="<p>We can\u2019t run your preliminary means test yet \u2014 it needs your pay stubs. Once we receive them, this section will be updated.</p>";
+  }else{
+    b+="<p>Based on "+mtx.months+" of 6 months of pay stubs, your household income of "+fmt(mtx.annual)+" per year appears to be <strong>"+(mtx.below?"below":"above")+"</strong> the median for a household of "+mtx.hh+" in your state ("+fmt(mtx.median)+"). "+(mtx.months<6?"This is an early read \u2014 the remaining pay stubs may change it. ":"")+"Your attorney will confirm this as part of their review.</p>";
+  }
   b+="<h2>Counseling Class</h2><p>"+(pkg.counseling||"—")+"</p>";
   b+="<h2>What Happens Next</h2><p>Our team is now reviewing everything you submitted, including each of your documents. If we need anything else from you, you\u2019ll receive a separate email with a secure link to your client portal. If anything above looks wrong, or your situation changes, reply to this email or call our office — corrections now save time later.</p>";
   return "<html><head><title>AI Intake Summary — "+lead.firstName+" "+lead.lastName+"</title><style>"+
@@ -621,6 +628,93 @@ function buildIntakeSummaryHtml(lead,pkg){
     ".disclaimer{background:#faf7ef;border:1px solid #d9cfa8;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#6b6349;line-height:1.55;margin:0 0 18px;}"+
     "@media print{body{padding:0;}}"+
     "</style></head><body><h1>AI Intake Summary</h1><div class='meta'>Prepared for "+lead.firstName+" "+lead.lastName+" &middot; Intake submitted "+(pkg.submitted||"")+" &middot; Reviewed and approved by McCune Legal</div>"+"<div class='disclaimer'><strong>A note about this summary:</strong> it was prepared with the assistance of artificial intelligence, based on the information and documents you provided. It is a preliminary overview only \u2014 not legal advice \u2014 and it does not reflect a final review of your case. Your attorney will personally review your complete file, and the figures, documents, and next steps described here may change after that review.</div>"+b+"</body></html>";
+}
+
+/* Lead AI tab — the Summary the debtor receives (same render as the PDF) + firm-only analysis */
+function LeadAITab({lead}){
+  const pkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email];
+  if(!pkg)return(
+    <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",padding:"44px 24px",textAlign:"center",color:"#999",fontSize:13,lineHeight:1.7}}>
+      The AI analyzes everything the debtor submits and produces the AI Intake Summary the moment the intake arrives.<br/>This Lead hasn{"\u2019"}t submitted yet {"\u2014"} nothing to analyze.
+    </div>);
+  const mt=computeMeansDemo(lead,pkg);
+  const cl=lead.docChecklist||[];
+  const totDebt=(pkg.debts||[]).reduce((a,x)=>a+(x.balance||0),0);
+  const factors=[];
+  if(totDebt>100000)factors.push("High total debt");
+  if((pkg.debts||[]).some(d=>d.type==="secured"))factors.push("Secured debt");
+  if(cl.some(d=>d.docId==="business_debt_statements"))factors.push("Business debt");
+  if(cl.some(d=>d.docId==="mortgage_statements"))factors.push("Real property");
+  if(cl.some(d=>d.docId==="court_paperwork"))factors.push("Litigation activity");
+  if(mt.months>0&&!mt.below)factors.push("Income above median");
+  const cscore=factors.length;
+  const clevel=cscore>=4?"High":cscore>=2?"Moderate":"Low";
+  const ccolor=cscore>=4?"#c0392b":cscore>=2?"#b8963e":"#3d5c43";
+  const confColor=mt.confidence>=80?"#3d5c43":mt.confidence>=50?"#b8963e":"#c0392b";
+  const confLevel=mt.confidence>=80?"High":mt.confidence>=50?"Medium":mt.confidence>0?"Low":"None";
+  const rowS={display:"flex",justifyContent:"space-between",gap:10,fontSize:12.5,color:"#555",padding:"3px 0"};
+  const labS={color:"#999",fontWeight:600};
+  return(
+  <div>
+    <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden",marginBottom:16}}>
+      <div style={{padding:"12px 20px",borderBottom:"1px solid #eee",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+        <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>AI Intake Summary</span>
+        <span style={{fontSize:11.5,color:"#999",fontStyle:"italic"}}>the exact document the debtor receives {"\u2014"} after your approval</span>
+        <button onClick={()=>openSummaryPdf(lead)} style={{marginLeft:"auto",padding:"6px 14px",fontSize:12,fontWeight:600,borderRadius:5,cursor:"pointer",border:"none",background:"#3d5c43",color:"#fff"}}>View / Save PDF</button>
+      </div>
+      <iframe title="AI Intake Summary" srcDoc={buildIntakeSummaryHtml(lead,pkg)} style={{width:"100%",height:560,border:"none",display:"block",background:"#fff"}}/>
+    </div>
+
+    <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden"}}>
+      <div style={{padding:"12px 20px",borderBottom:"1px solid #eee",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+        <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>Firm-Only Analysis</span>
+        <span style={{background:"#fde8e8",color:"#c0392b",border:"1px solid #f5b7b1",borderRadius:4,padding:"1px 8px",fontSize:10,fontWeight:700,letterSpacing:"0.5px"}}>NEVER SENT TO THE DEBTOR</span>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(250px,1fr))"}}>
+
+        <div style={{padding:"16px 20px",borderRight:"1px solid #f0f0ed",borderBottom:"1px solid #f0f0ed"}}>
+          <div style={{fontSize:11.5,fontWeight:700,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:10}}>Means Test {"\u2014"} the numbers</div>
+          {mt.months===0
+            ?<div style={{fontSize:12.5,color:"#c0392b",fontWeight:600,lineHeight:1.6}}>No pay stubs received {"\u2014"} no means test is possible yet. The chase covers it.</div>
+            :<div>
+              <div style={rowS}><span style={labS}>Current monthly income</span><span style={{fontWeight:700,color:"#434343"}}>{fmt(mt.income)}</span></div>
+              <div style={rowS}><span style={labS}>Annualized</span><span style={{fontWeight:700,color:"#434343"}}>{fmt(mt.annual)}</span></div>
+              <div style={rowS}><span style={labS}>Household size</span><span style={{fontWeight:700,color:"#434343"}}>{mt.hh}</span></div>
+              <div style={rowS}><span style={labS}>State median</span><span style={{fontWeight:700,color:"#434343"}}>{fmt(mt.median)}</span></div>
+              <div style={{marginTop:8,padding:"7px 12px",borderRadius:6,background:mt.below?"#eef6ef":"#fdf0ef",color:mt.below?"#3d5c43":"#a94438",fontSize:12.5,fontWeight:700}}>
+                {mt.below?"Below":"Above"} median by {fmt(Math.abs(mt.annual-mt.median))}
+              </div>
+              <div style={{fontSize:10.5,color:"#aaa",marginTop:8,lineHeight:1.5}}>Arithmetic is deterministic code against the versioned median table {"\u2014"} agents extract, the system calculates.</div>
+            </div>}
+        </div>
+
+        <div style={{padding:"16px 20px",borderRight:"1px solid #f0f0ed",borderBottom:"1px solid #f0f0ed"}}>
+          <div style={{fontSize:11.5,fontWeight:700,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:10}}>Confidence Score</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+            <span style={{fontSize:30,fontWeight:800,color:confColor}}>{mt.confidence}</span>
+            <span style={{fontSize:13,fontWeight:700,color:confColor}}>{confLevel}</span>
+          </div>
+          <div style={{height:6,background:"#f0f0ed",borderRadius:3,margin:"8px 0 10px"}}><div style={{height:6,width:mt.confidence+"%",background:confColor,borderRadius:3}}/></div>
+          <div style={{fontSize:12,color:"#555",lineHeight:1.6}}>
+            Basis: {mt.months} of 6 pay-stub months {"\u00b7"} tax return {mt.taxMatch?"matches":"not verified"}.
+          </div>
+          <div style={{fontSize:12,color:"#888",marginTop:6,lineHeight:1.6}}>
+            {mt.confidence>=80?"Strong documentation supports this analysis.":mt.confidence>=50?"Moderate documentation \u2014 the remaining pay stubs or tax verification would strengthen it.":mt.confidence>0?"Limited documentation \u2014 treat the analysis as directional until more records arrive.":"Nothing to score until pay stubs arrive."}
+          </div>
+        </div>
+
+        <div style={{padding:"16px 20px",borderBottom:"1px solid #f0f0ed"}}>
+          <div style={{fontSize:11.5,fontWeight:700,color:"#999",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:10}}>Complexity Score</div>
+          <div style={{fontSize:22,fontWeight:800,color:ccolor,marginBottom:8}}>{clevel}</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+            {factors.length?factors.map(f=><span key={f} style={{fontSize:10.5,fontWeight:700,color:"#856404",background:"#fdf6e7",border:"1px solid #e5cf8f",borderRadius:4,padding:"2px 8px"}}>{f}</span>):<span style={{fontSize:12,color:"#999"}}>No complexity factors detected.</span>}
+          </div>
+          <div style={{fontSize:10.5,color:"#aaa",lineHeight:1.5}}>Demo heuristic {"\u2014"} production scoring rules are agent prompts Matt authors, gated by the golden test sets.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>);
 }
 
 /* Printable intake package — all intake answers in one document (save as PDF from the print dialog) */
@@ -1939,7 +2033,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           </div>);
         })()}
 
-        {tab==="ai"&&(<AITab item={lead} isLead={true} update={update}/>)}
+        {tab==="ai"&&(<LeadAITab lead={lead}/>)}
       </div>
 
 
@@ -2850,6 +2944,22 @@ function buildApprovalPatch(l,t){
   patch.tasks=tasks;
   return patch;
 }
+const MEDIAN_THRESHOLDS={1:63957,2:83476,3:97234,4:114663,5:124663,6:134663}; /* reference data — versioned table in production */
+function computeMeansDemo(lead,pkg){
+  const cl=lead.docChecklist||[];
+  const stub=cl.find(d=>d.docId==="pay_stubs");
+  const months=stub?((stub.status==="approved"||stub.status==="ai_accepted")?6:stub.status==="ai_flagged"?3:0):0;
+  const income=(pkg.income||[]).reduce((a,x)=>a+(x.monthly||0),0);
+  const hh=((pkg.household&&pkg.household.debtors&&pkg.household.debtors.length)||1)+((pkg.household&&pkg.household.dependents)||0);
+  const median=MEDIAN_THRESHOLDS[Math.min(6,Math.max(1,hh))];
+  const annual=income*12;
+  const below=annual<=median;
+  const tax=cl.find(d=>d.docId==="tax_return_y1");
+  const taxMatch=!!(tax&&(tax.status==="approved"||tax.status==="ai_accepted"));
+  const confidence=months===0?0:Math.min(100,20+months*10+(taxMatch?20:0));
+  return {months:months,income:income,annual:annual,hh:hh,median:median,below:below,taxMatch:taxMatch,confidence:confidence};
+}
+
 function openSummaryPdf(l){
   const pkg=l.intakePackage||DEMO_INTAKE_PACKAGES[l.email];
   if(!pkg)return;
