@@ -22,15 +22,22 @@ assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-attorney-c
 const requiredAttorneyReadyUiMarkers = [
   'data-testid="attorney-command-center"',
   'data-testid="needs-attention-queue"',
-  'data-testid="change-guide"',
   'data-testid="summary-approval-state"',
   'data-testid="attorney-review-page"',
   'document-bucket-',
   'feature-explainer-',
 ]
 requiredAttorneyReadyUiMarkers.forEach((marker) => assert.ok(publicPageSource.includes(marker), `Missing attorney-ready UI marker: ${marker}`))
-assert.ok(publicPageSource.includes('What needs attention today?'))
-assert.ok(publicPageSource.includes('Ready for Petition Prep only after Intake Completion, Document Review, and Attorney Review'))
+assert.ok(publicPageSource.includes('SIGNED INTAKE → PETITION READY'))
+assert.ok(publicPageSource.includes('Every matter appears once, in priority order, with one next action'))
+assert.ok(publicPageSource.includes('label:"WORK QUEUE"'))
+assert.ok(publicPageSource.includes('label:"MATTERS"'))
+assert.ok(publicPageSource.includes('label:"SETTINGS"'))
+assert.ok(!publicPageSource.includes('label:"CONTACTS"'))
+assert.ok(!publicPageSource.includes('label:"INTAKE INBOX"'))
+assert.ok(publicPageSource.includes('label:"Overview"},...(lead.intakePackage?[{key:"intake",label:"Intake"}]:[]),{key:"documents",label:"Documents"},{key:"activity",label:"Activity"}'))
+assert.ok(!publicPageSource.includes('{key:"ai",label:"AI"}'))
+assert.ok(!publicPageSource.includes('data-testid="change-guide"'))
 assert.ok(publicPageSource.includes('Needs current DOJ threshold'))
 assert.ok(publicPageSource.includes('current DOJ threshold not configured, so no median conclusion is shown'))
 assert.ok(!publicPageSource.includes('mt.state||"California"'))

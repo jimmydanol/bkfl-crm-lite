@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-07-14 - Lean signed-intake workflow
+
+- Reduced primary navigation from eight destinations to Work Queue, Matters, and Settings.
+- Rebuilt the home page around one row and one next action per signed-intake matter; urgent attorney decisions are shown first.
+- Removed the change-guide panel, duplicate readiness cards, standalone Contacts navigation, and standalone AI tab.
+- Reduced the matter workspace from seven tabs to Overview, Intake, Documents, and Activity.
+- Renamed visible Lead language to Matter after Intake submission and removed development-only submission controls from the matter screen.
+- De-emphasized completion percentages in priority views so urgent facts remain dominant.
+- Preserved the underlying Client Answers, Document Review, and Attorney Review states and the fake-data/no-send boundary.
+
 ## 2026-07-14 - Attorney-ready command center
 
 - Replaced the raw task-heavy home page with a one-row-per-matter Needs Attention queue ranked by urgency, due date, and open-item count.
