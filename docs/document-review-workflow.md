@@ -136,11 +136,13 @@ Opening a row shows:
 
 - a short list of missing essential information;
 - a short list of missing documents;
-- exact recipient and subject;
-- complete email body containing every displayed missing item;
+- an explicitly editable scheduled-email preview containing the exact recipient, subject, and complete email body;
+- the organization sender address and mailbox-connection state;
 - Intake return link;
 - scheduled date/time;
 - **Approve & schedule reminder**.
+
+If the visible recipient, subject, or body differs from the saved draft, the reviewer must give an override reason. Approval atomically persists those visible edits and approves that exact snapshot; it must never silently approve an older saved version. Editing an already-approved message invalidates the old schedule before the replacement snapshot is approved.
 
 After approval, the UI shows the schedule, approver, immutable body snapshot, and a cancel action. The CRM also creates one scheduled communication, one scheduled-reminder task, one timeline entry, and one completion event.
 
@@ -178,7 +180,9 @@ The deterministic parity run must prove:
 11. the Jimmy branch makes no external send request.
 12. partial and final fake responses cancel the simulated schedule without changing the independent Document Review or Attorney Review decision state;
 13. desktop and mobile browser tests prove exact-item focus, file feedback, partial resubmission, reload/two-tab persistence, and page-level overflow safety;
-14. a second generation produces the same package, completion-item, and document IDs.
+14. a second generation produces the same package, completion-item, and document IDs;
+15. sender identity and provider preference persist while connection state remains explicitly not connected;
+16. direct approval of edited recipient/subject/body stores and approves the exact visible snapshot, and rescheduling leaves one active schedule.
 
 Run the full contract with:
 
@@ -194,3 +198,41 @@ node scripts/run-10-client-completion-review-parity.mjs
 - Store immutable audit events and exact outbound message snapshots.
 - Add stale-revision handling when a debtor edits Intake after approval.
 - Add delivery, bounce, retry, cancellation, and opt-out rules.
+
+## Organization-mailbox delivery design
+
+The browser-only Jimmy prototype may store the non-secret sender address and provider choice. It must not store OAuth access tokens, refresh tokens, client secrets, or mailbox credentials in local storage, source files, or GitHub Pages.
+
+Recommended provider choice:
+
+- If the firm mailbox is Google Workspace, use a server-side OAuth 2.0 connection and the Gmail API `users.messages.send` method. This sends through the authorized mailbox.
+- If the firm mailbox is Microsoft 365, use Microsoft identity OAuth and Microsoft Graph `sendMail`. The default Graph behavior saves the message in Sent Items.
+- A transactional provider is useful for a verified sending domain, but it is not the first choice when the requirement is specifically to send through and retain mail in the organization's real mailbox.
+
+The production boundary should be:
+
+```text
+Reviewer edits preview
+  -> CRM validates recipient, subject, body, schedule, reason, role, and current matter revision
+  -> CRM persists immutable approved snapshot and idempotency key
+  -> authenticated backend creates durable scheduled job
+  -> delivery worker re-checks cancellation and current revision at send time
+  -> Gmail API or Microsoft Graph sends through the authorized organization mailbox
+  -> provider result updates queued/sent/failed status and immutable audit history
+```
+
+The scheduling endpoint should accept the approved snapshot, content hash, expected matter revision, schedule, timezone, sender-mailbox identifier, and workflow idempotency key. It should never accept or return an OAuth token. A cancellation endpoint must atomically mark the schedule canceled and prevent a worker that has not yet claimed the job from sending it.
+
+Production connection sequence:
+
+1. The organization chooses Google Workspace or Microsoft 365 and enters its sender address.
+2. An authorized organization administrator completes the provider consent flow against a secure backend callback.
+3. The backend stores the refresh credential encrypted and associates it with the organization and sender mailbox.
+4. A test-message flow sends only to a designated internal test recipient and verifies Sent-folder behavior, From identity, SPF/DKIM/DMARC alignment, audit logging, cancellation, and retry handling.
+5. Real client delivery remains disabled until operations approves the mailbox, authentication, data handling, and release gate.
+
+Primary implementation references:
+
+- [Gmail API: create and send email](https://developers.google.com/workspace/gmail/api/guides/sending)
+- [Google OAuth 2.0 for web-server applications](https://developers.google.com/identity/protocols/oauth2/web-server)
+- [Microsoft Graph: user sendMail](https://learn.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0)

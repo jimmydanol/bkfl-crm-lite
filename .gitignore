@@ -19,5 +19,6 @@ client-data/
 *.dump
 tmp/
 .cache/
+graphify-out/
 .DS_Store
 Thumbs.db

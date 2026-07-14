@@ -19,7 +19,9 @@
   const DEFAULT_ORGANIZATION = Object.freeze({
     city: 'Boulder',
     country: 'United States',
+    email: '',
     logo: null,
+    mailboxProvider: 'unselected',
     name: 'McCune Legal',
     phone: '(303) 759-0728',
     state: 'CO',
@@ -112,7 +114,11 @@
     return {
       city: clean(source.city) || DEFAULT_ORGANIZATION.city,
       country: clean(source.country) || DEFAULT_ORGANIZATION.country,
+      email: clean(source.email),
       logo: typeof source.logo === 'string' && source.logo ? source.logo : null,
+      mailboxProvider: ['google_workspace', 'microsoft_365'].includes(clean(source.mailboxProvider))
+        ? clean(source.mailboxProvider)
+        : DEFAULT_ORGANIZATION.mailboxProvider,
       name: clean(source.name) || DEFAULT_ORGANIZATION.name,
       phone: clean(source.phone) || DEFAULT_ORGANIZATION.phone,
       state: clean(source.state) || DEFAULT_ORGANIZATION.state,

@@ -16,8 +16,8 @@ assert([10, 50].includes(expectedPackageCount), 'fixture feed must contain the t
 assert.ok(!publicPageSource.includes('mailto:'))
 assert.ok(!publicPageSource.includes('@mccunelegal.com'))
 assert.ok(!publicPageSource.includes('@uscourts.gov'))
-assert.ok(publicPageSource.includes('intake-bridge.js?v=20260714-intake-completion-50v1'))
-assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-intake-completion-50v1'))
+assert.ok(publicPageSource.includes('intake-bridge.js?v=20260714-attorney-ready-v1'))
+assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-attorney-ready-v1'))
 
 const requiredTraitCoverage = [
   'chapter_7',
@@ -396,10 +396,14 @@ const organizationStorage = {
 assert.equal(bridge.readOrganization(organizationStorage).name, 'McCune Legal')
 const savedOrganization = bridge.writeOrganization(organizationStorage, {
   ...bridge.DEFAULT_ORGANIZATION,
+  email: '  intake@stein.example  ',
   logo: 'data:image/png;base64,ZmFrZS1sb2dv',
+  mailboxProvider: 'google_workspace',
   name: '  Stein Legal  ',
 })
 assert.equal(savedOrganization.name, 'Stein Legal')
+assert.equal(savedOrganization.email, 'intake@stein.example')
+assert.equal(savedOrganization.mailboxProvider, 'google_workspace')
 assert.equal(bridge.readOrganization(organizationStorage).logo, 'data:image/png;base64,ZmFrZS1sb2dv')
 
 console.log(JSON.stringify({

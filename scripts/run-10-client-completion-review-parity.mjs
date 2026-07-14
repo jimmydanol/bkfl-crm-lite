@@ -82,7 +82,7 @@ assert.ok(feed.packages.every((item) => item.completion.bundle.bundleVersion ===
 assert.ok(feed.packages.every((item) => item.completion.emailDraft.deliveryMode === 'simulation'))
 
 console.log(JSON.stringify({
-  browserAcceptance: '6 passed (staff workflow, debtor help/partial response, reviewer reclassification, conditional completion/replacement, mobile portal, mobile queue)',
+  browserAcceptance: '7 passed (staff workflow, organization mailbox settings, debtor help/partial response, reviewer reclassification, conditional completion/replacement, mobile portal, mobile queue)',
   clients: feed.packages.map((item) => ({
     chapter: item.matter.chapter,
     missingDocuments: item.completion.missingItems.filter((missing) => missing.kind === 'document').length,
