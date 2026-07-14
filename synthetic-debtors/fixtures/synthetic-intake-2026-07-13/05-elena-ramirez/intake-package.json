@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-005",
+  "synthetic": true,
+  "submitted": "7/05/2026, 12:28 AM",
+  "court": "Central District of California",
+  "goals": "Keep a needed vehicle and catch up on the loan while resolving unsecured debt.",
+  "concerns": "The lender sent a repossession warning after two missed payments.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Elena Ramirez",
+        "dob": "05/13/1976",
+        "ssn": "***-**-4104",
+        "email": "elena-ramirez@example.test",
+        "phone": "(818) 555-0104",
+        "address": "1168 Sunrise Terrace, Santa Ana, CA 92704"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Orange County Senior Living",
+      "frequency": "Bi-weekly",
+      "monthly": 3452,
+      "sixMonth": 20712
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1277,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 388,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2780,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2019 Nissan Rogue",
+      "category": "Vehicle",
+      "value": 8440,
+      "lien": 4895,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 4895,
+      "arrears": 1064,
+      "collateral": "2019 Nissan Rogue"
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 21400,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 4972,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/14/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Vehicle repossession risk",
+        "date": "06/06/2026",
+        "amount": 1440,
+        "desc": "Elena Ramirez described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Vehicle repossession risk",
+      "section": "Property",
+      "detail": "The lender sent a repossession warning after two missed payments. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 59,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age",
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

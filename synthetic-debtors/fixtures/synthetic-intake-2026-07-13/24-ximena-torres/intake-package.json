@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-024",
+  "synthetic": true,
+  "submitted": "7/12/2026, 13:41 PM",
+  "court": "District of Colorado",
+  "goals": "Address personal guarantees from a closed small business and obtain a fresh start.",
+  "concerns": "The debtor is unsure which vendor accounts were personally guaranteed.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Ximena Torres",
+        "dob": "12/16/1995",
+        "ssn": "***-**-4123",
+        "email": "ximena-torres@example.test",
+        "phone": "(970) 555-0123",
+        "address": "1491 Willow Bend Road, Wheat Ridge, CO 80033"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Self-employment",
+      "employer": "Torres Services",
+      "frequency": "Monthly",
+      "monthly": 2463,
+      "sixMonth": 14778
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 482,
+      "sixMonth": 2892
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1524,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 219,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 187,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 1091,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3635,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2015 Subaru Outback",
+      "category": "Vehicle",
+      "value": 14330,
+      "lien": 8311,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 8311,
+      "arrears": 0,
+      "collateral": "2015 Subaru Outback"
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 35175,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 8639,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/15/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "business_connections": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Business-debt classification review",
+        "date": "06/25/2026",
+        "amount": 4005,
+        "desc": "Ximena Torres described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Business-debt classification review",
+      "section": "Debts",
+      "detail": "The debtor is unsure which vendor accounts were personally guaranteed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 64,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation",
+      "Monthly medical expense"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

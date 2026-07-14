@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-009",
+  "synthetic": true,
+  "submitted": "7/09/2026, 16:56 AM",
+  "court": "Central District of California",
+  "goals": "Stop a collection lawsuit and address unsecured debt before a judgment enters.",
+  "concerns": "An answer deadline appears on court papers uploaded with the intake.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Isaiah Coleman",
+        "dob": "09/25/1980",
+        "ssn": "***-**-4108",
+        "email": "isaiah-coleman@example.test",
+        "phone": "(714) 555-0108",
+        "address": "1236 Aspen Trail, Pasadena, CA 91104"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "San Gabriel Transit",
+      "frequency": "Bi-weekly",
+      "monthly": 3704,
+      "sixMonth": 22224
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1329,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 202,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 293,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 536,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2960,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2018 Honda Civic",
+      "category": "Vehicle",
+      "value": 9680,
+      "lien": 5614,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 5614,
+      "arrears": 0,
+      "collateral": "2018 Honda Civic"
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 24300,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 5744,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/18/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "creditor_payments_90": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Pending collection lawsuit",
+        "date": "06/10/2026",
+        "amount": 1980,
+        "desc": "Isaiah Coleman described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Pending collection lawsuit",
+      "section": "Financial Affairs",
+      "detail": "An answer deadline appears on court papers uploaded with the intake. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 64,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age",
+      "Creditor mailing address",
+      "Property purchase month"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

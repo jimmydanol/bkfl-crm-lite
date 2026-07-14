@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-019",
+  "synthetic": true,
+  "submitted": "7/07/2026, 8:06 AM",
+  "court": "Central District of California",
+  "goals": "Stop a collection lawsuit and address unsecured debt before a judgment enters.",
+  "concerns": "An answer deadline appears on court papers uploaded with the intake.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Samuel Kim",
+        "dob": "07/01/1990",
+        "ssn": "***-**-4118",
+        "email": "samuel-kim@example.test",
+        "phone": "(714) 555-0118",
+        "address": "1406 Aspen Trail, Glendale, CA 91205"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Verdugo Market",
+      "frequency": "Bi-weekly",
+      "monthly": 4334,
+      "sixMonth": 26004
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Glendale Community Services",
+      "frequency": "Monthly",
+      "monthly": 2622,
+      "sixMonth": 15732
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2112,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 167,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1406 Aspen Trail, Glendale, CA 91205",
+      "category": "Real estate",
+      "value": 369600,
+      "lien": 288288,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 906,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3410,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2017 Ford Escape",
+      "category": "Vehicle",
+      "value": 12780,
+      "lien": 0,
+      "intent": "Keep for work and household transportation"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 16370,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 288288,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 31550,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 7674,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "closed_accounts": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Pending collection lawsuit",
+        "date": "06/20/2026",
+        "amount": 3330,
+        "desc": "Samuel Kim described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Pending collection lawsuit",
+      "section": "Financial Affairs",
+      "detail": "An answer deadline appears on court papers uploaded with the intake. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 66,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number",
+      "Prior address move-out date",
+      "Vehicle mileage"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

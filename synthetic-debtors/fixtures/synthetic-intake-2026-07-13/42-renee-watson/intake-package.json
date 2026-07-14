@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-042",
+  "synthetic": true,
+  "submitted": "7/06/2026, 13:47 PM",
+  "court": "District of Colorado",
+  "goals": "Keep the family home and cure mortgage arrears through a repayment plan.",
+  "concerns": "A foreclosure notice was received and the sale date has not been confirmed.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Renee Watson",
+        "dob": "06/16/1988",
+        "ssn": "***-**-4141",
+        "email": "renee-watson@example.test",
+        "phone": "(970) 555-0141",
+        "address": "1797 Cedar Ridge Avenue, Greenwood Village, CO 80111"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Orchard Road Insurance",
+      "frequency": "Bi-weekly",
+      "monthly": 5783,
+      "sixMonth": 34698
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 644,
+      "sixMonth": 3864
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2664,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 287,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 259,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1797 Cedar Ridge Avenue, Greenwood Village, CO 80111",
+      "category": "Real estate",
+      "value": 477700,
+      "lien": 358275,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 1757,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4445,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2020 Toyota RAV4",
+      "category": "Vehicle",
+      "value": 19910,
+      "lien": 11548,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 11548,
+      "arrears": 0,
+      "collateral": "2020 Toyota RAV4"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 358275,
+      "arrears": 15010,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 48225,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 12113,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/15/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Foreclosure timeline needs confirmation",
+        "date": "06/18/2026",
+        "amount": 6435,
+        "desc": "Renee Watson described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Foreclosure timeline needs confirmation",
+      "section": "Property",
+      "detail": "A foreclosure notice was received and the sale date has not been confirmed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 76,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

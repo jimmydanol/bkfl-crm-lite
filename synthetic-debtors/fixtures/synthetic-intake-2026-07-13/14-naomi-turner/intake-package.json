@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-014",
+  "synthetic": true,
+  "submitted": "7/02/2026, 12:31 PM",
+  "court": "District of Colorado",
+  "goals": "Address personal guarantees from a closed small business and obtain a fresh start.",
+  "concerns": "The debtor is unsure which vendor accounts were personally guaranteed.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Naomi Turner",
+        "dob": "02/13/1985",
+        "ssn": "***-**-4113",
+        "email": "naomi-turner@example.test",
+        "phone": "(720) 555-0113",
+        "address": "1321 Willow Bend Road, Commerce City, CO 80022"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Self-employment",
+      "employer": "Turner Services",
+      "frequency": "Monthly",
+      "monthly": 2153,
+      "sixMonth": 12918
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 392,
+      "sixMonth": 2352
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1394,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 287,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 147,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 721,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3185,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2016 Chevrolet Malibu",
+      "category": "Vehicle",
+      "value": 11230,
+      "lien": 6513,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 6513,
+      "arrears": 0,
+      "collateral": "2016 Chevrolet Malibu"
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 27925,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 6709,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/23/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "business_connections": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Business-debt classification review",
+        "date": "06/15/2026",
+        "amount": 2655,
+        "desc": "Naomi Turner described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Business-debt classification review",
+      "section": "Debts",
+      "detail": "The debtor is unsure which vendor accounts were personally guaranteed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 65,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number",
+      "Other-income start date",
+      "Business closure date"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

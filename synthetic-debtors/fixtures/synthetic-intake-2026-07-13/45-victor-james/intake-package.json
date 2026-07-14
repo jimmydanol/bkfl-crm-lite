@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-045",
+  "synthetic": true,
+  "submitted": "7/09/2026, 16:08 AM",
+  "court": "Central District of California",
+  "goals": "Keep a needed vehicle and catch up on the loan while resolving unsecured debt.",
+  "concerns": "The lender sent a repossession warning after two missed payments.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Victor James",
+        "dob": "09/25/1991",
+        "ssn": "***-**-4144",
+        "email": "victor-james@example.test",
+        "phone": "(818) 555-0144",
+        "address": "1848 Sunrise Terrace, Bellflower, CA 90706"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Benefits / temporary income",
+      "employer": "Not currently employed",
+      "frequency": "Monthly",
+      "monthly": 3114,
+      "sixMonth": 18684
+    },
+    {
+      "source": "Seasonal or gig income",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 671,
+      "sixMonth": 4026
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1797,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 219,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 293,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 1868,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4580,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2019 Nissan Rogue",
+      "category": "Vehicle",
+      "value": 20840,
+      "lien": 12087,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 12087,
+      "arrears": 1904,
+      "collateral": "2019 Nissan Rogue"
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 50400,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 12692,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/18/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "No",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Vehicle repossession risk",
+        "date": "06/21/2026",
+        "amount": 6840,
+        "desc": "Victor James described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Vehicle repossession risk",
+      "section": "Property",
+      "detail": "The lender sent a repossession warning after two missed payments. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 58,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age",
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

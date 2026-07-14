@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-035",
+  "synthetic": true,
+  "submitted": "7/11/2026, 15:58 AM",
+  "court": "Central District of California",
+  "goals": "Keep a needed vehicle and catch up on the loan while resolving unsecured debt.",
+  "concerns": "The lender sent a repossession warning after two missed payments.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Jamal Bryant",
+        "dob": "11/22/1981",
+        "ssn": "***-**-4134",
+        "email": "jamal-bryant@example.test",
+        "phone": "(818) 555-0134",
+        "address": "1678 Sunrise Terrace, Gardena, CA 90247"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Southwest Building Supply",
+      "frequency": "Bi-weekly",
+      "monthly": 5342,
+      "sixMonth": 32052
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1667,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 287,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 231,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 1498,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4130,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2017 Ford Escape",
+      "category": "Vehicle",
+      "value": 17740,
+      "lien": 10289,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 10289,
+      "arrears": 1694,
+      "collateral": "2017 Ford Escape"
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 43150,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 10762,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/26/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Vehicle repossession risk",
+        "date": "06/11/2026",
+        "amount": 5490,
+        "desc": "Jamal Bryant described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Vehicle repossession risk",
+      "section": "Property",
+      "detail": "The lender sent a repossession warning after two missed payments. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 59,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number",
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

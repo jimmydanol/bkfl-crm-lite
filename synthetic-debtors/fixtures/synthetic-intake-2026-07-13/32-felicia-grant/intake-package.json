@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-032",
+  "synthetic": true,
+  "submitted": "7/08/2026, 12:37 PM",
+  "court": "District of Colorado",
+  "goals": "Keep the family home and cure mortgage arrears through a repayment plan.",
+  "concerns": "A foreclosure notice was received and the sale date has not been confirmed.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Felicia Grant",
+        "dob": "08/13/1978",
+        "ssn": "***-**-4131",
+        "email": "felicia-grant@example.test",
+        "phone": "(720) 555-0131",
+        "address": "1627 Cedar Ridge Avenue, Parker, CO 80134"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Pine Lane Pediatrics",
+      "frequency": "Bi-weekly",
+      "monthly": 5153,
+      "sixMonth": 30918
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2424,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 236,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 219,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1627 Cedar Ridge Avenue, Parker, CO 80134",
+      "category": "Real estate",
+      "value": 430700,
+      "lien": 348867,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 1387,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3995,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2015 Subaru Outback",
+      "category": "Vehicle",
+      "value": 16810,
+      "lien": 9750,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 9750,
+      "arrears": 0,
+      "collateral": "2015 Subaru Outback"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 348867,
+      "arrears": 12910,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 40975,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 10183,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/23/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Foreclosure timeline needs confirmation",
+        "date": "06/08/2026",
+        "amount": 5085,
+        "desc": "Felicia Grant described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Foreclosure timeline needs confirmation",
+      "section": "Property",
+      "detail": "A foreclosure notice was received and the sale date has not been confirmed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 77,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

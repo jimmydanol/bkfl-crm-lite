@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-012",
+  "synthetic": true,
+  "submitted": "7/12/2026, 10:17 PM",
+  "court": "District of Colorado",
+  "goals": "Keep the family home and cure mortgage arrears through a repayment plan.",
+  "concerns": "A foreclosure notice was received and the sale date has not been confirmed.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Leah Fischer",
+        "dob": "12/07/1983",
+        "ssn": "***-**-4111",
+        "email": "leah-fischer@example.test",
+        "phone": "(970) 555-0111",
+        "address": "1287 Cedar Ridge Avenue, Westminster, CO 80031"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Benefits / temporary income",
+      "employer": "Not currently employed",
+      "frequency": "Monthly",
+      "monthly": 2091,
+      "sixMonth": 12546
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 374,
+      "sixMonth": 2244
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 1944,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 139,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1287 Cedar Ridge Avenue, Westminster, CO 80031",
+      "category": "Real estate",
+      "value": 336700,
+      "lien": 272727,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 647,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3095,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2021 Hyundai Elantra",
+      "category": "Vehicle",
+      "value": 10610,
+      "lien": 6154,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 6154,
+      "arrears": 0,
+      "collateral": "2021 Hyundai Elantra"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 272727,
+      "arrears": 8710,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 26475,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 6323,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/21/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "No",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Foreclosure timeline needs confirmation",
+        "date": "06/13/2026",
+        "amount": 2385,
+        "desc": "Leah Fischer described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Foreclosure timeline needs confirmation",
+      "section": "Property",
+      "detail": "A foreclosure notice was received and the sale date has not been confirmed. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 76,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

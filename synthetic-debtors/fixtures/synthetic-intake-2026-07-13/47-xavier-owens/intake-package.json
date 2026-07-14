@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-047",
+  "synthetic": true,
+  "submitted": "7/11/2026, 9:22 AM",
+  "court": "Central District of California",
+  "goals": "Resolve consumer debt after a divorce without disrupting current support payments.",
+  "concerns": "The debtor is unclear about the amount of support arrears shown in the order.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Xavier Owens",
+        "dob": "11/04/1993",
+        "ssn": "***-**-4146",
+        "email": "xavier-owens@example.test",
+        "phone": "(562) 555-0146",
+        "address": "1882 Pine Hollow Lane, Redlands, CA 92374"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Citrus Valley Ambulance",
+      "frequency": "Bi-weekly",
+      "monthly": 6098,
+      "sixMonth": 36588
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1823,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 253,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 279,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 1942,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4670,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2022 Kia Seltos",
+      "category": "Vehicle",
+      "value": 21460,
+      "lien": 12447,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 12447,
+      "arrears": 0,
+      "collateral": "2022 Kia Seltos"
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 51850,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 13078,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Domestic support obligation",
+      "type": "priority",
+      "balance": 6540,
+      "arrears": 6540,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/20/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Domestic-support documents incomplete",
+        "date": "06/23/2026",
+        "amount": 7110,
+        "desc": "Xavier Owens described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "MEDIUM",
+      "flag": "Domestic-support documents incomplete",
+      "section": "Debts",
+      "detail": "The debtor is unclear about the amount of support arrears shown in the order. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 77,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

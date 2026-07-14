@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-017",
+  "synthetic": true,
+  "submitted": "7/05/2026, 15:52 AM",
+  "court": "Central District of California",
+  "goals": "Resolve consumer debt after a divorce without disrupting current support payments.",
+  "concerns": "The debtor is unclear about the amount of support arrears shown in the order.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Quentin Wallace",
+        "dob": "05/22/1988",
+        "ssn": "***-**-4116",
+        "email": "quentin-wallace@example.test",
+        "phone": "(562) 555-0116",
+        "address": "1372 Pine Hollow Lane, Torrance, CA 90501"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Coastal Packaging Works",
+      "frequency": "Bi-weekly",
+      "monthly": 4208,
+      "sixMonth": 25248
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1433,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 219,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 134,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 232,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Pioneer Federal Credit Union",
+      "category": "Bank or financial account",
+      "value": 832,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3320,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2018 Honda Civic",
+      "category": "Vehicle",
+      "value": 12160,
+      "lien": 7053,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 7053,
+      "arrears": 0,
+      "collateral": "2018 Honda Civic"
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 30100,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 7288,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Domestic support obligation",
+      "type": "priority",
+      "balance": 3840,
+      "arrears": 3840,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/26/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "creditor_payments_90": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Domestic-support documents incomplete",
+        "date": "06/18/2026",
+        "amount": 3060,
+        "desc": "Quentin Wallace described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "MEDIUM",
+      "flag": "Domestic-support documents incomplete",
+      "section": "Debts",
+      "detail": "The debtor is unclear about the amount of support arrears shown in the order. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 77,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

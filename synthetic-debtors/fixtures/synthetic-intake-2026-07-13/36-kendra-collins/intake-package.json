@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-036",
+  "synthetic": true,
+  "submitted": "7/12/2026, 16:05 PM",
+  "court": "District of Colorado",
+  "goals": "Create a manageable plan for tax balances and other debt.",
+  "concerns": "State and federal notices list different payoff amounts.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Kendra Collins",
+        "dob": "12/25/1982",
+        "ssn": "***-**-4135",
+        "email": "kendra-collins@example.test",
+        "phone": "(970) 555-0135",
+        "address": "1695 Meadow Run Drive, Brighton, CO 80601"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Platte Valley Animal Hospital",
+      "frequency": "Bi-weekly",
+      "monthly": 5405,
+      "sixMonth": 32430
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2520,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 235,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1695 Meadow Run Drive, Brighton, CO 80601",
+      "category": "Real estate",
+      "value": 449500,
+      "lien": 364095,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 1535,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4175,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2021 Hyundai Elantra",
+      "category": "Vehicle",
+      "value": 18050,
+      "lien": 10469,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 10469,
+      "arrears": 0,
+      "collateral": "2021 Hyundai Elantra"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 364095,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 43875,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 10955,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "IRS and state revenue agency",
+      "type": "priority",
+      "balance": 12700,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/27/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Tax debt requires year-by-year review",
+        "date": "06/12/2026",
+        "amount": 5625,
+        "desc": "Kendra Collins described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Tax debt requires year-by-year review",
+      "section": "Debts",
+      "detail": "State and federal notices list different payoff amounts. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 82,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

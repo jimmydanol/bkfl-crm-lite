@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-041",
+  "synthetic": true,
+  "submitted": "7/05/2026, 12:40 AM",
+  "court": "Central District of California",
+  "goals": "Stop a wage garnishment and discharge credit-card and medical debt.",
+  "concerns": "A payroll garnishment is scheduled to increase on the next pay period.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Pedro Rivera",
+        "dob": "05/13/1987",
+        "ssn": "***-**-4140",
+        "email": "pedro-rivera@example.test",
+        "phone": "(310) 555-0140",
+        "address": "1780 Fresh Start Way, Downey, CA 90241"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Stonewood Restaurant Group",
+      "frequency": "Bi-weekly",
+      "monthly": 5720,
+      "sixMonth": 34320
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1745,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 270,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 1720,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4400,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2018 Honda Civic",
+      "category": "Vehicle",
+      "value": 19600,
+      "lien": 11368,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 11368,
+      "arrears": 0,
+      "collateral": "2018 Honda Civic"
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 47500,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 11920,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/14/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      },
+      "creditor_payments_90": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Active wage garnishment",
+        "date": "06/17/2026",
+        "amount": 6300,
+        "desc": "Pedro Rivera described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Active wage garnishment",
+      "section": "Financial Affairs",
+      "detail": "A payroll garnishment is scheduled to increase on the next pay period. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 83,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

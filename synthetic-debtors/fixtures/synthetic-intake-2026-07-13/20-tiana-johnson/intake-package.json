@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-020",
+  "synthetic": true,
+  "submitted": "7/08/2026, 9:13 PM",
+  "court": "District of Colorado",
+  "goals": "Catch up on the mortgage, keep the home, and consolidate other debts into a plan.",
+  "concerns": "The monthly mortgage statement and arrears letter do not agree.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 3,
+    "debtors": [
+      {
+        "name": "Tiana Johnson",
+        "dob": "08/04/1991",
+        "ssn": "***-**-4119",
+        "email": "tiana-johnson@example.test",
+        "phone": "(720) 555-0119",
+        "address": "1423 Riverstone Place, Denver, CO 80219"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Rocky Mountain Home Care",
+      "frequency": "Bi-weekly",
+      "monthly": 4397,
+      "sixMonth": 26382
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2136,
+      "notes": "Debtor reports arrears"
+    },
+    {
+      "name": "Utilities",
+      "monthly": 270,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 176,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 805,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 254,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 358,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 171,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1423 Riverstone Place, Denver, CO 80219",
+      "category": "Real estate",
+      "value": 374300,
+      "lien": 303183,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Summit Community Credit Union",
+      "category": "Bank or financial account",
+      "value": 943,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3455,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2021 Hyundai Elantra",
+      "category": "Vehicle",
+      "value": 13090,
+      "lien": 7592,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 7592,
+      "arrears": 0,
+      "collateral": "2021 Hyundai Elantra"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 303183,
+      "arrears": 10390,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Citi",
+      "type": "unsecured",
+      "balance": 32275,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 7867,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/11/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "property_taken": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Mortgage arrears discrepancy",
+        "date": "06/21/2026",
+        "amount": 3465,
+        "desc": "Tiana Johnson described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Mortgage arrears discrepancy",
+      "section": "Property",
+      "detail": "The monthly mortgage statement and arrears letter do not agree. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 59,
+    "missingFields": [
+      "Other-income start date",
+      "Business closure date",
+      "Employer street address",
+      "Second tax-year explanation",
+      "Monthly medical expense",
+      "Spouse phone number"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

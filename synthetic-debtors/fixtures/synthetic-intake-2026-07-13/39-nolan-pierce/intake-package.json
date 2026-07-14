@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-039",
+  "synthetic": true,
+  "submitted": "7/03/2026, 10:26 AM",
+  "court": "Central District of California",
+  "goals": "Stop a collection lawsuit and address unsecured debt before a judgment enters.",
+  "concerns": "An answer deadline appears on court papers uploaded with the intake.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Nolan Pierce",
+        "dob": "03/07/1985",
+        "ssn": "***-**-4138",
+        "email": "nolan-pierce@example.test",
+        "phone": "(714) 555-0138",
+        "address": "1746 Aspen Trail, Hawthorne, CA 90250"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Aviation Ground Support",
+      "frequency": "Bi-weekly",
+      "monthly": 5594,
+      "sixMonth": 33564
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1719,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 236,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 293,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 247,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 1646,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4310,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2022 Kia Seltos",
+      "category": "Vehicle",
+      "value": 18980,
+      "lien": 11008,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 11008,
+      "arrears": 0,
+      "collateral": "2022 Kia Seltos"
+    },
+    {
+      "creditor": "Chase Card Services",
+      "type": "unsecured",
+      "balance": 46050,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Discover",
+      "type": "unsecured",
+      "balance": 11534,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/12/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Pending collection lawsuit",
+        "date": "06/15/2026",
+        "amount": 6030,
+        "desc": "Nolan Pierce described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Pending collection lawsuit",
+      "section": "Financial Affairs",
+      "detail": "An answer deadline appears on court papers uploaded with the intake. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 64,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number",
+      "Prior address move-out date",
+      "Vehicle mileage"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

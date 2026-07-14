@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-006",
+  "synthetic": true,
+  "submitted": "7/06/2026, 13:35 PM",
+  "court": "District of Colorado",
+  "goals": "Create a manageable plan for tax balances and other debt.",
+  "concerns": "State and federal notices list different payoff amounts.",
+  "household": {
+    "maritalStatus": "Separated",
+    "jointFiling": "No",
+    "dependents": 1,
+    "debtors": [
+      {
+        "name": "Farah Haddad",
+        "dob": "06/16/1977",
+        "ssn": "***-**-4105",
+        "email": "farah-haddad@example.test",
+        "phone": "(970) 555-0105",
+        "address": "1185 Meadow Run Drive, Arvada, CO 80003"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Aspen Grove Pharmacy",
+      "frequency": "Bi-weekly",
+      "monthly": 3515,
+      "sixMonth": 21090
+    },
+    {
+      "source": "Child support / household contribution",
+      "employer": "Varies",
+      "frequency": "Monthly",
+      "monthly": 320,
+      "sixMonth": 1920
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 1800,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 270,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 615,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 410,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 115,
+      "notes": "Estimate needs confirmation"
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1185 Meadow Run Drive, Arvada, CO 80003",
+      "category": "Real estate",
+      "value": 308500,
+      "lien": 231375,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 425,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 2825,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2016 Chevrolet Malibu",
+      "category": "Vehicle",
+      "value": 8750,
+      "lien": 5075,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 5075,
+      "arrears": 0,
+      "collateral": "2016 Chevrolet Malibu"
+    },
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 231375,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 22125,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Capital One",
+      "type": "unsecured",
+      "balance": 5165,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "IRS and state revenue agency",
+      "type": "priority",
+      "balance": 8500,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/15/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Tax debt requires year-by-year review",
+        "date": "06/07/2026",
+        "amount": 1575,
+        "desc": "Farah Haddad described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Tax debt requires year-by-year review",
+      "section": "Debts",
+      "detail": "State and federal notices list different payoff amounts. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 82,
+    "missingFields": [
+      "Second tax-year explanation",
+      "Monthly medical expense"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

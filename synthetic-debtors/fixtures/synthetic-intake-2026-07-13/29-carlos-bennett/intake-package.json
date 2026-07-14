@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-029",
+  "synthetic": true,
+  "submitted": "7/05/2026, 9:16 AM",
+  "court": "Central District of California",
+  "goals": "Stop a collection lawsuit and address unsecured debt before a judgment enters.",
+  "concerns": "An answer deadline appears on court papers uploaded with the intake.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "Yes",
+    "dependents": 0,
+    "debtors": [
+      {
+        "name": "Carlos Bennett",
+        "dob": "05/04/1975",
+        "ssn": "***-**-4128",
+        "email": "carlos-bennett@example.test",
+        "phone": "(714) 555-0128",
+        "address": "1576 Aspen Trail, Ontario, CA 91762"
+      },
+      {
+        "name": "Casey Bennett",
+        "dob": "10/15/1980",
+        "ssn": "***-**-6128",
+        "email": "spouse.carlos-bennett@example.test",
+        "phone": "(714) 555-0178",
+        "address": "1576 Aspen Trail, Ontario, CA 91762"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Empire Appliance Repair",
+      "frequency": "Bi-weekly",
+      "monthly": 4964,
+      "sixMonth": 29784
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Ontario Community Services",
+      "frequency": "Monthly",
+      "monthly": 2912,
+      "sixMonth": 17472
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1589,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 162,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 520,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 316,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Neighborhood Trust Bank",
+      "category": "Bank or financial account",
+      "value": 1276,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3860,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2019 Nissan Rogue",
+      "category": "Vehicle",
+      "value": 15880,
+      "lien": 9210,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 9210,
+      "arrears": 0,
+      "collateral": "2019 Nissan Rogue"
+    },
+    {
+      "creditor": "Mission Medical Center",
+      "type": "unsecured",
+      "balance": 38800,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "CareCredit",
+      "type": "unsecured",
+      "balance": 9604,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/20/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Pending collection lawsuit",
+        "date": "06/05/2026",
+        "amount": 4680,
+        "desc": "Carlos Bennett described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Pending collection lawsuit",
+      "section": "Financial Affairs",
+      "detail": "An answer deadline appears on court papers uploaded with the intake. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 65,
+    "missingFields": [
+      "Prior address move-out date",
+      "Vehicle mileage",
+      "Dependent age",
+      "Creditor mailing address",
+      "Property purchase month"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

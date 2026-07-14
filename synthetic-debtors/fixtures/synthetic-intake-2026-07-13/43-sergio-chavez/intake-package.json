@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-043",
+  "synthetic": true,
+  "submitted": "7/07/2026, 14:54 AM",
+  "court": "Central District of California",
+  "goals": "Discharge medical bills and credit cards while keeping basic household property.",
+  "concerns": "Collection calls are reaching family members and the workplace.",
+  "household": {
+    "maritalStatus": "Married",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Sergio Chavez",
+        "dob": "07/19/1989",
+        "ssn": "***-**-4142",
+        "email": "sergio-chavez@example.test",
+        "phone": "(626) 555-0142",
+        "address": "1814 Juniper Court, Fontana, CA 92335"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "Sierra Concrete Pumping",
+      "frequency": "Bi-weekly",
+      "monthly": 5846,
+      "sixMonth": 35076
+    },
+    {
+      "source": "Spouse income",
+      "employer": "Fontana Community Services",
+      "frequency": "Monthly",
+      "monthly": 3318,
+      "sixMonth": 19908
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Mortgage payment",
+      "monthly": 2688,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 185,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 148,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 215,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 274,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 263,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Primary residence - 1814 Juniper Court, Fontana, CA 92335",
+      "category": "Real estate",
+      "value": 482400,
+      "lien": 376272,
+      "intent": "Keep"
+    },
+    {
+      "name": "Checking at Western Valley Bank",
+      "category": "Bank or financial account",
+      "value": 1794,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 4490,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "Employer retirement plan",
+      "category": "Retirement",
+      "value": 26330,
+      "lien": 0,
+      "intent": "Claim available exemption"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Community Home Lending",
+      "type": "secured",
+      "balance": 376272,
+      "arrears": 0,
+      "collateral": "Primary residence"
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 48950,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 12306,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Not taken yet - provider link supplied by the firm",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes"
+    },
+    "events": [
+      {
+        "event": "Large medical debt balance",
+        "date": "06/19/2026",
+        "amount": 6570,
+        "desc": "Sergio Chavez described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "MEDIUM",
+      "flag": "Large medical debt balance",
+      "section": "Debts",
+      "detail": "Collection calls are reaching family members and the workplace. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 72,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month",
+      "HOA account number",
+      "Prior address move-out date"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}

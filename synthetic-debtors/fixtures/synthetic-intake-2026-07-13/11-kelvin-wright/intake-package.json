@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "bkfl.intake-package.v1",
+  "fixtureId": "BKFL-SYN-011",
+  "synthetic": true,
+  "submitted": "7/11/2026, 9:10 AM",
+  "court": "Central District of California",
+  "goals": "Stop a wage garnishment and discharge credit-card and medical debt.",
+  "concerns": "A payroll garnishment is scheduled to increase on the next pay period.",
+  "household": {
+    "maritalStatus": "Divorced",
+    "jointFiling": "No",
+    "dependents": 2,
+    "debtors": [
+      {
+        "name": "Kelvin Wright",
+        "dob": "11/04/1982",
+        "ssn": "***-**-4110",
+        "email": "kelvin-wright@example.test",
+        "phone": "(310) 555-0110",
+        "address": "1270 Fresh Start Way, Compton, CA 90221"
+      }
+    ]
+  },
+  "income": [
+    {
+      "source": "Employment",
+      "employer": "South Bay Auto Parts",
+      "frequency": "Bi-weekly",
+      "monthly": 3830,
+      "sixMonth": 22980
+    }
+  ],
+  "expenses": [
+    {
+      "name": "Rent",
+      "monthly": 1355,
+      "notes": ""
+    },
+    {
+      "name": "Utilities",
+      "monthly": 236,
+      "notes": ""
+    },
+    {
+      "name": "Phone and internet",
+      "monthly": 120,
+      "notes": ""
+    },
+    {
+      "name": "Food and housekeeping supplies",
+      "monthly": 710,
+      "notes": ""
+    },
+    {
+      "name": "Transportation",
+      "monthly": 371,
+      "notes": ""
+    },
+    {
+      "name": "Insurance",
+      "monthly": 190,
+      "notes": ""
+    },
+    {
+      "name": "Medical and dental",
+      "monthly": 135,
+      "notes": ""
+    }
+  ],
+  "assets": [
+    {
+      "name": "Checking at Community Horizon Bank",
+      "category": "Bank or financial account",
+      "value": 610,
+      "lien": 0,
+      "intent": ""
+    },
+    {
+      "name": "Household goods and furnishings",
+      "category": "Household goods",
+      "value": 3050,
+      "lien": 0,
+      "intent": "Keep"
+    },
+    {
+      "name": "2017 Ford Escape",
+      "category": "Vehicle",
+      "value": 10300,
+      "lien": 5974,
+      "intent": "Keep for work and household transportation"
+    }
+  ],
+  "debts": [
+    {
+      "creditor": "Regional Auto Finance",
+      "type": "secured",
+      "balance": 5974,
+      "arrears": 0,
+      "collateral": "2017 Ford Escape"
+    },
+    {
+      "creditor": "Synchrony Bank",
+      "type": "unsecured",
+      "balance": 25750,
+      "arrears": 0,
+      "collateral": ""
+    },
+    {
+      "creditor": "Regional Collections LLC",
+      "type": "unsecured",
+      "balance": 6130,
+      "arrears": 0,
+      "collateral": ""
+    }
+  ],
+  "counseling": "Debtor reports class completed on 06/20/2026; certificate status varies in Documents",
+  "sofa": {
+    "answers": {
+      "job_income": "Yes",
+      "lawsuits": {
+        "a": "Yes",
+        "entries": 1
+      }
+    },
+    "events": [
+      {
+        "event": "Active wage garnishment",
+        "date": "06/12/2026",
+        "amount": 2250,
+        "desc": "Kelvin Wright described this event in the synthetic intake. Details require firm review."
+      }
+    ]
+  },
+  "flags": [
+    {
+      "severity": "HIGH",
+      "flag": "Active wage garnishment",
+      "section": "Financial Affairs",
+      "detail": "A payroll garnishment is scheduled to increase on the next pay period. Synthetic fixture only; attorney review required."
+    }
+  ],
+  "dataQuality": {
+    "completionPercent": 83,
+    "missingFields": [
+      "Creditor mailing address",
+      "Property purchase month"
+    ],
+    "enteredSections": [
+      "Personal Information",
+      "Income",
+      "Assets",
+      "Debts",
+      "Expenses",
+      "Financial Affairs",
+      "Counseling",
+      "Documents"
+    ],
+    "source": "Matt intake main",
+    "sourceCommit": "e3fc6348f04d3d839c0a7d3a3048773a279f1f0d"
+  }
+}
