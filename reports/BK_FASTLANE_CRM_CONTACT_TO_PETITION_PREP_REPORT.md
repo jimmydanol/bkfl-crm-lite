@@ -1,5 +1,7 @@
 # BK FastLane CRM: Contact to Petition Prep
 
+> **Easier web version:** <https://jimmydanol.github.io/bkfl-crm-lite/reports/>
+
 **Plain-English product report for Jimmy Stein and Matt McCune**
 
 **Updated:** July 14, 2026
