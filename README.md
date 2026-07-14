@@ -12,8 +12,8 @@ Shareable CRM: `https://jimmydanol.github.io/bkfl-crm-lite/`
 
 This branch turns the Matt-branch review findings into a working, fake-data-only law-firm workflow:
 
-- **Needs Attention command center** — ranks one row per matter by urgency, due date, and blockers instead of presenting an 85-task flood.
-- **Three independent readiness gates** — a matter is Ready for Petition Prep only when Intake Completion, Document Review, and Attorney Review are all complete.
+- **Needs Attention command center** — ranks one row per matter by urgency, due date, and open items instead of presenting an 85-task flood.
+- **Three independent readiness checks** — a matter is Ready for Petition Prep only when Intake Completion, Document Review, and Attorney Review are all complete.
 - **Action-based document queues** — separates requests needing a firm decision, requests waiting on the client, and resolved requirements.
 - **Recorded attorney review** — lets the attorney record a workflow review or return the matter for a reason without pretending the software made a legal conclusion.
 - **Visible draft and delivery states** — distinguishes draft, approved snapshot, simulated schedule, and browser-only no-send behavior.

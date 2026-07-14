@@ -57,7 +57,7 @@ console.log('2/6 Regenerate to prove package, completion-item, and document IDs 
 const second = await runGeneratorAndFeedBuild()
 assert.deepEqual(stableIdentifiers(second.feed), stableIdentifiers(first.feed))
 
-console.log('3/6 Run the Intake app build and lint gates...')
+console.log('3/6 Run the Intake app build and lint checks...')
 execFileSync(npmCommand, ['run', 'build'], { cwd: intakeRoot, shell: process.platform === 'win32', stdio: 'inherit' })
 execFileSync(npmCommand, ['run', 'lint'], { cwd: intakeRoot, shell: process.platform === 'win32', stdio: 'inherit' })
 

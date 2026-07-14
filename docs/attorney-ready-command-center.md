@@ -4,11 +4,11 @@ This document records how the Matt-branch CRM review was translated into the Jim
 
 ## Staff question the home page must answer
 
-The first screen answers one question: **What needs attention today?** Each synthetic matter appears once, ranked by urgent attorney issue, due date, and blocker count. A selected row explains the exact open gates and routes the reviewer to the next useful workspace.
+The first screen answers one question: **What needs attention today?** Each synthetic matter appears once, ranked by urgent attorney issue, due date, and open-item count. A selected row explains the unfinished review steps and routes the reviewer to the next useful workspace.
 
 The raw task list remains underlying workflow data, but it is not the primary navigation model. A solo-practice team should not have to translate 85 task rows into 50 client decisions every morning.
 
-## Readiness contract
+## Readiness checks
 
 `Ready for Petition Prep` is true only when all three conditions are true:
 

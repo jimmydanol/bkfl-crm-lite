@@ -2,7 +2,7 @@
 
 ## 2026-07-14 - Attorney-ready command center
 
-- Replaced the raw task-heavy home page with a one-row-per-matter Needs Attention queue ranked by urgency, due date, and blocker count.
+- Replaced the raw task-heavy home page with a one-row-per-matter Needs Attention queue ranked by urgency, due date, and open-item count.
 - Added a single readiness evaluator used by the dashboard and attorney workspace: Intake Completion, Document Review, and Attorney Review must all pass before Ready for Petition Prep.
 - Reorganized Document Review into Needs firm decision, Waiting on client, Resolved, and All requests queues.
 - Turned Attorney Review into a usable queue with time-sensitive flags, source-backed evidence, reasoned returns, and an auditable recorded-review action.

@@ -617,7 +617,7 @@
     if (!readiness.gates.intake) return readiness.blockers.find((item) => item.gate === 'intake')?.label
     if (!readiness.gates.documents) return readiness.blockers.find((item) => item.gate === 'documents')?.label
     if (!readiness.gates.attorney) return readiness.blockers.find((item) => item.gate === 'attorney')?.label
-    return 'All three readiness gates are complete'
+    return 'All three reviews are complete'
   }
 
   const buildAttentionQueue = (leads) =>

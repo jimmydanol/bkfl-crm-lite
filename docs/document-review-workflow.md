@@ -229,7 +229,7 @@ Production connection sequence:
 2. An authorized organization administrator completes the provider consent flow against a secure backend callback.
 3. The backend stores the refresh credential encrypted and associates it with the organization and sender mailbox.
 4. A test-message flow sends only to a designated internal test recipient and verifies Sent-folder behavior, From identity, SPF/DKIM/DMARC alignment, audit logging, cancellation, and retry handling.
-5. Real client delivery remains disabled until operations approves the mailbox, authentication, data handling, and release gate.
+5. Real client delivery remains disabled until operations approves the mailbox, authentication, data handling, and release approval.
 
 Primary implementation references:
 
