@@ -1,28 +1,36 @@
-# BK FastLane — CRM Lite (v1 Dev Build)
+# BK FastLane — CRM Lite
 
-The scaled-down, debtor-intake-only version of the BK FastLane CRM. This is the law firm's entry point into the platform: a debtor submits an intake packet, and the firm receives, reviews, and works it from a clean dashboard. Reference prototype for the v1 development build.
+Jimmy's fake-data-only CRM demonstration, based on Matt's current branch. The product has one pre-petition job: move a debtor from first contact to a complete file ready for petition preparation.
 
-**Developers: start with [docs/HANDOFF.md](docs/HANDOFF.md)** — the front door to both repos, every spec, and the decision record.
+## Lifecycle
 
-## Running it
+- **Lead** — no Intake answers received.
+- **Contact** — some Intake data received; answers or documents are still in progress.
+- **Matter** — Intake data and document requests are complete; ready for petition prep.
 
-Open `index.html` in any modern browser. No build step, no server — it's a single self-contained file (React via CDN). Demo data seeds automatically; all state persists in browser localStorage under `bkfl_lite_*` keys.
+The CRM changes the record type automatically. A Matter cannot be created manually.
 
-## What's in v1
+## Four primary sections
 
-- **Dashboard** — intake pipeline cards (New Lead → Intake Sent → Intake Submitted), outstanding tasks (the attorney approval queue), quick links
-- **Leads** — list + detail with Dashboard, Communications (email tracking log), Notes, Documents, Tasks, and AI tabs
-- **Contacts** — one contact per debtor; email is the unique identity key; contacts and leads always exist in pairs
-- **Documents** — 32-type checklist per lead: AI accepted/flagged review lanes, firm approval as home base, debtor "not applicable" reasons, and the approve-and-send follow-up email flow
-- **Settings** — read-only v1 rule documentation: organization, users, lead stages, tasks, communications templates, document catalog
+- **Dashboard** — counts and prioritized next work.
+- **Leads** — people who have not returned Intake data.
+- **Contacts** — debtor files with Intake or document work remaining.
+- **Matters** — petition-prep-ready files.
 
-## Core rules
+Settings is retained as a utility rather than a primary workflow section. Each debtor file uses four tabs: Overview, Intake Data, Documents, and Activity.
 
-1. Lead stages are system-driven — set by events (link sent, intake submitted), never edited by hand.
-2. Every AI-drafted email requires attorney approval before it is sent. No exceptions.
-3. Every document requires manual firm approval — AI acceptance is a recommendation, never the final word.
-4. One email = one contact = one intake per case. Joint filers share a single intake sent to the primary contact.
+## Run and verify
 
-## Spec
+Open `index.html` in a modern browser. It is a single static file using React via CDN. Demo state persists in browser `localStorage` under `bkfl_lite_*` keys.
 
-`docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.
+Run the lifecycle source checks:
+
+```powershell
+node tests/verify-contact-lifecycle.mjs
+```
+
+See [the design and research note](docs/jimmy-contact-to-petition-ready.md) for the product rules, competitor lessons, and acceptance criteria.
+
+## Safety boundary
+
+All included debtors, answers, and documents are synthetic. This prototype is not approved for real client data or production legal work.

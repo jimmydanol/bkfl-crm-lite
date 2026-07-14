@@ -785,8 +785,8 @@ const leadStageColors={
 };
 
 function useLocalLeads(){
-  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v21");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
-  useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v21",JSON.stringify(leads));},[leads]);
+  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_contact_to_matter_v1");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
+  useEffect(()=>{localStorage.setItem("bkfl_lite_contact_to_matter_v1",JSON.stringify(leads));},[leads]);
   return [leads,setLeads];
 }
 
@@ -833,6 +833,48 @@ const docReviewDone=(cl)=>!!(cl&&cl.length)&&!cl.some(d=>isUploadedReview(d)||is
 const isPrepReady=(cl)=>!!(cl&&cl.length)&&cl.every(d=>d.status==="approved"||d.status==="excused");
 const prepAge=(l)=>{if(!l.prepReadyDate)return"\u2014";const d=Math.floor((Date.now()-new Date(l.prepReadyDate+"T00:00:00").getTime())/86400000);return d<=0?"Ready today":"Ready "+d+(d===1?" day":" days");};
 
+/* One simple pre-petition lifecycle: no Intake data is a Lead; any Intake data is a
+   Contact; complete Intake data plus resolved documents makes the file a Matter. */
+const hasRealValue=(v)=>v!==undefined&&v!==null&&String(v).trim()!==""&&!["\u2014","-"].includes(String(v).trim());
+const intakePackageFor=(record)=>record?.intakePackage||DEMO_INTAKE_PACKAGES[record?.email]||null;
+const intakeDataStatus=(record)=>{
+  const pkg=intakePackageFor(record);
+  const debtors=pkg?.household?.debtors||[];
+  const sections=[
+    {key:"identity",label:"Identity & contact",done:!!pkg&&debtors.length>0&&debtors.every(d=>["name","dob","ssn","email","phone","address"].every(k=>hasRealValue(d[k])))},
+    {key:"household",label:"Household",done:!!pkg&&hasRealValue(pkg.household?.maritalStatus)&&pkg.household?.dependents!==undefined&&pkg.household?.dependents!==null},
+    {key:"income",label:"Income",done:!!pkg&&Array.isArray(pkg.income)&&pkg.income.length>0},
+    {key:"expenses",label:"Expenses",done:!!pkg&&Array.isArray(pkg.expenses)&&pkg.expenses.length>0},
+    {key:"assets",label:"Property",done:!!pkg&&Array.isArray(pkg.assets)&&pkg.assets.length>0},
+    {key:"debts",label:"Debts",done:!!pkg&&Array.isArray(pkg.debts)&&pkg.debts.length>0},
+    {key:"financial-affairs",label:"Financial affairs",done:!!pkg&&Object.keys(pkg.sofa?.answers||{}).length>0},
+  ];
+  const doneCount=sections.filter(s=>s.done).length;
+  return {pkg,sections,doneCount,total:sections.length,complete:doneCount===sections.length,missing:sections.filter(s=>!s.done)};
+};
+const documentStatus=(record)=>{
+  const docs=record?.docChecklist||[];
+  return {total:docs.length,resolved:docs.filter(d=>d.status==="approved"||d.status==="excused").length,firmReview:docs.filter(d=>isUploadedReview(d)||isPendingRuling(d)).length,clientNeeded:docs.filter(isChaseDoc).length,complete:isPrepReady(docs)};
+};
+const recordKind=(record)=>{
+  if(!intakePackageFor(record))return "lead";
+  if(record?.leadStage==="Ready for Petition Prep"&&intakeDataStatus(record).complete&&documentStatus(record).complete)return "matter";
+  return "contact";
+};
+const recordLabel=(record)=>recordKind(record)==="matter"?"Matter":recordKind(record)==="contact"?"Contact":"Lead";
+const nextRecordAction=(record)=>{
+  const kind=recordKind(record);
+  if(kind==="matter")return "Begin petition prep";
+  if(kind==="lead")return record.leadStage==="Intake Sent"?"Follow up on Intake":"Send Intake";
+  const data=intakeDataStatus(record);
+  const docs=documentStatus(record);
+  if(!data.complete)return "Complete "+data.missing.length+" Intake section"+(data.missing.length===1?"":"s");
+  if(!docs.total)return "Set document requests";
+  if(docs.firmReview)return "Review "+docs.firmReview+" document"+(docs.firmReview===1?"":"s");
+  if(docs.clientNeeded)return "Request "+docs.clientNeeded+" document"+(docs.clientNeeded===1?"":"s");
+  return "Final petition-prep check";
+};
+
 function StageBadge({stage}){
   if(!stage) return null;
   const sc=leadStageColors[stage]||{bg:"#E7EAE5",text:"#7A9C80",border:"#9bba9f"};
@@ -844,7 +886,7 @@ const sidebarItems=[
   {key:"dashboard",label:"DASHBOARD",d:"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"},
   {key:"leads",label:"LEADS",d:"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"},
   {key:"contacts",label:"CONTACTS",d:"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"},
-  {key:"settings",label:"SETTINGS",d:"M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"},
+  {key:"matters",label:"MATTERS",d:"M4 6.5A2.5 2.5 0 016.5 4H10l2 2h5.5A2.5 2.5 0 0120 8.5v8A2.5 2.5 0 0117.5 19h-11A2.5 2.5 0 014 16.5v-10z"},
 ];
 
 /* ── Confirm Modal ── */
@@ -889,7 +931,7 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
       </div>
       <nav style={{flex:1,padding:"12px 0",overflowY:"auto"}}>
         {sidebarItems.map(n=>{
-          const active=page===n.key||(n.key==="leads"&&page==="lead-detail")||(n.key==="contacts"&&page==="contact-detail");
+          const active=page===n.key;
           return(
           <a key={n.key} onClick={()=>nav(n.key)} title={collapsed?n.label:undefined} style={{display:"flex",alignItems:"center",gap:collapsed?0:14,justifyContent:collapsed?"center":"flex-start",padding:collapsed?"11px 0":"11px 20px",cursor:"pointer",fontSize:13,fontWeight:500,letterSpacing:"0.5px",color:active?"#fff":"#fff",background:active?"#5a7c60":"#7a9c80",borderRadius:8,margin:collapsed?"4px 6px":"4px 12px",transition:"all 0.15s",opacity:n.comingSoon?0.6:1,whiteSpace:"nowrap",overflow:"hidden"}}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{flexShrink:0}}><path d={n.d} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -903,7 +945,11 @@ function Sidebar({page,setPage,setSelectedMatter,collapsed,setCollapsed}){
           <path d="M15 19l-7-7 7-7" stroke="#333" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
-      <div style={{padding:collapsed?"16px 8px":"16px 20px",borderTop:"1px solid rgba(0,0,0,0.08)"}}>
+      <div style={{padding:collapsed?"12px 8px":"12px 20px",borderTop:"1px solid rgba(0,0,0,0.08)"}}>
+        <button onClick={()=>nav("settings")} title="Settings" style={{width:"100%",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:10,border:"none",background:"transparent",color:page==="settings"?"#214e5f":"#66706a",fontSize:12,fontWeight:600,cursor:"pointer",padding:collapsed?"8px 0":"8px 0 12px"}}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.3 4.3c.4-1.7 2.9-1.7 3.4 0a1.7 1.7 0 002.5 1.1c1.6-.9 3.3.8 2.4 2.4a1.7 1.7 0 001.1 2.5c1.7.4 1.7 2.9 0 3.4a1.7 1.7 0 00-1.1 2.5c.9 1.6-.8 3.3-2.4 2.4a1.7 1.7 0 00-2.5 1.1c-.5 1.7-3 1.7-3.4 0a1.7 1.7 0 00-2.5-1.1c-1.6.9-3.3-.8-2.4-2.4a1.7 1.7 0 00-1.1-2.5c-1.7-.5-1.7-3 0-3.4a1.7 1.7 0 001.1-2.5c-.9-1.6.8-3.3 2.4-2.4a1.7 1.7 0 002.5-1.1zM15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {!collapsed&&<span>Settings</span>}
+        </button>
         <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:collapsed?"center":"flex-start"}}>
           <div style={{width:34,height:34,borderRadius:"50%",background:"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             <span style={{color:"#fff",fontSize:14,fontWeight:700,letterSpacing:"0.5px"}}>ML</span>
@@ -932,24 +978,15 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
     if(!searchQuery.trim())return[];
     const q=searchQuery.toLowerCase();
     const results=[];
-    // Search matters by client name and email
-    (matters||[]).forEach(m=>{
-      const name=(m.clientFullName||m.clientName||"").toLowerCase();
-      const email=(m.email||"").toLowerCase();
-      if(name.includes(q)||email.includes(q)){
-        results.push({type:"matter",id:m.id,name:m.clientFullName||m.clientName,email:m.email||"",sub:m.description||m.bankruptcyType,status:m.matterStage});
-      }
-    });
-    // Search leads by name and email
     (leads||[]).forEach(l=>{
       const name=(l.firstName+" "+l.lastName).toLowerCase();
       const email=(l.email||"").toLowerCase();
       if(name.includes(q)||email.includes(q)){
-        results.push({type:"lead",id:l.id,name:l.firstName+" "+l.lastName,email:l.email||"",sub:l.bankruptcyType,status:l.leadStage});
+        results.push({type:recordKind(l),id:l.id,name:l.firstName+" "+l.lastName,email:l.email||"",sub:l.bankruptcyType,status:l.leadStage});
       }
     });
     return results.slice(0,8);
-  },[searchQuery,matters,leads]);
+  },[searchQuery,leads]);
   // Unified new record form state
   const [contactMode,setContactMode]=useState("new"); // "new" or "existing"
   const [selectedExistingContact,setSelectedExistingContact]=useState(null);
@@ -989,11 +1026,10 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
             )}
             {searchResults.length>0&&searchResults.map((r,i)=>(
               <div key={r.type+"-"+r.id} onClick={()=>{
-                if(r.type==="matter"){setSelectedMatter(r.id);setPage("leads");}
-                else{setPage("leads");}
+                setSelectedLead(r.id);setPage("lead-detail");
                 setSearchQuery("");
               }} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",cursor:"pointer",borderBottom:i<searchResults.length-1?"1px solid #f0f0f0":"none"}} onMouseEnter={e=>e.currentTarget.style.background="#f9faf8"} onMouseLeave={e=>e.currentTarget.style.background="#fff"}>
-                <div style={{width:34,height:34,borderRadius:"50%",background:r.type==="matter"?"#7a9c80":"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <div style={{width:34,height:34,borderRadius:"50%",background:r.type==="matter"?"#00695c":r.type==="contact"?"#7a9c80":"#214e5f",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                   <span style={{color:"#fff",fontSize:12,fontWeight:700}}>{r.name.charAt(0)}</span>
                 </div>
                 <div style={{flex:1,minWidth:0}}>
@@ -1001,7 +1037,7 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
                   <div style={{fontSize:11,color:"#999",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.email}{r.sub?" · "+r.sub:""}</div>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-                  <span style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.5px",color:r.type==="matter"?"#7a9c80":"#214e5f",background:r.type==="matter"?"#eef3ef":"#e8eff2",padding:"3px 8px",borderRadius:4}}>{r.type}</span>
+                  <span style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.5px",color:r.type==="matter"?"#00695c":r.type==="contact"?"#3d5c43":"#214e5f",background:r.type==="matter"?"#e0f2f1":r.type==="contact"?"#eef3ef":"#e8eff2",padding:"3px 8px",borderRadius:4}}>{r.type}</span>
                 </div>
               </div>
             ))}
@@ -1019,17 +1055,6 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
             <h3 style={{fontSize:18,fontWeight:700,color:"#434343",margin:0}}>New {showNewRecord}</h3>
             <div style={{cursor:"pointer",fontSize:20,color:"#999",lineHeight:1}} onClick={()=>setShowNewRecord(null)}>&times;</div>
-          </div>
-          {/* Contact Mode Toggle */}
-          <div style={{marginBottom:18}}>
-            <label style={labelStyle}>Contact</label>
-            <div style={{display:"flex",borderRadius:8,overflow:"hidden",border:"1px solid #d0d0d0"}}>
-              {[{k:"new",l:"New Contact"},{k:"existing",l:"Existing Contact"}].map(o=>(
-                <div key={o.k} onClick={()=>{setContactMode(o.k);if(o.k==="new")setSelectedExistingContact(null);}} style={{flex:1,padding:"10px 0",textAlign:"center",fontSize:13,fontWeight:600,cursor:"pointer",background:contactMode===o.k?"#7a9c80":"#fff",color:contactMode===o.k?"#fff":"#434343",transition:"all 0.15s"}}>
-                  {o.l}
-                </div>
-              ))}
-            </div>
           </div>
           {/* Existing Contact Search */}
           {contactMode==="existing"&&(
@@ -1118,7 +1143,7 @@ function TopBar({leads,setLeads,matters,setMatters,standaloneContacts,setStandal
                 <input type="checkbox" checked={newRecordForm.sendIntake||false} onChange={e=>setNewRecordForm({...newRecordForm,sendIntake:e.target.checked})} style={{width:18,height:18,accentColor:"#7a9c80",cursor:"pointer"}}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:600,color:"#434343"}}>Send Intake Form Link</div>
-                  <div style={{fontSize:11,color:"#888",marginTop:2,lineHeight:1.5}}>Sends the "Intake Form Link" template email (see Settings → Communications) to {(contactMode==="existing"&&selectedExistingContact?selectedExistingContact.email:newRecordForm.email)||"the lead's email address"}, logs it under the lead's Communications tab, and sets the stage to Intake Sent.</div>
+                  <div style={{fontSize:11,color:"#888",marginTop:2,lineHeight:1.5}}>Sends the secure Intake link to {newRecordForm.email||"the Lead's email address"}, records it under Activity, and marks the Lead as Intake sent.</div>
                 </div>
               </label>
             </div>
@@ -1208,7 +1233,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const dynamicMatterStages=(()=>{try{const s=localStorage.getItem("bkfl_lite_matter_stages");if(s)return JSON.parse(s);}catch(e){}return MATTER_STAGES;})();
   const dynamicCF=(()=>{try{const s=localStorage.getItem("bkfl_lite_custom_fields");if(s)return JSON.parse(s);}catch(e){}return DEFAULT_CUSTOM_FIELDS;})();
   const leadCF=dynamicCF.filter(f=>(f.scope==="lead"||f.scope==="both")&&(!f.bkType||f.bkType===lead.bankruptcyType));
-  const [tab,setTab]=useState(()=>{const t0=window.__leadTab;window.__leadTab=null;return t0||"dashboard";});
+  const [tab,setTab]=useState(()=>{const t0=window.__leadTab;window.__leadTab=null;const q=new URLSearchParams(window.location.search).get("tab");return ["dashboard","intake","documents","activity"].includes(q)?q:(t0||"dashboard");});
   const [newNote,setNewNote]=useState("");
   const [newTaskTitle,setNewTaskTitle]=useState("");
   const [newTaskDue,setNewTaskDue]=useState("");
@@ -1294,11 +1319,11 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
         _tks=[{id:Date.now()+7,title:"Approve document follow-up request",due:_today,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},..._tks];
       }
       m={...m,tasks:_tks};
-      const ready=isPrepReady(m.docChecklist);
+      const ready=intakeDataStatus(m).complete&&isPrepReady(m.docChecklist);
       if(ready&&m.leadStage==="Intake Submitted"){
-        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"Document checklist complete \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Contact became a Matter",detail:"Intake data and document requests are complete \u2014 ready for petition prep",user:"System"},...(m.timeline||[])]};
       }else if(!ready&&m.leadStage==="Ready for Petition Prep"){
-        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"New Document activity reopened the checklist \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Matter returned to Contacts",detail:"New Intake or document work reopened the file",user:"System"},...(m.timeline||[])]};
       }
     }
     return m;
@@ -1339,7 +1364,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
   const deleteEvent=async(id)=>{if(await confirm({title:"Delete Event",message:"Are you sure you want to delete this calendar event?",confirmLabel:"Delete"}))update({calendarEvents:(lead.calendarEvents||[]).filter(e=>e.id!==id)});};
 
 
-  const tabs=[{key:"dashboard",label:"Dashboard"},{key:"intake",label:"Intake Package"},{key:"documents",label:"Documents"},{key:"communications",label:"Communications"},{key:"notes",label:"Notes"},{key:"tasks",label:"Tasks"},{key:"ai",label:"AI"}];
+  const tabs=[{key:"dashboard",label:"Overview"},{key:"intake",label:"Intake Data"},{key:"documents",label:"Documents"},{key:"activity",label:"Activity"}];
 
   const updateCF=(key,val)=>update({customFields:{...lead.customFields,[key]:val}});
   const EditVal=({field,value,isCF})=>{
@@ -1359,9 +1384,9 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
     <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
       <div style={{background:"#fff",borderBottom:"1px solid #e0e0e0",padding:"20px 28px 0"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
-          <button onClick={()=>{setPage("leads");setSelectedLead(null);}} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex"}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#7A9C80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
+          <button onClick={()=>{setPage(recordKind(lead)==="matter"?"matters":recordKind(lead)==="contact"?"contacts":"leads");setSelectedLead(null);}} title={"Back to "+(recordKind(lead)==="matter"?"Matters":recordKind(lead)==="contact"?"Contacts":"Leads")} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex"}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#7A9C80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
           <h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:0}}>{lead.firstName} {lead.lastName}</h1>
-          <StageBadge stage={lead.leadStage}/>
+          <span title={recordKind(lead)==="lead"?"No Intake answers received":recordKind(lead)==="contact"?"Intake data received; answers and documents are still being completed":"Intake data and documents are complete; ready for petition prep"} style={{background:recordKind(lead)==="matter"?"#e0f2f1":recordKind(lead)==="contact"?"#dce8de":"#e8f4fd",color:recordKind(lead)==="matter"?"#00695c":recordKind(lead)==="contact"?"#3d5c43":"#1a73e8",border:"1px solid "+(recordKind(lead)==="matter"?"#4db6ac":recordKind(lead)==="contact"?"#7A9C80":"#90caf9"),borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:600}}>{recordLabel(lead)}</span>
           {lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate&&<span style={{fontSize:12.5,color:"#00695c",fontWeight:700}}>{prepAge(lead)}</span>}
           {lead.dashHidden&&<button onClick={()=>update({dashHidden:false})} title="This Lead is hidden from the Dashboard. Click to show it there again." style={{fontSize:11,fontWeight:600,color:"#888",background:"#f5f5f5",border:"1px solid #ddd",borderRadius:5,padding:"3px 10px",cursor:"pointer"}}>Hidden from Dashboard {"\u2014"} click to restore</button>}
         </div>
@@ -1375,8 +1400,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             const genPkg=lead.intakePackage||DEMO_INTAKE_PACKAGES[lead.email]||{submitted:new Date().toLocaleString("en-US",{month:"numeric",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}),court:"Central District of California",goals:"(Demo submission — goals captured from the intake form)",concerns:"—",household:{maritalStatus:"—",jointFiling:"No",dependents:0,debtors:[{name:lead.firstName+" "+lead.lastName,dob:"—",ssn:"—",email:lead.email||"—",phone:lead.phone||"—",address:"—"}]},income:[],expenses:[],assets:[],debts:[],counseling:"—",sofa:{answers:{},events:[]},flags:[]};
             const _nrev=genChecklist.filter(d=>d.status==="ai_accepted"||d.status==="ai_flagged").length;
             update({leadStage:"Intake Submitted",intakeSubmittedDate:_t,intakePackage:genPkg,docChecklist:genChecklist,tasks:[...(taskEnabled("Review & approve AI Intake Summary email")?[{id:Date.now()+2,title:"Review & approve AI Intake Summary email",due:_t,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted"}]:[]),...(taskEnabled("Review Documents — initial intake submission")&&_nrev>0?[{id:Date.now()+4,title:"Review Documents — initial intake submission",due:_t,status:"Pending",assignee:"Angie Sullivan",stage:"Intake Submitted",batchDigest:true,initialReview:true}]:[]),...closed],timeline:[{id:Date.now()+1,date:_t,action:"Intake submitted",detail:"Status: Intake Sent → Intake Submitted",user:"System"},...(lead.timeline||[])]});
-          }} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#fff",color:"#888",border:"1px dashed #bbb"}}>Simulate Submission (dev)</button>}
-          <button onClick={()=>openEdit(lead)} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#7A9C80",color:"#fff",border:"none"}}>Edit Lead</button>
+          }} title="Demo only: add a sample Intake submission so this Lead becomes a Contact" style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#fff",color:"#666",border:"1px dashed #9aa29b"}}>Demo: receive Intake</button>}
+          <button onClick={()=>openEdit(lead)} style={{padding:"7px 16px",borderRadius:6,fontSize:13,fontWeight:500,cursor:"pointer",background:"#7A9C80",color:"#fff",border:"none"}}>Edit {recordLabel(lead)}</button>
         </div>
         <div style={{display:"flex",gap:0,overflowX:"auto",paddingLeft:32}}>
           {tabs.map(t=><button key={t.key} onClick={()=>setTab(t.key)} style={{padding:"10px 18px",fontSize:13,fontWeight:tab===t.key?600:400,cursor:"pointer",color:tab===t.key?"#7A9C80":"#666",background:"none",border:"none",borderBottom:tab===t.key?"3px solid #7A9C80":"3px solid transparent",whiteSpace:"nowrap"}}>{t.label}</button>)}
@@ -1385,19 +1410,41 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
 
       <div style={{padding:"20px 28px",flex:1,background:"#FBFAF7",overflowY:"auto"}}>
         {tab==="dashboard"&&(<div>
-          <Widget title="Lead Details">
+          {(()=>{const data=intakeDataStatus(lead);const docs=documentStatus(lead);const kind=recordKind(lead);return(
+          <div style={{background:"#fff",border:"1px solid #dfe4df",borderRadius:10,padding:"18px 20px",marginBottom:16}}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.7px",color:"#7A9C80",textTransform:"uppercase",marginBottom:4}}>Next step</div>
+                <div style={{fontSize:18,fontWeight:700,color:"#33443a"}}>{nextRecordAction(lead)}</div>
+                <div style={{fontSize:12.5,color:"#777",marginTop:4}}>{kind==="lead"?"This person stays a Lead until any Intake answers are received.":kind==="contact"?"This person stays a Contact while the firm completes Intake data and documents.":"This file is now a Matter because it is ready for petition prep."}</div>
+              </div>
+              <div style={{display:"flex",gap:18,flexWrap:"wrap"}}>
+                <div title={data.complete?"All required Intake sections have answers":data.missing.map(s=>s.label).join(", ")+" still need answers"} style={{minWidth:145}}>
+                  <div style={{fontSize:11,color:"#888",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.4px"}}>Intake data</div>
+                  <div style={{fontSize:20,fontWeight:800,color:data.complete?"#3d5c43":"#b07a25",margin:"3px 0"}}>{data.doneCount}/{data.total}</div>
+                  <div style={{height:5,background:"#edf0ed",borderRadius:3}}><div style={{height:5,width:(data.total?Math.round(data.doneCount/data.total*100):0)+"%",background:data.complete?"#7A9C80":"#d4a652",borderRadius:3}}/></div>
+                </div>
+                <div title={docs.complete?"Every requested document is approved or excused":docs.clientNeeded+" needed from client; "+docs.firmReview+" waiting for firm review"} style={{minWidth:145}}>
+                  <div style={{fontSize:11,color:"#888",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.4px"}}>Documents</div>
+                  <div style={{fontSize:20,fontWeight:800,color:docs.complete?"#3d5c43":"#b07a25",margin:"3px 0"}}>{docs.resolved}/{docs.total}</div>
+                  <div style={{height:5,background:"#edf0ed",borderRadius:3}}><div style={{height:5,width:(docs.total?Math.round(docs.resolved/docs.total*100):0)+"%",background:docs.complete?"#7A9C80":"#d4a652",borderRadius:3}}/></div>
+                </div>
+              </div>
+            </div>
+          </div>);})()}
+          <Widget title={recordLabel(lead)+" Details"}>
             <DetailRow label="First name" value={lead.firstName}/>
             <DetailRow label="Last name" value={lead.lastName}/>
             <DetailRow label="Email" value={<span style={{userSelect:"all",cursor:"text"}}>{lead.email}</span>}/>
             <DetailRow label="Phone" value={<span style={{userSelect:"all",cursor:"text"}}>{lead.phone}</span>}/>
             <DetailRow label="Filing" value={(lead.contacts||[]).some(c=>c.role&&c.role.indexOf("Spouse")>=0)?"Joint":"Individual"}/>
-            <DetailRow label="Stage" value={<span><StageBadge stage={lead.leadStage}/>{lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate?<span style={{fontSize:11,color:"#00695c",marginLeft:8,fontWeight:700}}>{prepAge(lead)}</span>:<span style={{fontSize:11,color:"#999",marginLeft:8,fontStyle:"italic"}}>set automatically</span>}</span>}/>
+            <DetailRow label="Record type" value={<span><strong style={{color:recordKind(lead)==="matter"?"#00695c":recordKind(lead)==="contact"?"#3d5c43":"#1a73e8"}}>{recordLabel(lead)}</strong><span title="The CRM changes this automatically based on Intake data and document completion." style={{fontSize:11,color:"#999",marginLeft:8,fontStyle:"italic",cursor:"help"}}>set automatically</span></span>}/>
             <DetailRow label="Intake sent" value={lead.intakeSentDate?new Date(lead.intakeSentDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):(()=>{const st=(lead.tasks||[]).find(tk=>tk.status==="Pending"&&tk.title==="Send the intake link");return(<span style={{display:"inline-flex",alignItems:"center",gap:10}}><span style={{color:"#999",fontStyle:"italic"}}>Not yet sent</span>{st&&<button onClick={()=>openLeadTask(st)} style={{background:"#7a9c80",color:"#fff",border:"none",borderRadius:5,padding:"4px 14px",fontSize:11.5,fontWeight:600,cursor:"pointer"}}>Send Intake Link</button>}</span>);})()}/>
             <DetailRow label="Intake submitted" value={lead.intakeSubmittedDate?new Date(lead.intakeSubmittedDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):"—"}/>
             <DetailRow label="Created" value={lead.createdDate?new Date(lead.createdDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}/>
             <DetailRow label="Notes" value={<EditVal field="leadNotes" value={lead.leadNotes}/>}/>
           </Widget>
-          <Widget title="Contacts">
+          <Widget title="People on File">
             {lead.contacts.map(c=>(<div key={c.id} style={{display:"flex",alignItems:"center",gap:14,padding:"10px 0",borderBottom:"1px solid #f5f5f5"}}>
               <div style={{width:38,height:38,borderRadius:"50%",background:"#E7EAE5",color:"#7A9C80",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:600}}>{c.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</div>
               <div>
@@ -1559,7 +1606,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                   ?<span style={{marginLeft:10,background:"#F59E0B",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>{queue.length} to review</span>
                   :checklist.length>0?<span style={{marginLeft:10,background:"#7a9c80",color:"#fff",borderRadius:10,padding:"1px 8px",fontSize:11,fontWeight:700,verticalAlign:"2px"}}>review complete</span>:null}
               </div>
-              {checklist.length>0&&<span style={{marginLeft:10,fontSize:12,color:"#999",whiteSpace:"nowrap"}}>{"\u00b7"} {checklist.length-queue.length} of {checklist.length} resolved</span>}
+              {checklist.length>0&&<span style={{display:"block",padding:"5px 20px",fontSize:11.5,color:"#8a918c",whiteSpace:"nowrap",borderBottom:"1px solid #f0f0ed"}}>{buckets.home.length+buckets.excused.length} of {checklist.length} resolved</span>}
               {checklist.length===0?(
                 <div style={{padding:24,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Document checklist is created automatically when the debtor submits their intake.</div>
               ):(
@@ -1886,6 +1933,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           if(!intakePkg)return(<div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",padding:32,textAlign:"center",color:"#999",fontSize:13,lineHeight:1.6}}>The Intake Package appears here when the debtor submits their intake.<br/>It collects every answer and document from the intake in one place.</div>);
           const pkg=intakePkg;
           const cl=lead.docChecklist||[];
+          const data=intakeDataStatus(lead);
           const docsIn=cl.filter(d=>d.fileName&&(d.status==="approved"||d.status==="ai_accepted"||d.status==="ai_flagged")).length;
           const money=(n)=>typeof n==="number"?fmt(n):(n||"—");
           const thS={textAlign:"left",padding:"8px 14px",fontSize:10.5,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:0.5,borderBottom:"1px solid #e0e0e0",background:"#FBFAF7"};
@@ -1914,9 +1962,12 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                 {cl.length>0&&<span style={{background:"#fff",color:"#3d5c43",border:"1px solid #9bba9f",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>{docsIn} of {cl.length} documents</span>}
                 {(pkg.flags||[]).length>0&&<span style={{background:"#fef3cd",color:"#856404",border:"1px solid #ffc107",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>{pkg.flags.length} review flag{pkg.flags.length===1?"":"s"}</span>}
-                <span style={{background:"#7A9C80",color:"#fff",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>Ready for law firm review</span>
+                <span title={data.complete?"All required Intake sections have answers":data.missing.map(s=>s.label).join(", ")+" still need answers"} style={{background:data.complete?"#7A9C80":"#d4a652",color:"#fff",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600}}>Intake data {data.doneCount} of {data.total}</span>
                 <button onClick={printIntakePackage} style={{background:"#7a9c80",color:"#fff",border:"none",borderRadius:6,padding:"7px 16px",fontSize:12.5,fontWeight:700,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#5a7c60"} onMouseLeave={e=>e.currentTarget.style.background="#7a9c80"}>Save as PDF</button>
               </div>
+            </div>
+            <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:16}}>
+              {data.sections.map(s=><span key={s.key} title={s.done?"This Intake section has answers":"This Intake section still needs answers"} style={{fontSize:11.5,fontWeight:600,padding:"5px 10px",borderRadius:14,border:"1px solid "+(s.done?"#9bba9f":"#e2c17f"),background:s.done?"#eef6ef":"#fff8e8",color:s.done?"#3d5c43":"#8a651f"}}>{s.done?"\u2713 ":"\u25cb "}{s.label}</span>)}
             </div>
 
             <Sec title="Submission Summary" right={"Submitted "+(pkg.submitted||"—")}>
@@ -1982,6 +2033,26 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                 <tbody>{pkg.flags.map((x,i)=>(<tr key={i}><td style={tdS}><span style={{padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:700,background:(sevColor[x.severity]||"#999")+"22",color:sevColor[x.severity]||"#666",border:"1px solid "+(sevColor[x.severity]||"#999")}}>{x.severity}</span></td><td style={{...tdS,fontWeight:600}}>{x.flag}</td><td style={tdS}>{x.section}</td><td style={{...tdS,color:"#666"}}>{x.detail}</td></tr>))}</tbody>
               </table>
             </Sec>)}
+          </div>);
+        })()}
+
+        {tab==="activity"&&(()=>{
+          const entries=[
+            ...(lead.timeline||[]).map(x=>({id:"tl-"+x.id,date:x.date,type:"Update",title:x.action,detail:x.detail,by:x.user})),
+            ...(lead.communications||[]).map(x=>({id:"co-"+x.id,date:x.date,type:x.type||"Message",title:x.subject||x.direction||"Communication",detail:x.body,by:x.to||x.from})),
+            ...(lead.notes||[]).map(x=>({id:"no-"+x.id,date:x.date,type:"Note",title:x.text,detail:"",by:x.author})),
+            ...(lead.tasks||[]).map(x=>({id:"ta-"+x.id,date:x.completedDate||x.due,type:"Task",title:x.title,detail:x.status+(x.assignee?" \u00b7 "+x.assignee:""),by:x.completedBy||x.assignedBy})),
+          ].filter(x=>x.date).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+          return(<div style={{background:"#fff",border:"1px solid #e0e0e0",borderRadius:8,overflow:"hidden"}}>
+            <div style={{padding:"14px 18px",borderBottom:"1px solid #eee"}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#434343"}}>Activity</div>
+              <div style={{fontSize:12,color:"#888",marginTop:3}}>Messages, notes, tasks, and lifecycle changes in one history.</div>
+            </div>
+            {entries.length===0?<div style={{padding:36,textAlign:"center",color:"#999",fontSize:13}}>No activity yet.</div>:entries.slice(0,50).map((x,i)=><div key={x.id||i} style={{display:"grid",gridTemplateColumns:"105px 82px minmax(0,1fr)",gap:14,padding:"12px 18px",borderBottom:i===entries.length-1?"none":"1px solid #f1f1ee",alignItems:"start"}}>
+              <div style={{fontSize:11.5,color:"#888"}}>{new Date(String(x.date)+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</div>
+              <div><span style={{fontSize:10.5,fontWeight:700,color:"#5a7c60",background:"#eef3ee",borderRadius:4,padding:"2px 7px"}}>{x.type}</span></div>
+              <div><div style={{fontSize:12.5,fontWeight:600,color:"#434343",lineHeight:1.45}}>{x.title}</div>{x.detail&&<div style={{fontSize:11.5,color:"#777",marginTop:3,lineHeight:1.45}}>{x.detail}</div>}{x.by&&<div style={{fontSize:10.5,color:"#aaa",marginTop:4}}>{x.by}</div>}</div>
+            </div>)}
           </div>);
         })()}
 
@@ -2057,7 +2128,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
         <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:50}} onClick={()=>setEditingLead(false)}>
           <div style={{background:"#fff",borderRadius:12,padding:"28px 32px",width:480,maxWidth:"90vw",maxHeight:"90vh",overflowY:"auto",boxShadow:"0 8px 32px rgba(0,0,0,0.2)"}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-              <h3 style={{fontSize:18,fontWeight:700,color:"#434343",margin:0}}>Edit Lead</h3>
+              <h3 style={{fontSize:18,fontWeight:700,color:"#434343",margin:0}}>Edit {recordLabel(lead)}</h3>
               <div style={{cursor:"pointer",fontSize:20,color:"#999",lineHeight:1}} onClick={()=>setEditingLead(false)}>&times;</div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
@@ -3013,7 +3084,7 @@ function TaskApprovalModal({task,lead,onClose,onApprove,onOpenLead}){
 
 
 
-function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
+function LegacyDashboardPage({leads,setLeads,setPage,setSelectedLead}){
   const [confirm,confirmModal]=useConfirm();
   const [taskModal,setTaskModal]=useState(null); /* an email-approval task opened as a draft */
   const openTask=(t)=>{
@@ -3247,6 +3318,67 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
   );
 }
 
+function DashboardPage({leads,setPage,setSelectedLead}){
+  const groups={
+    lead:leads.filter(l=>recordKind(l)==="lead"),
+    contact:leads.filter(l=>recordKind(l)==="contact"),
+    matter:leads.filter(l=>recordKind(l)==="matter"),
+  };
+  const open=(record,tab)=>{if(tab)window.__leadTab=tab;setSelectedLead(record.id);setPage("lead-detail");};
+  const work=[...groups.contact,...groups.lead].sort((a,b)=>{
+    const weight=(x)=>recordKind(x)==="contact"?0:1;
+    return weight(a)-weight(b)||String(a.firstName).localeCompare(String(b.firstName));
+  });
+  const laneStyle={background:"#fff",border:"1px solid #e0e4e0",borderRadius:10,padding:"16px 18px",minWidth:0};
+  const info=(text)=><span title={text} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:16,height:16,borderRadius:"50%",border:"1px solid #aab4ac",color:"#718078",fontSize:10,fontWeight:800,cursor:"help"}}>?</span>;
+  return(<div style={{padding:"24px 28px",flex:1}}>
+    <div style={{marginBottom:20}}>
+      <h1 style={{fontSize:23,fontWeight:700,color:"#35423a",margin:"0 0 4px"}}>Petition Prep Dashboard</h1>
+      <div style={{fontSize:13,color:"#747d77"}}>One list for moving people from first contact to a complete petition-prep file.</div>
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:12,marginBottom:20}}>
+      <div onClick={()=>setPage("leads")} style={{...laneStyle,cursor:"pointer",borderTop:"4px solid #90caf9"}}>
+        <div style={{display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:12,fontWeight:800,color:"#1a73e8",letterSpacing:"0.5px",textTransform:"uppercase"}}>Leads</span>{info("People remain Leads until the firm receives any Intake answers.")}</div>
+        <div style={{fontSize:30,fontWeight:800,color:"#35423a",margin:"6px 0 2px"}}>{groups.lead.length}</div>
+        <div style={{fontSize:12,color:"#777"}}>No Intake data yet</div>
+      </div>
+      <div onClick={()=>setPage("contacts")} style={{...laneStyle,cursor:"pointer",borderTop:"4px solid #7A9C80"}}>
+        <div style={{display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:12,fontWeight:800,color:"#3d5c43",letterSpacing:"0.5px",textTransform:"uppercase"}}>Contacts</span>{info("Any Intake data moves a Lead here. Contacts stay here while answers and documents are completed.")}</div>
+        <div style={{fontSize:30,fontWeight:800,color:"#35423a",margin:"6px 0 2px"}}>{groups.contact.length}</div>
+        <div style={{fontSize:12,color:"#777"}}>Data and documents in progress</div>
+      </div>
+      <div onClick={()=>setPage("matters")} style={{...laneStyle,cursor:"pointer",borderTop:"4px solid #4db6ac"}}>
+        <div style={{display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:12,fontWeight:800,color:"#00695c",letterSpacing:"0.5px",textTransform:"uppercase"}}>Matters</span>{info("A Contact becomes a Matter only when Intake data and every document request are complete.")}</div>
+        <div style={{fontSize:30,fontWeight:800,color:"#35423a",margin:"6px 0 2px"}}>{groups.matter.length}</div>
+        <div style={{fontSize:12,color:"#777"}}>Ready for petition prep</div>
+      </div>
+    </div>
+
+    <div style={{background:"#fff",border:"1px solid #e0e4e0",borderRadius:10,overflow:"hidden",marginBottom:18}}>
+      <div style={{padding:"14px 18px",borderBottom:"1px solid #e7e9e7",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+        <div><div style={{fontSize:15,fontWeight:700,color:"#35423a"}}>Work next</div><div style={{fontSize:12,color:"#888",marginTop:2}}>Contacts first, then Leads waiting to start Intake.</div></div>
+        <span style={{fontSize:11.5,color:"#69746d",background:"#f1f4f1",padding:"4px 9px",borderRadius:12}}>{work.length} active</span>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"minmax(180px,1.2fr) 110px 130px 130px minmax(180px,1fr)",gap:12,padding:"9px 16px",background:"#FBFAF7",borderBottom:"1px solid #e8e8e5",fontSize:10.5,fontWeight:800,color:"#838a85",textTransform:"uppercase",letterSpacing:"0.5px"}}>
+        <span>Person</span><span>Status</span><span>Intake data</span><span>Documents</span><span>Next step</span>
+      </div>
+      {work.length===0?<div style={{padding:36,textAlign:"center",color:"#999",fontSize:13}}>Nothing needs Intake or document work.</div>:work.map((l,i)=>{const data=intakeDataStatus(l);const docs=documentStatus(l);const kind=recordKind(l);return(
+        <div key={l.id} onClick={()=>open(l)} style={{display:"grid",gridTemplateColumns:"minmax(180px,1.2fr) 110px 130px 130px minmax(180px,1fr)",gap:12,padding:"12px 16px",borderBottom:i===work.length-1?"none":"1px solid #f0f1ef",alignItems:"center",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f7f9f7"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+          <div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:700,color:"#3f4943",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l.firstName} {l.lastName}</div><div style={{fontSize:11.5,color:"#949a96",marginTop:2}}>{l.bankruptcyType}</div></div>
+          <span style={{width:"fit-content",fontSize:11,fontWeight:700,color:kind==="contact"?"#3d5c43":"#1a73e8",background:kind==="contact"?"#e7f0e8":"#e8f4fd",borderRadius:12,padding:"3px 8px"}}>{recordLabel(l)}</span>
+          <button onClick={e=>{e.stopPropagation();open(l,"intake");}} title={data.complete?"All required Intake sections have answers":data.missing.map(s=>s.label).join(", ")+" still need answers"} style={{textAlign:"left",border:"none",background:"transparent",padding:0,cursor:"pointer",fontSize:12.5,fontWeight:700,color:data.complete?"#3d5c43":"#9a6b20"}}>{data.doneCount}/{data.total} sections</button>
+          <button onClick={e=>{e.stopPropagation();open(l,"documents");}} title={docs.clientNeeded+" needed from client; "+docs.firmReview+" waiting for firm review"} style={{textAlign:"left",border:"none",background:"transparent",padding:0,cursor:"pointer",fontSize:12.5,fontWeight:700,color:docs.complete?"#3d5c43":"#9a6b20"}}>{docs.resolved}/{docs.total} resolved</button>
+          <div style={{fontSize:12.5,fontWeight:600,color:"#4f6757"}}>{nextRecordAction(l)} <span aria-hidden="true">{"\u2192"}</span></div>
+        </div>);})}
+    </div>
+
+    <div style={{background:"#eef5ef",border:"1px solid #c8d8cb",borderRadius:9,padding:"12px 16px",display:"flex",alignItems:"center",gap:10,fontSize:12.5,color:"#46604c"}}>
+      <strong>Lead</strong><span>no Intake data</span><span style={{color:"#93a197"}}>{"\u2192"}</span><strong>Contact</strong><span>complete answers and documents</span><span style={{color:"#93a197"}}>{"\u2192"}</span><strong>Matter</strong><span>petition prep ready</span>
+    </div>
+  </div>);
+}
+
 function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,setSelectedLead}){
   const dynamicLeadStages=LEAD_STAGES;
   const dynamicMatterStages=(()=>{try{const s=localStorage.getItem("bkfl_lite_matter_stages");if(s)return JSON.parse(s);}catch(e){}return MATTER_STAGES;})();
@@ -3278,7 +3410,7 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
   const [leadSearch,setLeadSearch]=useState("");
   const [filterLeadStage,setFilterLeadStage]=useState("All");
   const [filterLeadType,setFilterLeadType]=useState("All");
-  const filteredLeads=useMemo(()=>leads.filter(l=>{
+  const filteredLeads=useMemo(()=>leads.filter(l=>recordKind(l)==="lead").filter(l=>{
     const ms=(l.firstName+" "+l.lastName).toLowerCase().includes(leadSearch.toLowerCase())||l.email.toLowerCase().includes(leadSearch.toLowerCase())||(l.phone||"").includes(leadSearch);
     return ms&&(filterLeadStage==="All"||l.leadStage===filterLeadStage);
   }),[leads,leadSearch,filterLeadStage,filterLeadType]);
@@ -3286,7 +3418,7 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
   return(
     <div style={{padding:"24px 28px",flex:1}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-        <h1 style={{fontSize:22,fontWeight:700,color:"#434343"}}>Leads</h1>
+        <div><h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:"0 0 4px"}}>Leads</h1><div style={{fontSize:12.5,color:"#7d8580"}}>People who have not returned any Intake data yet.</div></div>
       </div>
 
       {/* Search and Filters — matching matters layout */}
@@ -3295,14 +3427,14 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}><circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="#999" strokeWidth="1.8" strokeLinecap="round"/></svg>
           <input value={leadSearch} onChange={e=>setLeadSearch(e.target.value)} placeholder="Search leads..." style={{width:"100%",padding:"9px 12px 9px 36px",borderRadius:6,border:"1px solid #d0d0d0",fontSize:13,outline:"none"}}/>
         </div>
-        <select value={filterLeadStage} onChange={e=>setFilterLeadStage(e.target.value)} style={{padding:"9px 14px",borderRadius:6,border:"1px solid #d0d0d0",fontSize:13,background:"#fff"}}><option value="All">All Stages</option>{dynamicLeadStages.map(s=><option key={s}>{s}</option>)}</select>
+        <select value={filterLeadStage} onChange={e=>setFilterLeadStage(e.target.value)} style={{padding:"9px 14px",borderRadius:6,border:"1px solid #d0d0d0",fontSize:13,background:"#fff"}}><option value="All">All Intake statuses</option>{["New Lead","Intake Sent"].map(s=><option key={s}>{s}</option>)}</select>
       </div>
 
       {/* Leads Table — matching matters table style */}
       <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
           <thead><tr style={{background:"#FBFAF7",borderBottom:"2px solid #e0e0e0"}}>
-            {["Name","Email","Phone","Stage","Created"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}
+            {["Name","Contact","Intake status","Next step","Created"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}
           </tr></thead>
           <tbody>
             {filteredLeads.map(lead=>{
@@ -3310,14 +3442,14 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
               return(
                 <tr key={lead.id} onClick={()=>{setSelectedLead(lead.id);setPage("lead-detail");}} style={{borderBottom:"1px solid #f0f0f0",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f3ef"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                   <td style={{padding:"12px 14px",fontWeight:500,color:"#7A9C80"}}>{lead.firstName} {lead.lastName}</td>
-                  <td style={{padding:"12px 14px",color:"#555",fontSize:14,userSelect:"all",cursor:"text"}} onClick={e=>e.stopPropagation()}>{lead.email}</td>
-                  <td style={{padding:"12px 14px",color:"#555",fontSize:14,userSelect:"all",cursor:"text"}} onClick={e=>e.stopPropagation()}>{lead.phone}</td>
-                  <td style={{padding:"12px 14px"}}><span style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{lead.leadStage}</span>{lead.leadStage==="Ready for Petition Prep"&&lead.prepReadyDate&&<span style={{fontSize:11,color:"#00695c",fontWeight:700,marginLeft:8,whiteSpace:"nowrap"}}>{prepAge(lead)}</span>}</td>
+                  <td style={{padding:"12px 14px",color:"#555"}}><div style={{fontSize:13,userSelect:"all"}}>{lead.email||"\u2014"}</div><div style={{fontSize:11.5,color:"#888",marginTop:2,userSelect:"all"}}>{lead.phone||"\u2014"}</div></td>
+                  <td style={{padding:"12px 14px"}}><span title={lead.leadStage==="Intake Sent"?"Intake link sent; no answers have been received":"No Intake link has been sent"} style={{background:sc.bg,color:sc.text,border:"1px solid "+sc.border,borderRadius:4,padding:"2px 10px",fontSize:12,fontWeight:500,whiteSpace:"nowrap"}}>{lead.leadStage==="Intake Sent"?"Intake sent":"Not started"}</span></td>
+                  <td style={{padding:"12px 14px",color:"#3d5c43",fontWeight:600}}>{nextRecordAction(lead)}</td>
                   <td style={{padding:"12px 14px",color:"#888"}}>{lead.createdDate?new Date(lead.createdDate+"T12:00:00").toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}):""}</td>
                 </tr>
               );
             })}
-            {filteredLeads.length===0&&<tr><td colSpan={5} style={{padding:40,textAlign:"center",color:"#999"}}>No leads found.</td></tr>}
+            {filteredLeads.length===0&&<tr><td colSpan={5} style={{padding:40,textAlign:"center",color:"#999"}}>No Leads are waiting to start Intake.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -3380,7 +3512,7 @@ function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,
 }
 
 /* ─── CALENDAR PAGE ─── */
-function ContactsPage({matters,leads,standaloneContacts,setPage,setSelectedMatter,setSelectedLead,setSelectedContact}){
+function LegacyContactsPage({matters,leads,standaloneContacts,setPage,setSelectedMatter,setSelectedLead,setSelectedContact}){
   const [search,setSearch]=useState("");
   const [filterType,setFilterType]=useState("All");
   const allContacts=useMemo(()=>{
@@ -3439,6 +3571,47 @@ function ContactsPage({matters,leads,standaloneContacts,setPage,setSelectedMatte
 }
 
 /* ─── CONTACT DETAIL PAGE ─── */
+function ContactsPage({leads,setPage,setSelectedLead}){
+  const [search,setSearch]=useState("");
+  const contacts=useMemo(()=>leads.filter(l=>recordKind(l)==="contact").filter(l=>{
+    const q=search.toLowerCase();
+    return (l.firstName+" "+l.lastName).toLowerCase().includes(q)||(l.email||"").toLowerCase().includes(q)||(l.phone||"").includes(search);
+  }),[leads,search]);
+  return(<div style={{padding:"24px 28px",flex:1}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,marginBottom:20}}>
+      <div><div style={{display:"flex",alignItems:"center",gap:8}}><h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:0}}>Contacts</h1><span title="A Lead becomes a Contact as soon as any Intake data is received. The person remains here until all Intake data and document requests are complete." style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:17,height:17,borderRadius:"50%",border:"1px solid #9faa9f",fontSize:10,fontWeight:800,color:"#718078",cursor:"help"}}>?</span></div><div style={{fontSize:12.5,color:"#7d8580",marginTop:4}}>Debtors with Intake data whose answers or documents still need work.</div></div>
+      <div style={{fontSize:13,color:"#888"}}>{contacts.length} in progress</div>
+    </div>
+    <div style={{position:"relative",marginBottom:16}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}><circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="#999" strokeWidth="1.8" strokeLinecap="round"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search contacts..." style={{width:"100%",padding:"9px 12px 9px 36px",borderRadius:6,border:"1px solid #d0d0d0",fontSize:13,outline:"none"}}/></div>
+    <div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+      <thead><tr style={{background:"#FBFAF7",borderBottom:"2px solid #e0e0e0"}}>{["Contact","Chapter","Intake data","Documents","Next step","Submitted"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#666",fontWeight:600,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}</tr></thead>
+      <tbody>{contacts.map(l=>{const data=intakeDataStatus(l);const docs=documentStatus(l);return(<tr key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{borderBottom:"1px solid #f0f0f0",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f3ef"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+        <td style={{padding:"12px 14px"}}><div style={{fontWeight:700,color:"#5a7c60"}}>{l.firstName} {l.lastName}</div><div style={{fontSize:11.5,color:"#888",marginTop:2}}>{l.email||"\u2014"}</div></td>
+        <td style={{padding:"12px 14px",color:"#555"}}>{l.bankruptcyType||"\u2014"}</td>
+        <td title={data.complete?"All required Intake sections have answers":data.missing.map(s=>s.label).join(", ")+" still need answers"} style={{padding:"12px 14px",fontWeight:700,color:data.complete?"#3d5c43":"#9a6b20"}}>{data.doneCount}/{data.total} sections</td>
+        <td title={docs.clientNeeded+" needed from client; "+docs.firmReview+" waiting for firm review"} style={{padding:"12px 14px",fontWeight:700,color:docs.complete?"#3d5c43":"#9a6b20"}}>{docs.resolved}/{docs.total} resolved<div style={{fontSize:10.5,fontWeight:400,color:"#888",marginTop:2}}>{docs.clientNeeded} client {"\u00b7"} {docs.firmReview} firm</div></td>
+        <td style={{padding:"12px 14px",fontWeight:600,color:"#3d5c43"}}>{nextRecordAction(l)}</td>
+        <td style={{padding:"12px 14px",color:"#888"}}>{l.intakeSubmittedDate?new Date(l.intakeSubmittedDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"\u2014"}</td>
+      </tr>);})}{contacts.length===0&&<tr><td colSpan={6} style={{padding:42,textAlign:"center",color:"#999"}}>No Contacts need Intake or document work.</td></tr>}</tbody>
+    </table></div>
+  </div>);
+}
+
+function MattersPage({leads,setPage,setSelectedLead}){
+  const [search,setSearch]=useState("");
+  const matters=useMemo(()=>leads.filter(l=>recordKind(l)==="matter").filter(l=>{const q=search.toLowerCase();return (l.firstName+" "+l.lastName).toLowerCase().includes(q)||(l.email||"").toLowerCase().includes(q);}),[leads,search]);
+  return(<div style={{padding:"24px 28px",flex:1}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,marginBottom:20}}><div><div style={{display:"flex",alignItems:"center",gap:8}}><h1 style={{fontSize:22,fontWeight:700,color:"#434343",margin:0}}>Matters</h1><span title="A Contact becomes a Matter only when required Intake data and every document request are complete." style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:17,height:17,borderRadius:"50%",border:"1px solid #9faa9f",fontSize:10,fontWeight:800,color:"#718078",cursor:"help"}}>?</span></div><div style={{fontSize:12.5,color:"#7d8580",marginTop:4}}>Complete files ready to begin petition preparation.</div></div><div style={{fontSize:13,color:"#888"}}>{matters.length} ready</div></div>
+    <div style={{position:"relative",marginBottom:16}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)"}}><circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="1.8"/><path d="M21 21l-4.35-4.35" stroke="#999" strokeWidth="1.8" strokeLinecap="round"/></svg><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search matters..." style={{width:"100%",padding:"9px 12px 9px 36px",borderRadius:6,border:"1px solid #d0d0d0",fontSize:13,outline:"none"}}/></div>
+    <div style={{background:"#fff",borderRadius:8,border:"1px solid #d6e2d8",overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{background:"#eef6ef",borderBottom:"2px solid #b9d0bd"}}>{["Matter","Chapter","Intake data","Documents","Ready since","Next step"].map(h=><th key={h} style={{textAlign:"left",padding:"10px 14px",color:"#4c6652",fontWeight:700,fontSize:12,textTransform:"uppercase",letterSpacing:0.5}}>{h}</th>)}</tr></thead><tbody>
+      {matters.map(l=>{const data=intakeDataStatus(l);const docs=documentStatus(l);return(<tr key={l.id} onClick={()=>{setSelectedLead(l.id);setPage("lead-detail");}} style={{borderBottom:"1px solid #edf1ed",cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background="#f2f7f3"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+        <td style={{padding:"12px 14px"}}><div style={{fontWeight:700,color:"#00695c"}}>{l.firstName} {l.lastName}</div><div style={{fontSize:11.5,color:"#888",marginTop:2}}>{l.email||"\u2014"}</div></td><td style={{padding:"12px 14px",color:"#555"}}>{l.bankruptcyType||"\u2014"}</td><td style={{padding:"12px 14px",fontWeight:700,color:"#3d5c43"}}>{data.doneCount}/{data.total} complete</td><td style={{padding:"12px 14px",fontWeight:700,color:"#3d5c43"}}>{docs.resolved}/{docs.total} resolved</td><td style={{padding:"12px 14px",color:"#555"}}>{l.prepReadyDate?new Date(l.prepReadyDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"Today"}</td><td style={{padding:"12px 14px",fontWeight:600,color:"#00695c"}}>Begin petition prep {"\u2192"}</td>
+      </tr>);})}
+      {matters.length===0&&<tr><td colSpan={6} style={{padding:48,textAlign:"center"}}><div style={{fontSize:14,fontWeight:700,color:"#56665a",marginBottom:5}}>No Matters are petition-prep ready yet.</div><div style={{fontSize:12.5,color:"#8a928c"}}>A Contact moves here automatically when required Intake data and document requests are complete.</div></td></tr>}
+    </tbody></table></div>
+  </div>);
+}
+
 function ContactDetailPage({contactId,contactSource,sourceId,matters,setMatters,leads,setLeads,standaloneContacts,setStandaloneContacts,setPage,setSelectedMatter,setSelectedLead,setSelectedContact}){
 
   // Find the contact and its parent — use sourceId to find the correct parent first
@@ -3692,9 +3865,9 @@ function App(){
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_auto_templates",JSON.stringify(autoTemplates));}catch(e){}},[autoTemplates]);
   const [taskAutoTemplates,setTaskAutoTemplates]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_task_auto_templates");if(s)return JSON.parse(s);}catch(e){}return [];});
   useEffect(()=>{try{localStorage.setItem("bkfl_lite_task_auto_templates",JSON.stringify(taskAutoTemplates));}catch(e){}},[taskAutoTemplates]);
-  const [page,setPage]=useState("dashboard");
+  const [page,setPage]=useState(()=>{const p=new URLSearchParams(window.location.search).get("page");return ["dashboard","leads","contacts","matters","settings","lead-detail"].includes(p)?p:"dashboard";});
   const [selectedMatter,setSelectedMatter]=useState(null);
-  const [selectedLead,setSelectedLead]=useState(null);
+  const [selectedLead,setSelectedLead]=useState(()=>{const id=Number(new URLSearchParams(window.location.search).get("record"));return Number.isFinite(id)&&id>0?id:null;});
   const [selectedContact,setSelectedContact]=useState(null);
   const [sidebarCollapsed,setSidebarCollapsed]=useState(false);
   const currentMatter=useMemo(()=>matters.find(m=>m.id===selectedMatter),[matters,selectedMatter]);
@@ -3717,11 +3890,13 @@ function App(){
     <React.Fragment>
       <Sidebar page={page} setPage={setPage} setSelectedMatter={setSelectedMatter} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed}/>
       <div style={{marginLeft:sidebarCollapsed?68:250,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh",transition:"margin-left 0.25s ease"}}>
+        <div title="This is Jimmy's fake-data-only demonstration branch based on Matt's current four-part CRM." style={{background:"#214e5f",color:"#eaf2f4",padding:"5px 14px",fontSize:10.5,fontWeight:600,letterSpacing:"0.35px",textAlign:"center"}}>JIMMY DEMO {"\u00b7"} LEAD {"\u2192"} CONTACT {"\u2192"} MATTER {"\u00b7"} FAKE DATA ONLY</div>
         {page!=="lead-detail"&&page!=="contact-detail"&&<TopBar leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="dashboard"&&<DashboardPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="lead-detail"&&<LeadDetail lead={currentLead} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead} matters={matters} setMatters={setMatters} setSelectedMatter={setSelectedMatter} setSelectedContact={setSelectedContact} msgTemplates={msgTemplates} seqTemplates={seqTemplates} commAutomations={autoTemplates}/>}
-        {page==="contacts"&&<ContactsPage matters={matters} leads={leads} standaloneContacts={standaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
+        {page==="contacts"&&<ContactsPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
+        {page==="matters"&&<MattersPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="contact-detail"&&selectedContact&&<ContactDetailPage contactId={selectedContact.id} contactSource={selectedContact.source} sourceId={selectedContact.sourceId} matters={matters} setMatters={setMatters} leads={leads} setLeads={setLeads} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
         {page==="settings"&&<SettingsPage/>}
       </div>
