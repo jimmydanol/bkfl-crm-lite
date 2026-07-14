@@ -6,7 +6,21 @@ The scaled-down, debtor-intake-only version of the BK FastLane CRM. This is the 
 
 Open `index.html` in a modern browser, or run `node scripts/serve-static.mjs 4179` and visit `http://127.0.0.1:4179`. React loads from a CDN; generated fake data and browser-local state require no backend.
 
-## What's in v1
+## Attorney-ready Jimmy demo
+
+Shareable CRM: `https://jimmydanol.github.io/bkfl-crm-lite/`
+
+This branch turns the Matt-branch review findings into a working, fake-data-only law-firm workflow:
+
+- **Needs Attention command center** — ranks one row per matter by urgency, due date, and blockers instead of presenting an 85-task flood.
+- **Three independent readiness gates** — a matter is Ready for Petition Prep only when Intake Completion, Document Review, and Attorney Review are all complete.
+- **Action-based document queues** — separates requests needing a firm decision, requests waiting on the client, and resolved requirements.
+- **Recorded attorney review** — lets the attorney record a workflow review or return the matter for a reason without pretending the software made a legal conclusion.
+- **Visible draft and delivery states** — distinguishes draft, approved snapshot, simulated schedule, and browser-only no-send behavior.
+- **Evidence-based AI boundary** — uses the entered filing state, household, income, debts, and document readiness; it refuses to state above/below median until a current firm-configured DOJ threshold exists.
+- **Clickable explanations** — the dashboard change guide and highlighted `NEW` badges explain what changed, why it changed, and where to inspect it.
+
+## Core workflow surfaces
 
 - **Intake Completion** — matter-level queue for applicable missing items, first-reminder review, reasoned edits, idempotent approval, scheduling, and atomic cancellation.
 - **Document Review** — independent receive, approve, replace, excuse, follow-up, and re-review states.
@@ -17,16 +31,19 @@ Open `index.html` in a modern browser, or run `node scripts/serve-static.mjs 417
 ## Core rules
 
 1. Intake owns canonical completion rules and item IDs; CRM consumes the v2 bundle without re-deriving applicability.
-2. Every AI-drafted email requires attorney approval before it is sent. No exceptions.
+2. Every AI-drafted email requires attorney approval before it is sent. This static demo does not send email.
 3. Every document requires manual firm approval — AI acceptance is a recommendation, never the final word.
 4. One email = one contact = one intake per case. Joint filers share a single intake sent to the primary contact.
-5. Intake Completion, Document Review, and Attorney Review are separate state dimensions.
+5. Intake Completion, Document Review, and Attorney Review are separate state dimensions; all three must pass before Ready for Petition Prep.
+6. AI may summarize entered evidence, but it cannot invent a current legal threshold or substitute for attorney judgment.
 
 ## Spec
 
 `docs/bkfl-intake-flow-spec-v1.docx` — the development specification covering the object model, both intake entry paths, dedupe logic, and field definitions.
 
 `docs/document-review-workflow.md` — the developer-facing incomplete-intake contract, missing-item model, scheduled-email approval state machine, ownership boundaries, and production follow-ons.
+
+`docs/attorney-ready-command-center.md` — the report-to-product decisions, readiness contract, highlighted UI changes, and production boundaries for this Jimmy build.
 
 ## Change log
 

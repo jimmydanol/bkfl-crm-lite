@@ -538,6 +538,197 @@
     }
   }
 
+  const completedDocument = (document) =>
+    ['approved', 'excused'].includes(clean(document?.reviewStatus))
+    || ['approved', 'excused'].includes(clean(document?.status))
+
+  const evaluateLeadReadiness = (lead) => {
+    const completion = lead?.intakeCompletion
+    const checklist = asArray(lead?.docChecklist)
+    const missingItems = asArray(completion?.missingItems).filter(
+      (item) => item?.applicability === 'essential_now' && item?.clientActionable !== false,
+    )
+    const unresolvedDocuments = checklist.filter((document) => !completedDocument(document))
+    const attorneyStatus = clean(
+      lead?.attorneyReview?.status || completion?.states?.attorneyReview,
+    ) || 'not_started'
+    const intakeComplete = completion?.status === 'complete'
+    const documentsComplete = checklist.length > 0 && unresolvedDocuments.length === 0
+    const attorneyComplete = ['reviewed', 'approved'].includes(attorneyStatus)
+    const missingFieldCount = missingItems.filter((item) => item?.kind === 'field').length
+    const missingDocumentCount = missingItems.filter((item) => item?.kind === 'document').length
+    const partialSectionCount = asArray(lead?.intakePackage?.readiness?.partialSections).length
+    const inconsistencyCount = asArray(lead?.intakePackage?.readiness?.inconsistencies).length
+    const blockers = []
+
+    if (!intakeComplete) {
+      const intakeIssueLabels = [
+        `${missingFieldCount} missing answer${missingFieldCount === 1 ? '' : 's'}`,
+        `${partialSectionCount} partial section${partialSectionCount === 1 ? '' : 's'}`,
+        `${inconsistencyCount} ${inconsistencyCount === 1 ? 'inconsistency' : 'inconsistencies'}`,
+      ]
+      blockers.push({
+        count: missingFieldCount + partialSectionCount + inconsistencyCount,
+        gate: 'intake',
+        label: intakeIssueLabels.join(', '),
+      })
+    }
+    if (!documentsComplete) {
+      blockers.push({
+        count: unresolvedDocuments.length,
+        gate: 'documents',
+        label: `${unresolvedDocuments.length} document request${unresolvedDocuments.length === 1 ? '' : 's'} unresolved`,
+      })
+    }
+    if (!attorneyComplete) {
+      blockers.push({
+        count: 1,
+        gate: 'attorney',
+        label: attorneyStatus === 'needs_follow_up'
+          ? 'Attorney returned the matter for follow-up'
+          : 'Attorney review not recorded',
+      })
+    }
+
+    return {
+      attorneyStatus,
+      blockerCount: blockers.reduce((sum, item) => sum + Math.max(1, item.count), 0),
+      blockers,
+      gates: {
+        attorney: attorneyComplete,
+        documents: documentsComplete,
+        intake: intakeComplete,
+      },
+      inconsistencyCount,
+      missingDocumentCount,
+      missingFieldCount,
+      partialSectionCount,
+      ready: intakeComplete && documentsComplete && attorneyComplete,
+      unresolvedDocumentCount: unresolvedDocuments.length,
+      urgent: Boolean(completion?.urgentAttorneyTask),
+    }
+  }
+
+  const attentionReason = (lead, readiness) => {
+    if (readiness.urgent) {
+      return clean(lead?.intakeCompletion?.urgentAttorneyTask?.title)
+        || 'Time-sensitive issue requires attorney attention'
+    }
+    if (!readiness.gates.intake) return readiness.blockers.find((item) => item.gate === 'intake')?.label
+    if (!readiness.gates.documents) return readiness.blockers.find((item) => item.gate === 'documents')?.label
+    if (!readiness.gates.attorney) return readiness.blockers.find((item) => item.gate === 'attorney')?.label
+    return 'All three readiness gates are complete'
+  }
+
+  const buildAttentionQueue = (leads) =>
+    asArray(leads)
+      .filter((lead) => lead?.intakeCompletion)
+      .map((lead) => {
+        const readiness = evaluateLeadReadiness(lead)
+        const nextGate = readiness.urgent
+          ? 'attorney'
+          : readiness.blockers[0]?.gate || 'ready'
+        const dueDates = asArray(lead?.tasks)
+          .filter((task) => task?.status !== 'Completed' && clean(task?.due))
+          .map((task) => clean(task.due))
+          .sort()
+        return {
+          actionPage: nextGate === 'intake'
+            ? 'intake-completion'
+            : nextGate === 'documents'
+              ? 'document-review'
+              : nextGate === 'attorney'
+                ? 'attorney-review'
+                : 'lead-detail',
+          clientName: clean(lead.clientFullName) || `${clean(lead.firstName)} ${clean(lead.lastName)}`.trim(),
+          due: dueDates[0] || '',
+          gate: nextGate,
+          lead,
+          owner: nextGate === 'intake'
+            ? 'Intake staff'
+            : nextGate === 'documents'
+              ? 'Document reviewer'
+              : nextGate === 'attorney'
+                ? 'Attorney'
+                : 'Ready',
+          readiness,
+          reason: attentionReason(lead, readiness),
+        }
+      })
+      .sort((left, right) => {
+        if (left.readiness.ready !== right.readiness.ready) return left.readiness.ready ? 1 : -1
+        if (left.readiness.urgent !== right.readiness.urgent) return left.readiness.urgent ? -1 : 1
+        if (left.due !== right.due) return left.due.localeCompare(right.due)
+        if (left.readiness.blockerCount !== right.readiness.blockerCount) {
+          return right.readiness.blockerCount - left.readiness.blockerCount
+        }
+        return left.clientName.localeCompare(right.clientName)
+      })
+
+  const recordAttorneyReview = (
+    lead,
+    {
+      actor = 'Matt McCune',
+      decision = 'reviewed',
+      now = new Date().toISOString(),
+      reason = '',
+    } = {},
+  ) => {
+    if (!lead?.intakeCompletion) throw new Error('Attorney Review requires an Intake matter.')
+    if (!['reviewed', 'needs_follow_up'].includes(decision)) {
+      throw new Error('Attorney Review decision must be reviewed or needs_follow_up.')
+    }
+    if (decision === 'needs_follow_up' && !clean(reason)) {
+      throw new Error('A follow-up reason is required.')
+    }
+    const eventId = `attorney-review-${hashText(`${lead.id}:${decision}:${clean(reason)}:${now}`)}`
+    const nextLead = {
+      ...lead,
+      attorneyReview: {
+        actor,
+        decidedAt: now,
+        reason: clean(reason),
+        status: decision,
+      },
+      intakeCompletion: {
+        ...lead.intakeCompletion,
+        states: {
+          ...lead.intakeCompletion.states,
+          attorneyReview: decision,
+        },
+      },
+      tasks: asArray(lead.tasks).map((task) => {
+        if (task?.stage !== 'Attorney Review') return task
+        if (decision === 'reviewed') {
+          return { ...task, completedBy: actor, completedDate: dateOnly(now), status: 'Completed' }
+        }
+        const reopened = { ...task, status: 'Open' }
+        delete reopened.completedBy
+        delete reopened.completedDate
+        return reopened
+      }),
+      timeline: dedupeById([
+        {
+          action: decision === 'reviewed' ? 'Attorney review recorded' : 'Attorney follow-up requested',
+          date: dateOnly(now),
+          detail: clean(reason) || 'Workflow review recorded; this is not a legal conclusion.',
+          id: eventId,
+          user: actor,
+        },
+        ...asArray(lead.timeline),
+      ]),
+    }
+    const readiness = evaluateLeadReadiness(nextLead)
+    return {
+      ...nextLead,
+      leadStage: readiness.ready
+        ? 'Ready for Petition Prep'
+        : nextLead.leadStage === 'Ready for Petition Prep'
+          ? 'Intake Submitted — Client Action Needed'
+          : nextLead.leadStage,
+    }
+  }
+
   const approveCompletionReminder = (
     lead,
     { actor = 'pilot reviewer', now = new Date().toISOString(), scheduledFor } = {},
@@ -969,9 +1160,11 @@
     ORGANIZATION_STORAGE_KEY,
     PACKAGE_SCHEMA_VERSION,
     approveCompletionReminder,
+    buildAttentionQueue,
     cancelCompletionFollowUp,
     debtorName,
     enqueuePackage,
+    evaluateLeadReadiness,
     formatAddress,
     matterClientName,
     mergePackageIntoLeads,
@@ -980,6 +1173,7 @@
     packageToLead,
     readOrganization,
     readQueuedPackages,
+    recordAttorneyReview,
     reminderContentHash,
     reminderHashForCompletion,
     total,

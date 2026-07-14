@@ -9,11 +9,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-<script src="./intake-bridge.js?v=20260714-attorney-ready-v1"></script>
-<script src="./data/intake-submissions.js?v=20260714-attorney-ready-v1"></script>
+<script src="./intake-bridge.js?v=20260714-attorney-command-v2"></script>
+<script src="./data/intake-submissions.js?v=20260714-attorney-command-v2"></script>
 <script type="text/babel" src="./crm-intake-components.jsx"></script>
 <style>
-:root{--branch-banner-height:32px;}
+:root{--branch-banner-height:32px;--ink:#2f3b34;--muted:#69726d;--brand:#214e5f;--green:#5f8466;--line:#dfe4e0;--paper:#FBFAF7;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;padding-top:var(--branch-banner-height);}
 #root{display:flex;min-height:calc(100vh - var(--branch-banner-height));}
@@ -23,8 +23,14 @@ body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
 input,select,textarea,button{font-family:inherit;}
 a{text-decoration:none;}
+.feature-explainer-button{display:inline-flex;align-items:center;gap:6px;border:1px solid #9cb9a2;background:#eef6ef;color:#315c39;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:800;letter-spacing:.02em;cursor:pointer;white-space:nowrap;}
+.feature-explainer-button:hover,.feature-explainer-button:focus{background:#dcebdd;border-color:#6f9776;outline:none;}
+.attention-row:hover{background:#f4f8f4!important;border-color:#a9c4ae!important;transform:translateY(-1px);}
+.command-card:hover{border-color:#a9c4ae!important;box-shadow:0 7px 18px rgba(33,78,95,.08);}
+.change-guide-card:hover{border-color:#8eb095!important;transform:translateY(-1px);}
 @media(max-width:700px){
   body{overflow-x:hidden;}
+  .branch-banner{font-size:9px;letter-spacing:.12px;padding:0 6px;text-align:center;}
   #root{min-width:0;}
   .crm-sidebar{width:68px!important;}
   .crm-sidebar img{display:none!important;}
@@ -47,12 +53,17 @@ a{text-decoration:none;}
   [data-testid="intake-package-view"]>div:first-child{padding:14px!important;}
   .document-review-grid{grid-template-columns:1fr!important;}
   .document-review-process{grid-template-columns:1fr!important;}
+  [data-testid="attorney-command-center"],[data-testid="attorney-review-page"],[data-testid="document-review-page"]{padding:16px 12px 24px!important;}
+  .command-readiness-grid,.change-guide-grid{grid-template-columns:1fr!important;}
+  .command-center-grid,.attorney-review-grid{grid-template-columns:1fr!important;}
+  .command-center-grid>aside,.attorney-review-grid>section:last-child{position:static!important;}
+  .attention-row{grid-template-columns:1fr!important;}
 }
 </style>
 </head>
 <body>
 <!-- BK FastLane CRM LITE (v1 dev build) — scaled-down from bkfl-manage.html on 2026-07-08. Scope: Leads, Contacts, Tasks. Original file untouched. -->
-<div class="branch-banner">Jimmy Branch | Fake Data Demo</div>
+<div class="branch-banner" title="Jimmy's separate GitHub Pages build. Every client and document is synthetic; no email is sent.">Jimmy Branch | Attorney-Ready Workflow Demo | Fake Data Only</div>
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
@@ -589,6 +600,7 @@ const leadStageColors={
   "Intake Sent":{bg:"#f3e8fd",text:"#6a1b9a",border:"#ce93d8"},
   "Intake Submitted":{bg:"#dce8de",text:"#3d5c43",border:"#7A9C80"},
   "Intake Submitted — Client Action Needed":{bg:"#fff8df",text:"#855f12",border:"#ead28b"},
+  "Ready for Petition Prep":{bg:"#e7f2e9",text:"#315c39",border:"#7fa989"},
 };
 
 function useLocalLeads(){
@@ -679,6 +691,46 @@ function useOrganizationBrand(){
     };
   },[bridge]);
   return organization;
+}
+
+const CRM_CHANGE_GUIDE=[
+  {id:"attention",number:"01",title:"Needs Attention comes first",page:"dashboard",tag:"Dashboard",explanation:"The home screen now ranks urgent matters and blockers instead of burying 50 test matters inside an 85-item task list."},
+  {id:"readiness",number:"02",title:"Ready now means all three checks passed",page:"dashboard",tag:"Trust",explanation:"A matter is Ready for Petition Prep only after Intake Completion, Document Review, and Attorney Review are all complete."},
+  {id:"intake",number:"03",title:"Missing answers have their own workflow",page:"intake-completion",tag:"Intake",explanation:"Blank answers, partial sections, inconsistencies, and untouched requests stay separate from document decisions."},
+  {id:"documents",number:"04",title:"Document work is grouped by next action",page:"document-review",tag:"Documents",explanation:"The document workspace is organized into Needs firm decision, Waiting on client, and Resolved so staff can act without scanning a full checklist."},
+  {id:"attorney",number:"05",title:"Attorney Review is a real gate",page:"attorney-review",tag:"Attorney",explanation:"The attorney can record that the workflow review happened or return the matter for follow-up without pretending the software made a legal conclusion."},
+  {id:"honesty",number:"06",title:"Drafts and delivery limits are unmistakable",page:"intake-completion",tag:"Safety",explanation:"Editable reminders show the exact approved snapshot and clearly say that the browser-only demo cannot send email."},
+  {id:"ai-trust",number:"07",title:"AI refuses to invent a means-test result",page:"leads",tag:"AI safety",explanation:"The AI view now uses the entered filing state, household, and monthly income. It shows Needs current DOJ threshold instead of silently applying a generic California number."},
+];
+
+function FeatureExplainer({id,label="Why this changed",title,explanation}){
+  const [open,setOpen]=useState(false);
+  return <div style={{position:"relative",display:"inline-flex",zIndex:open?30:"auto"}}>
+    <button type="button" data-testid={"feature-explainer-"+id} aria-expanded={open} onClick={()=>setOpen(!open)} className="feature-explainer-button" title={title+": "+explanation}>
+      <span style={{background:"#315c39",color:"#fff",borderRadius:999,padding:"1px 5px",fontSize:8.5}}>NEW</span>{label}<span aria-hidden="true">ⓘ</span>
+    </button>
+    {open&&<div role="note" data-testid={"feature-explanation-"+id} style={{position:"absolute",right:0,top:"calc(100% + 7px)",width:310,maxWidth:"78vw",padding:13,background:"#fff",border:"1px solid #a9c4ae",borderRadius:9,boxShadow:"0 14px 34px rgba(32,53,42,.2)",color:"#455149",fontSize:11.5,lineHeight:1.55}}>
+      <strong style={{display:"block",fontSize:12.5,color:"#2f3b34",marginBottom:4}}>{title}</strong>
+      <span>{explanation}</span>
+      <button type="button" onClick={()=>setOpen(false)} style={{display:"block",marginTop:9,border:"none",background:"none",padding:0,color:"#315c39",fontSize:10.5,fontWeight:800,cursor:"pointer"}}>Close explanation</button>
+    </div>}
+  </div>;
+}
+
+function ChangeGuidePanel({setPage}){
+  return <section data-testid="change-guide" style={{background:"linear-gradient(135deg,#203f49 0%,#315f57 100%)",borderRadius:13,padding:20,marginBottom:18,color:"#fff",boxShadow:"0 16px 32px rgba(33,78,95,.16)"}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start",marginBottom:15}}>
+      <div><p style={{fontSize:10.5,fontWeight:850,letterSpacing:".12em",color:"#bfe0c5",marginBottom:5}}>REPORT → PRODUCT CHANGES</p><h2 style={{fontSize:20,margin:0}}>What is different in this Jimmy build?</h2><p style={{fontSize:12,color:"#d8e7df",marginTop:5,lineHeight:1.5,maxWidth:760}}>Each highlighted change answers a problem found in the Matt-branch review. Hover any highlighted badge for a short explanation, or click a card to open the changed workflow.</p></div>
+    </div>
+    <div className="change-guide-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:10}}>
+      {CRM_CHANGE_GUIDE.map(change=><button type="button" key={change.id} className="change-guide-card" title={change.explanation} onClick={()=>setPage(change.page)} style={{textAlign:"left",padding:13,border:"1px solid rgba(255,255,255,.2)",borderRadius:9,background:"rgba(255,255,255,.08)",color:"#fff",cursor:"pointer",transition:"all .15s"}}>
+        <span style={{fontSize:9.5,fontWeight:850,letterSpacing:".08em",color:"#bfe0c5"}}>{change.number} · {change.tag.toUpperCase()}</span>
+        <strong style={{display:"block",fontSize:12.5,marginTop:5,lineHeight:1.35}}>{change.title}</strong>
+        <span style={{display:"block",fontSize:10.5,color:"#d8e7df",lineHeight:1.45,marginTop:5}}>{change.explanation}</span>
+        <span style={{display:"block",fontSize:10.5,fontWeight:800,color:"#bfe0c5",marginTop:8}}>Open workflow →</span>
+      </button>)}
+    </div>
+  </section>;
 }
 
 const sidebarItems=[
@@ -1679,19 +1731,27 @@ function AITab({item,isLead,update}){
   const itemName=isLead?item.firstName+" "+item.lastName:item.clientFullName||item.clientName;
   const stage=isLead?item.leadStage:item.matterStage;
   const bkType=item.bankruptcyType||"Chapter 7";
+  const aiSummaryApprovalTask=(item.tasks||[]).find(task=>/review\s*&?\s*approve.*AI intake report/i.test(task.title||""));
+  const aiSummaryApproved=aiSummaryApprovalTask?.status==="Completed";
 
-  // Means Test data from item or defaults
+  // Means Test data. Imported Intake values are used as evidence; a firm-configured
+  // current DOJ threshold is required before the UI states above/below median.
   const mt=item.meansTest||{};
-  const cmi=mt.cmi||item.monthlyIncome||0;
-  const householdSize=mt.householdSize||1;
-  // Median income thresholds by household size (2025 Census / DOJ)
-  const medianThresholds={1:63957,2:83476,3:97234,4:114663,5:124663,6:134663};
-  const medianThreshold=mt.medianThreshold||(medianThresholds[householdSize]||medianThresholds[1]);
+  const intakeMatter=item.intakePackage?.matter||null;
+  const intakeMonthlyIncome=(intakeMatter?.income||[]).reduce((total,income)=>total+(Number(income.sixMonthTotal)>0?Number(income.sixMonthTotal)/6:Number(income.amount)||0),0);
+  const intakeTotalDebt=(intakeMatter?.debts||[]).reduce((total,debt)=>total+(Number(debt.amount)||0),0);
+  const intakeTotalAssets=(intakeMatter?.assets||[]).reduce((total,asset)=>total+(Number(asset.value)||0),0);
+  const totalDebt=Number(item.totalDebt||intakeTotalDebt||0);
+  const totalAssets=Number(item.totalAssets||intakeTotalAssets||0);
+  const cmi=Number(mt.cmi||item.monthlyIncome||intakeMonthlyIncome||0);
+  const householdSize=Number(mt.householdSize||intakeMatter?.household?.householdSize||1);
+  const filingState=mt.state||intakeMatter?.filingState||intakeMatter?.debtors?.[0]?.state||"Not entered";
+  const medianThreshold=Number(mt.medianThreshold||0);
+  const thresholdConfigured=medianThreshold>0;
   const annualizedIncome=cmi*12;
-  const belowMedian=annualizedIncome<=medianThreshold;
+  const belowMedian=thresholdConfigured?annualizedIncome<=medianThreshold:null;
   const deductions=mt.deductions||0;
-  const adjustedCAI=belowMedian?0:Math.max(0,cmi-deductions);
-  const passes=belowMedian||adjustedCAI<=0;
+  const adjustedCAI=belowMedian===true?0:Math.max(0,cmi-deductions);
 
   // Confidence Score: 20 base + up to 60 for pay stubs (10 per month) + 20 for tax doc match
   const payStubMonths=Math.min(6,parseInt(mt.payStubMonths)||0);
@@ -1727,6 +1787,9 @@ function AITab({item,isLead,update}){
 
   // Document checklist
   const getDocChecklist=()=>{
+    if(item.intakeCompletion&&(item.docChecklist||[]).length){
+      return item.docChecklist.map(document=>({name:document.name,key:document.docId,received:Boolean(document.fileName)&&document.state!=="awaiting_upload"}));
+    }
     const docs=item.documents||[];
     const docNames=docs.map(d=>(d.name||"").toLowerCase());
     const required=[
@@ -1746,40 +1809,43 @@ function AITab({item,isLead,update}){
   // Risk flags
   const getFlags=()=>{
     const f=[];
-    if(item.documents&&item.documents.length===0)f.push({text:"No documents uploaded yet",level:"warning"});
+    if(requiredDocumentCount===0||readyDocumentCount===0)f.push({text:"No applicable documents are currently ready",level:"warning"});
     if(!isLead&&!item.customFields?.caseNumber)f.push({text:"Case number not assigned",level:"warning"});
     if(isLead&&!item.leadNotes)f.push({text:"Lead notes not documented",level:"info"});
-    if(cmi>0&&!belowMedian&&bkType==="Chapter 7")f.push({text:"Income above median — Chapter 7 eligibility at risk",level:"critical"});
+    if(cmi>0&&belowMedian===false&&bkType==="Chapter 7")f.push({text:"Income above configured median threshold — attorney analysis required",level:"critical"});
+    if(cmi>0&&!thresholdConfigured)f.push({text:"Current DOJ median threshold is not configured",level:"warning"});
     if(!isLead&&item.outstandingBalance>0)f.push({text:"Outstanding balance of "+fmtDec(item.outstandingBalance),level:"warning"});
     return f;
   };
 
   const recs=getRecs();
   const docChecklist=getDocChecklist();
-  const flags=getFlags();
   const receivedCount=docChecklist.filter(d=>d.received).length;
+  const requiredDocumentCount=Number(item.intakePackage?.readiness?.documentsRequired||docChecklist.length);
+  const readyDocumentCount=Number(item.intakePackage?.readiness?.documentsReady??receivedCount);
+  const flags=getFlags();
 
   // Complexity Score Calculation
   const getComplexityScore=()=>{
     let score=0;
     let factors=[];
     // Debt level
-    const debt=item.totalDebt||0;
+    const debt=totalDebt;
     if(debt>100000){score+=25;factors.push({label:"High Debt (>$100k)",points:25});}
     else if(debt>50000){score+=15;factors.push({label:"Moderate Debt ($50k-$100k)",points:15});}
     else if(debt>20000){score+=8;factors.push({label:"Standard Debt ($20k-$50k)",points:8});}
     else if(debt>0){score+=3;factors.push({label:"Low Debt (<$20k)",points:3});}
     // Income above median
-    if(!belowMedian&&cmi>0){score+=20;factors.push({label:"Income Above Median",points:20});}
+    if(belowMedian===false&&cmi>0){score+=20;factors.push({label:"Income Above Configured Median",points:20});}
     // Asset complexity
-    const assets=item.totalAssets||0;
+    const assets=totalAssets;
     if(assets>50000){score+=15;factors.push({label:"Significant Assets (>$50k)",points:15});}
     else if(assets>20000){score+=8;factors.push({label:"Moderate Assets ($20k-$50k)",points:8});}
     // Joint case
     const contacts=item.contacts||[];
     if(contacts.length>1){score+=10;factors.push({label:"Joint Filing",points:10});}
     // Missing documents
-    const missingDocs=docChecklist.filter(d=>!d.received).length;
+    const missingDocs=Math.max(0,requiredDocumentCount-readyDocumentCount);
     if(missingDocs>=6){score+=15;factors.push({label:"Many Documents Missing ("+missingDocs+")",points:15});}
     else if(missingDocs>=3){score+=8;factors.push({label:"Some Documents Missing ("+missingDocs+")",points:8});}
     // Chapter 13 adds complexity
@@ -1797,16 +1863,16 @@ function AITab({item,isLead,update}){
     const parts=[];
     parts.push(itemName+" — "+bkType+" "+(isLead?"lead":"matter")+", currently at \""+stage+"\" stage.");
     if(cmi>0){
-      parts.push("CMI: "+fmtDec(cmi)+"/mo"+(belowMedian?" (below median, HH size "+householdSize+").":" (ABOVE median, HH size "+householdSize+" — Ch. 7 eligibility concern)."));
+      parts.push("CMI: "+fmtDec(cmi)+"/mo"+(belowMedian===true?" (below the configured median, HH size "+householdSize+").":belowMedian===false?" (ABOVE the configured median, HH size "+householdSize+" — attorney analysis required).":" (HH size "+householdSize+"; current DOJ threshold not configured, so no median conclusion is shown)."));
     }
     if(!isLead&&item.totalDebt>0){
       parts.push("Scheduled debt: "+fmtDec(item.totalDebt)+". Assets: "+fmtDec(item.totalAssets||0)+". Exemptions: "+fmtDec(item.exemptions||0)+".");
     }
-    if(!belowMedian&&bkType==="Chapter 7")parts.push("ALERT: Means test may not pass — consider Chapter 13 conversion or further deduction analysis.");
-    if(receivedCount<docChecklist.length){
-      parts.push("Document status: "+receivedCount+"/"+docChecklist.length+" received ("+Math.round((receivedCount/docChecklist.length)*100)+"% complete). Missing items may delay filing.");
+    if(belowMedian===false&&bkType==="Chapter 7")parts.push("ALERT: Income exceeds the configured median threshold. Attorney review of the official means-test analysis is required.");
+    if(readyDocumentCount<requiredDocumentCount){
+      parts.push("Document status: "+readyDocumentCount+"/"+requiredDocumentCount+" ready for firm use ("+Math.round((readyDocumentCount/Math.max(1,requiredDocumentCount))*100)+"% complete). Missing or unresolved items may delay filing.");
     }else{
-      parts.push("All required documents received — ready for petition preparation.");
+      parts.push("All applicable document requirements are resolved. Intake Completion and Attorney Review must also pass before petition preparation readiness.");
     }
     if(flags.filter(f=>f.level==="critical").length>0)parts.push("CRITICAL FLAGS present — review before proceeding.");
     parts.push("Complexity: "+complexityLevel+" ("+complexity.score+"/100).");
@@ -1820,14 +1886,15 @@ function AITab({item,isLead,update}){
     parts.push("Dear "+itemName.split(" ")[0]+", here is a summary of your "+bkType+" bankruptcy case.");
     parts.push("Your case is currently in the \""+stage+"\" phase.");
     if(cmi>0){
-      if(belowMedian)parts.push("Based on your household income of "+fmtDec(cmi)+" per month, you qualify under the income limits for your household size.");
-      else parts.push("Your household income of "+fmtDec(cmi)+" per month is above the threshold for your household size. Your attorney will work with you on next steps.");
+      if(belowMedian===true)parts.push("Your entered household income is below the threshold currently configured by the firm. Your attorney will verify the official means-test analysis.");
+      else if(belowMedian===false)parts.push("Your entered household income is above the threshold currently configured by the firm. Your attorney will review the official means-test analysis with you.");
+      else parts.push("Your entered household income is "+fmtDec(cmi)+" per month. The firm has not configured the current DOJ threshold in this demo, so no eligibility conclusion is shown.");
     }
     if(!isLead&&item.totalDebt>0){
       parts.push("Your total reported debts are "+fmtDec(item.totalDebt)+".");
     }
-    if(receivedCount<docChecklist.length){
-      const missing=docChecklist.filter(d=>!d.received).map(d=>d.name);
+    if(readyDocumentCount<requiredDocumentCount){
+      const missing=item.intakeCompletion?(item.intakeCompletion.missingItems||[]).filter(missingItem=>missingItem.kind==="document").map(missingItem=>missingItem.label):docChecklist.filter(d=>!d.received).map(d=>d.name);
       parts.push("We still need the following documents from you: "+missing.join(", ")+".");
     }else{
       parts.push("We have received all the documents we need from you. Thank you!");
@@ -1855,29 +1922,29 @@ function AITab({item,isLead,update}){
       <div style={{fontSize:12,color:"#999",fontStyle:"italic",marginBottom:14,textAlign:"center"}}>*AI makes mistakes! A human should always confirm information</div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}}>
 
-        {/* AI Means Test Analysis */}
-        <Widget title="AI Means Test Analysis" collapsible={false}>
+        {/* Preliminary income check: no legal result without a configured threshold */}
+        <Widget title="Preliminary Income Check" collapsible={false} actions={<FeatureExplainer id="means-test-boundary" label="Why no result?" title="No threshold, no conclusion" explanation="The prior demo silently used a generic California number. This view uses entered Intake data but will not state above or below median until the firm configures the applicable current DOJ threshold."/>}>
           {/* Result indicator */}
-          <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",borderRadius:10,background:belowMedian?"#f0f7f1":"#fef2f2",marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",borderRadius:10,background:belowMedian===null?"#fff8df":belowMedian?"#f0f7f1":"#fef2f2",marginBottom:16}}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              {belowMedian?<><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#3d5c43" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#3d5c43" strokeWidth="2" strokeLinecap="round"/></>:<><circle cx="12" cy="12" r="10" stroke="#c0392b" strokeWidth="2"/><path d="M15 9l-6 6M9 9l6 6" stroke="#c0392b" strokeWidth="2" strokeLinecap="round"/></>}
+              {belowMedian===null?<><circle cx="12" cy="12" r="10" stroke="#8a6517" strokeWidth="2"/><path d="M12 7v6M12 17h.01" stroke="#8a6517" strokeWidth="2" strokeLinecap="round"/></>:belowMedian?<><path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#3d5c43" strokeWidth="2" strokeLinecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#3d5c43" strokeWidth="2" strokeLinecap="round"/></>:<><circle cx="12" cy="12" r="10" stroke="#c0392b" strokeWidth="2"/><path d="M15 9l-6 6M9 9l6 6" stroke="#c0392b" strokeWidth="2" strokeLinecap="round"/></>}
             </svg>
-            <span style={{fontSize:14,fontWeight:600,color:belowMedian?"#3d5c43":"#c0392b"}}>{belowMedian?"Income is below the median":"Income is above the median"}</span>
+            <span style={{fontSize:14,fontWeight:600,color:belowMedian===null?"#8a6517":belowMedian?"#3d5c43":"#c0392b"}}>{belowMedian===null?"Needs current DOJ threshold":belowMedian?"Income is below the configured median":"Income is above the configured median"}</span>
           </div>
 
           {/* Median Family Income */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #f0f0f0"}}>
             <div>
-              <div style={{fontSize:14,fontWeight:500,color:"#434343"}}>Median Family Income</div>
-              <div style={{fontSize:11,color:"#999",marginTop:2}}>{mt.state||"California"} • Household of {householdSize} (UST)</div>
+              <div style={{fontSize:14,fontWeight:500,color:"#434343"}}>{thresholdConfigured?"Configured Median Family Income":"Current DOJ threshold"}</div>
+              <div style={{fontSize:11,color:"#999",marginTop:2}}>{filingState} • Household of {householdSize} • attorney verification required</div>
             </div>
-            <div style={{fontSize:16,fontWeight:700,color:"#1a73e8"}}>{fmtDec(medianThreshold)}</div>
+            <div style={{fontSize:thresholdConfigured?16:11.5,fontWeight:700,color:thresholdConfigured?"#1a73e8":"#8a6517",textAlign:"right"}}>{thresholdConfigured?fmtDec(medianThreshold):"NOT CONFIGURED"}</div>
           </div>
 
           {/* Annualized CMI */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #f0f0f0"}}>
             <div style={{fontSize:14,fontWeight:500,color:"#434343"}}>Current Monthly Income (CMI)</div>
-            <div style={{fontSize:16,fontWeight:700,color:belowMedian?"#3d5c43":"#c0392b"}}>{fmtDec(cmi)}</div>
+            <div style={{fontSize:16,fontWeight:700,color:belowMedian===null?"#455149":belowMedian?"#3d5c43":"#c0392b"}}>{fmtDec(cmi)}</div>
           </div>
           {/* Confidence Score */}
           <div style={{padding:"14px 0"}}>
@@ -1946,7 +2013,8 @@ function AITab({item,isLead,update}){
         </Widget>
 
         {/* AI Intake Summary */}
-        <Widget title="AI Intake Summary" collapsible={false} actions={<div style={{display:"flex",gap:6,alignItems:"center"}}><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:"#e8f4fd",color:"#1a73e8",display:"flex",alignItems:"center",gap:4}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#1a73e8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>AI</span><button onClick={()=>downloadSummaryPDF("AI Intake Summary — "+itemName,getAttorneySummary())} style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:"#f0f0f0",color:"#555",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:4}} title="Download as PDF"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>PDF</button></div>}>
+        <Widget title="AI Intake Summary" collapsible={false} actions={<div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}><span style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:"#e8f4fd",color:"#1a73e8",display:"flex",alignItems:"center",gap:4}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#1a73e8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>AI ASSISTED</span><span data-testid="summary-approval-state" title={aiSummaryApproved?"The linked attorney approval task is complete.":"The attorney approval task is still open. This summary must not be treated as approved or client-ready."} style={{padding:"3px 9px",borderRadius:20,fontSize:10,fontWeight:800,background:aiSummaryApproved?"#e7f2e9":"#fff3df",color:aiSummaryApproved?"#315c39":"#8a5e12",border:"1px solid "+(aiSummaryApproved?"#a6c6ac":"#e5c577")}}>{aiSummaryApproved?"APPROVED SNAPSHOT":"DRAFT — NOT APPROVED"}</span><button onClick={()=>downloadSummaryPDF((aiSummaryApproved?"Approved":"Draft")+" AI Intake Summary — "+itemName,getAttorneySummary())} style={{padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:"#f0f0f0",color:"#555",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:4}} title={aiSummaryApproved?"Download the approved summary snapshot":"Preview a draft PDF; downloading does not approve or send it"}><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>{aiSummaryApproved?"PDF":"DRAFT PDF"}</button></div>}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center",padding:"9px 11px",marginBottom:12,borderRadius:7,background:aiSummaryApproved?"#f2f8f3":"#fff9e9",border:"1px solid "+(aiSummaryApproved?"#b8d2bd":"#ead28b"),fontSize:10.8,color:aiSummaryApproved?"#315c39":"#755914",flexWrap:"wrap"}}><strong>{aiSummaryApproved?"Attorney approval recorded":"Attorney approval required before client use"}</strong><span>{aiSummaryApproved?"This browser-local snapshot is marked reviewed.":"This demo does not send this summary. PDF preview does not count as approval."}</span></div>
           <div style={{fontSize:13,lineHeight:1.8,color:"#555"}}>{getAttorneySummary()}</div>
           <div style={{marginTop:16,padding:"12px 16px",background:"#f8f9fa",borderRadius:8,borderLeft:"3px solid #d0d0d0"}}>
             <p style={{fontSize:11,lineHeight:1.6,color:"#888",margin:0,fontStyle:"italic"}}>This summary was generated by AI and is based solely on the information submitted through your intake worksheet and uploaded documents. It does not constitute legal advice. The information has not been independently verified and may contain errors or omissions. Please review all details with your attorney before relying on this summary or taking any action.</p>
@@ -2496,7 +2564,7 @@ function SettingsPage(){
 /* ─── COMMUNICATIONS PAGE ─── */
 
 /* ─── DASHBOARD (LITE) ─── */
-function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
+function LegacyDashboardPage({leads,setLeads,setPage,setSelectedLead}){
   const today=new Date();
   const dateStr=today.toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const affirmations=[
@@ -2628,8 +2696,86 @@ function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
   );
 }
 
+function DashboardPage({leads,setLeads,setPage,setSelectedLead}){
+  const bridge=window.BKFLIntakeBridge;
+  const [showGuide,setShowGuide]=useState(true);
+  const [attentionFilter,setAttentionFilter]=useState("all");
+  const [selectedAttentionKey,setSelectedAttentionKey]=useState(null);
+  const attention=useMemo(()=>bridge.buildAttentionQueue(leads).filter(item=>!item.readiness.ready),[bridge,leads]);
+  const pilotLeads=useMemo(()=>leads.filter(lead=>lead.intakeCompletion),[leads]);
+  const matchesAttentionFilter=item=>attentionFilter==="all"||
+    (attentionFilter==="urgent"&&item.readiness.urgent)||
+    (attentionFilter==="intake"&&!item.readiness.gates.intake)||
+    (attentionFilter==="documents"&&!item.readiness.gates.documents)||
+    (attentionFilter==="attorney"&&!item.readiness.gates.attorney);
+  const filteredAttention=attention.filter(matchesAttentionFilter);
+  const selected=filteredAttention.find(item=>String(item.lead.id)===selectedAttentionKey)||filteredAttention[0]||null;
+  const gateCounts=pilotLeads.reduce((counts,lead)=>{
+    const readiness=bridge.evaluateLeadReadiness(lead);
+    if(!readiness.gates.intake)counts.intake+=1;
+    if(!readiness.gates.documents)counts.documents+=1;
+    if(!readiness.gates.attorney)counts.attorney+=1;
+    if(readiness.ready)counts.ready+=1;
+    if(readiness.urgent)counts.urgent+=1;
+    return counts;
+  },{attorney:0,documents:0,intake:0,ready:0,urgent:0});
+  const filters=[
+    ["all","All attention",attention.length],
+    ["urgent","Urgent",gateCounts.urgent],
+    ["intake","Intake",gateCounts.intake],
+    ["documents","Documents",gateCounts.documents],
+    ["attorney","Attorney",gateCounts.attorney],
+  ];
+  const gateCards=[
+    {key:"intake",label:"Intake Completion open",value:gateCounts.intake,page:"intake-completion",description:"Missing answers, partial sections, or inconsistencies still need client or staff action.",color:"#8a6517",bg:"#fff9e8",border:"#e7d18a"},
+    {key:"documents",label:"Document Review open",value:gateCounts.documents,page:"document-review",description:"At least one applicable document still needs a firm decision or client upload.",color:"#9a4d32",bg:"#fff4ef",border:"#e6b7a6"},
+    {key:"attorney",label:"Attorney Review open",value:gateCounts.attorney,page:"attorney-review",description:"The attorney workflow review has not yet been recorded.",color:"#365f75",bg:"#eff7fa",border:"#b5d1dc"},
+    {key:"ready",label:"Truly ready for petition prep",value:gateCounts.ready,page:"attorney-review",description:"Only matters with all three gates complete appear here.",color:"#315c39",bg:"#eef7ef",border:"#a6c6ac"},
+  ];
+  const openAttention=item=>{
+    if(!item)return;
+    setSelectedLead(item.lead.id);
+    setPage(item.actionPage);
+  };
+  const gateLabel=gate=>gate==="intake"?"Intake Completion":gate==="documents"?"Document Review":gate==="attorney"?"Attorney Review":"Ready";
+  const formatDue=value=>value?new Date(value+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}):"No due date";
+  const cardBase={background:"#fff",border:"1px solid #dfe4e0",borderRadius:11};
+  return <div data-testid="attorney-command-center" style={{padding:"24px 28px 34px",flex:1,background:"#f7f6f2",minWidth:0}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:18,alignItems:"flex-start",marginBottom:16,flexWrap:"wrap"}}>
+      <div><p style={{fontSize:10.5,fontWeight:850,letterSpacing:".12em",color:"#5f8466",marginBottom:5}}>BANKRUPTCY INTAKE COMMAND CENTER</p><h1 style={{fontSize:28,fontWeight:760,color:"#2f3b34",margin:0}}>What needs attention today?</h1><p style={{fontSize:13,color:"#69726d",marginTop:7,maxWidth:720,lineHeight:1.55}}>Start with the highest-risk matter, see the exact blocker, and move it to the right reviewer. Readiness is earned only after all three firm checks are complete.</p></div>
+      <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><FeatureExplainer id="command-center" label="Why this dashboard" title="The task flood was replaced" explanation="The prior dashboard hid the 50 pilot matters from the stage cards and displayed 85 raw tasks. This view ranks matters by urgency and blocker instead."/><button type="button" onClick={()=>setShowGuide(!showGuide)} style={{padding:"8px 11px",border:"1px solid #214e5f",background:showGuide?"#214e5f":"#fff",color:showGuide?"#fff":"#214e5f",borderRadius:7,fontSize:11,fontWeight:750,cursor:"pointer"}}>{showGuide?"Hide":"Show"} change guide</button></div>
+    </div>
+    <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",padding:"10px 13px",background:"#fff8df",border:"1px solid #ead28b",borderRadius:8,fontSize:11.5,color:"#6d5712",marginBottom:16,flexWrap:"wrap"}}><strong>Safe demo boundary</strong><span>50 synthetic matters · browser-local records · simulated email only · no real client data</span><span title="This public GitHub Pages build has no production authentication, secure file storage, or real email delivery." style={{fontWeight:800}}>Why? ⓘ</span></div>
+    {showGuide&&<ChangeGuidePanel setPage={setPage}/>}
+
+    <div className="command-readiness-grid" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:11,marginBottom:17}}>
+      {gateCards.map(card=><button type="button" data-testid={"readiness-gate-card-"+card.key} key={card.key} className="command-card" onClick={()=>setPage(card.page)} title={card.description} style={{textAlign:"left",padding:15,background:card.bg,border:"1px solid "+card.border,borderRadius:10,cursor:"pointer",transition:"all .15s"}}><div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}><span style={{fontSize:10,fontWeight:850,letterSpacing:".06em",textTransform:"uppercase",color:card.color}}>{card.label}</span><span style={{fontSize:23,fontWeight:800,color:card.color,lineHeight:1}}>{card.value}</span></div><p style={{fontSize:10.5,color:"#657069",lineHeight:1.45,marginTop:8}}>{card.description}</p><span style={{display:"block",fontSize:10.5,fontWeight:800,color:card.color,marginTop:7}}>Open queue →</span></button>)}
+    </div>
+
+    <div className="command-center-grid" style={{display:"grid",gridTemplateColumns:"minmax(430px,1.15fr) minmax(340px,.85fr)",gap:14,alignItems:"start"}}>
+      <section data-testid="needs-attention-queue" style={{...cardBase,overflow:"hidden"}}>
+        <div style={{padding:"14px 16px",borderBottom:"1px solid #e9ece9",display:"flex",justifyContent:"space-between",gap:12,alignItems:"center",flexWrap:"wrap"}}><div><h2 style={{fontSize:15,margin:0,color:"#344038"}}>Needs Attention</h2><p style={{fontSize:10.5,color:"#7b837e",marginTop:3}}>Ranked: urgent · due date · number of blockers</p></div><FeatureExplainer id="attention-ranking" label="How ranking works" title="Matter-first priority" explanation="Each matter appears once with its most important next action. Urgent attorney issues outrank routine completion and document work."/></div>
+        <div style={{display:"flex",gap:6,padding:"10px 12px",borderBottom:"1px solid #edf0ed",overflowX:"auto"}}>{filters.map(([key,label,count])=><button type="button" key={key} onClick={()=>{setAttentionFilter(key);setSelectedAttentionKey(null);}} style={{padding:"6px 9px",borderRadius:999,border:"1px solid "+(attentionFilter===key?"#214e5f":"#d7ddd8"),background:attentionFilter===key?"#214e5f":"#fff",color:attentionFilter===key?"#fff":"#5f6863",fontSize:10.5,fontWeight:750,cursor:"pointer",whiteSpace:"nowrap"}}>{label} {count}</button>)}</div>
+        <div style={{maxHeight:610,overflowY:"auto",padding:10}}>{filteredAttention.slice(0,14).map(item=>{
+          const active=selected?.lead.id===item.lead.id;
+          return <button type="button" className="attention-row" data-testid={"attention-row-"+item.lead.intakePackage.source.scenarioId} key={item.lead.id} onClick={()=>setSelectedAttentionKey(String(item.lead.id))} title={item.reason} style={{width:"100%",display:"grid",gridTemplateColumns:"minmax(170px,1fr) minmax(190px,1.2fr) 90px",gap:10,alignItems:"center",textAlign:"left",padding:"11px 12px",marginBottom:7,border:"1px solid "+(active?"#7ca184":"#e5e8e5"),borderLeft:"4px solid "+(item.readiness.urgent?"#b5473f":item.gate==="intake"?"#d3ad36":item.gate==="documents"?"#c7724f":"#4e8198"),borderRadius:8,background:active?"#f1f7f2":"#fff",cursor:"pointer",transition:"all .15s"}}><div><strong style={{display:"block",fontSize:12.5,color:"#344038"}}>{item.clientName}</strong><span style={{display:"block",fontSize:10.5,color:"#7b837e",marginTop:3}}>{item.lead.bankruptcyType} · {item.lead.intakeCompletion.intakeChecklistCompletion}% complete</span></div><div><span style={{display:"block",fontSize:11.5,fontWeight:700,color:item.readiness.urgent?"#9f3933":"#4c5750",lineHeight:1.35}}>{item.reason}</span><span style={{display:"block",fontSize:10,color:"#8a928d",marginTop:3}}>{gateLabel(item.gate)} · {item.owner}</span></div><div style={{textAlign:"right"}}><span style={{display:"block",fontSize:10.5,fontWeight:800,color:item.readiness.urgent?"#9f3933":"#5f6863"}}>{item.readiness.urgent?"URGENT":formatDue(item.due)}</span><span style={{display:"block",fontSize:9.5,color:"#8a928d",marginTop:4}}>{item.readiness.blockerCount} blockers</span></div></button>;
+        })}{filteredAttention.length===0&&<div style={{padding:36,textAlign:"center",color:"#8a928d",fontSize:12}}>No matters match this view.</div>}{filteredAttention.length>14&&<div style={{padding:"8px 12px 14px",textAlign:"center",fontSize:10.5,color:"#7b837e"}}>Showing the 14 highest-priority matters · {filteredAttention.length-14} more remain in this queue</div>}</div>
+      </section>
+
+      <aside style={{...cardBase,overflow:"hidden",position:"sticky",top:88}}>
+        {!selected?<div style={{padding:36,textAlign:"center",fontSize:12,color:"#8a928d"}}>Select a matter to see why it is blocked.</div>:<React.Fragment><div style={{padding:"15px 16px",borderBottom:"1px solid #edf0ed"}}><div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"flex-start"}}><div><p style={{fontSize:9.5,fontWeight:850,letterSpacing:".08em",color:selected.readiness.urgent?"#9f3933":"#5f8466",marginBottom:4}}>{selected.readiness.urgent?"URGENT ATTORNEY ATTENTION":"NEXT BEST ACTION"}</p><h2 style={{fontSize:17,margin:0,color:"#344038"}}>{selected.clientName}</h2><p style={{fontSize:11,color:"#7b837e",marginTop:4}}>{selected.lead.bankruptcyType} · submitted {selected.lead.intakeSubmittedDate}</p></div><span style={{padding:"4px 8px",borderRadius:999,background:selected.readiness.ready?"#e7f2e9":"#fff8df",border:"1px solid "+(selected.readiness.ready?"#a6c6ac":"#ead28b"),fontSize:10,fontWeight:800,color:selected.readiness.ready?"#315c39":"#6d5712",whiteSpace:"nowrap"}}>{selected.readiness.ready?"TRULY READY":"NOT READY"}</span></div></div><div style={{padding:16}}>
+          <div data-testid="selected-readiness-gates" style={{display:"grid",gap:7,marginBottom:14}}>{[["intake","Intake Completion"],["documents","Document Review"],["attorney","Attorney Review"]].map(([key,label])=>{const done=selected.readiness.gates[key];return <div key={key} style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center",padding:"9px 10px",border:"1px solid "+(done?"#b8d2bd":"#e3d4a7"),borderRadius:7,background:done?"#f2f8f3":"#fffaf0"}}><span style={{fontSize:11.5,fontWeight:700,color:"#455149"}}>{label}</span><span style={{fontSize:10,fontWeight:850,color:done?"#315c39":"#8a6517"}}>{done?"COMPLETE":"OPEN"}</span></div>})}</div>
+          <h3 style={{fontSize:11.5,color:"#455149",marginBottom:7}}>Why this matter is not ready</h3><div style={{display:"grid",gap:6,marginBottom:14}}>{selected.readiness.blockers.map(blocker=><div key={blocker.gate} style={{padding:"8px 9px",background:"#f8faf8",borderRadius:6,fontSize:10.8,color:"#5e6862",lineHeight:1.4}}><strong style={{color:"#3d4941"}}>{gateLabel(blocker.gate)}:</strong> {blocker.label}</div>)}{!selected.readiness.blockers.length&&<div style={{padding:10,background:"#eef7ef",color:"#315c39",borderRadius:7,fontSize:11.5,fontWeight:700}}>All three firm checks are complete.</div>}</div>
+          <button type="button" onClick={()=>openAttention(selected)} style={{width:"100%",padding:"10px 13px",border:"none",borderRadius:7,background:"#214e5f",color:"#fff",fontSize:11.5,fontWeight:800,cursor:"pointer"}}>Open {gateLabel(selected.gate)} →</button>
+          <button type="button" onClick={()=>{setSelectedLead(selected.lead.id);setPage("lead-detail");}} style={{width:"100%",padding:"8px 13px",border:"none",background:"transparent",color:"#5f8466",fontSize:10.5,fontWeight:800,cursor:"pointer",marginTop:5}}>Open full client record</button>
+        </div></React.Fragment>}
+      </aside>
+    </div>
+  </div>;
+}
+
 function LeadsPage({leads,setLeads,matters,setMatters,setPage,setSelectedMatter,setSelectedLead}){
-  const dynamicLeadStages=LEAD_STAGES;
+  const dynamicLeadStages=useMemo(()=>[...new Set([...LEAD_STAGES,...leads.map(lead=>lead.leadStage).filter(Boolean),"Ready for Petition Prep"])],[leads]);
   const dynamicMatterStages=(()=>{try{const s=localStorage.getItem("bkfl_lite_matter_stages");if(s)return JSON.parse(s);}catch(e){}return MATTER_STAGES;})();
   const [editingLead,setEditingLead]=useState(null);
   const [editForm,setEditForm]=useState({});
@@ -3185,7 +3331,7 @@ function CompletionReviewPage({leads,setLeads,setPage,setSelectedLead}){
   };
   const filterOptions=[["pending_approval","Needs approval"],["stale","Reapproval"],["approved_scheduled","Scheduled"],["canceled","Canceled"],["all","All"]];
   return <div data-testid="intake-completion-page" style={{padding:"24px 28px",flex:1,background:"#FBFAF7"}}>
-    <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",marginBottom:16,flexWrap:"wrap"}}><div><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>MATTER-LEVEL WORKFLOW</p><h1 style={{fontSize:24,fontWeight:750,color:"#2f3b34",margin:0}}>Intake Completion</h1><p style={{fontSize:13,color:"#69726d",marginTop:6,maxWidth:760,lineHeight:1.55}}>Find incomplete submitted matters, correct the first reminder, and approve one consolidated simulated follow-up. Attorney Review remains available throughout.</p></div><span style={{padding:"7px 10px",background:"#fff8df",border:"1px solid #ead28b",borderRadius:7,fontSize:11,fontWeight:700,color:"#6d5712"}}>FAKE-ONLY · BROWSER-LOCAL · NO SEND</span></div>
+    <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",marginBottom:16,flexWrap:"wrap"}}><div><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>MATTER-LEVEL WORKFLOW</p><h1 style={{fontSize:24,fontWeight:750,color:"#2f3b34",margin:0}}>Intake Completion</h1><p style={{fontSize:13,color:"#69726d",marginTop:6,maxWidth:760,lineHeight:1.55}}>Resolve blank answers, partial sections, inconsistencies, and client questions. Document decisions and Attorney Review remain separate checks.</p></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}><FeatureExplainer id="intake-separation" label="Why this is separate" title="Intake Completion is not Document Review" explanation="A client may upload every document and still leave critical facts blank or contradictory. This queue resolves the answers; Document Review resolves the files."/><span style={{padding:"7px 10px",background:"#fff8df",border:"1px solid #ead28b",borderRadius:7,fontSize:11,fontWeight:700,color:"#6d5712"}}>FAKE-ONLY · BROWSER-LOCAL · NO SEND</span></div></div>
     <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:12}}>{filterOptions.map(([key,label])=><button key={key} onClick={()=>{setFilter(key);setSelectedKey(null);}} style={{...button,background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863"}}>{label} ({key==="all"?items.length:counts[key]||0})</button>)}<select aria-label="Urgency filter" value={urgencyFilter} onChange={event=>{setUrgencyFilter(event.target.value);setSelectedKey(null);}} style={button}><option value="all">All urgency</option><option value="urgent">Urgent same-day</option><option value="routine">Routine</option></select></div>
     {notice&&<div aria-live="polite" style={{padding:"9px 12px",borderRadius:7,background:"#e7f2e9",border:"1px solid #a6c6ac",color:"#315c39",fontSize:12,marginBottom:12}}>{notice}</div>}
     <div className="document-review-grid" style={{display:"grid",gridTemplateColumns:"minmax(320px,.9fr) minmax(500px,1.5fr)",gap:14,alignItems:"start"}}>
@@ -3206,7 +3352,7 @@ function CompletionReviewPage({leads,setLeads,setPage,setSelectedLead}){
 }
 
 function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
-  const [filter,setFilter]=useState("pending_review");
+  const [filter,setFilter]=useState("decision");
   const [selectedKey,setSelectedKey]=useState(null);
   const [decisionReason,setDecisionReason]=useState("");
   const [notice,setNotice]=useState("");
@@ -3219,9 +3365,10 @@ function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
     name:document.customName||documentReviewName(document),
     requirement:docMeta(document.docId).req||"optional",
   }))),[leads]);
-  const filtered=items.filter(item=>filter==="all"||item.state===filter);
+  const bucketStates={decision:["pending_review","resubmitted"],client:["replacement_requested","awaiting_upload"],resolved:["approved","excused"]};
+  const filtered=items.filter(item=>filter==="all"||(bucketStates[filter]||[]).includes(item.state));
   const selected=filtered.find(item=>item.key===selectedKey)||filtered[0]||null;
-  const counts=Object.keys(DOCUMENT_REVIEW_STATE).reduce((result,state)=>({...result,[state]:items.filter(item=>item.state===state).length}),{});
+  const counts={decision:items.filter(item=>bucketStates.decision.includes(item.state)).length,client:items.filter(item=>bucketStates.client.includes(item.state)).length,resolved:items.filter(item=>bucketStates.resolved.includes(item.state)).length,all:items.length};
   const patchDocument=(leadId,documentId,mutator)=>setLeads(current=>current.map(lead=>lead.id!==leadId?lead:{...lead,docChecklist:(lead.docChecklist||[]).map(document=>document.id===documentId?mutator(document):document)}));
   const reviewEvent=(action,detail)=>({id:Date.now()+Math.random(),action,detail,date:new Date().toISOString(),actor:"pilot reviewer"});
   const updateSelected=(mutator)=>{if(selected)patchDocument(selected.lead.id,selected.document.id,mutator);};
@@ -3290,11 +3437,11 @@ function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
       return {...currentDocument,status:"ai_accepted",reviewStatus:"resubmitted",fileName,date:today,reason:undefined,aiNote:"Replacement received - awaiting firm review",versions:[...versions,nextVersion],reviewEvents:[...(currentDocument.reviewEvents||[]),reviewEvent("replacement_received",fileName)]};
     });
     setNotice("Replacement received as a new version. The prior version remains in history.");
-    setFilter("resubmitted");
+    setFilter("decision");
   };
   const statePill=(state)=>{const meta=DOCUMENT_REVIEW_STATE[state];return <span style={{display:"inline-flex",padding:"3px 8px",borderRadius:999,fontSize:10.5,fontWeight:700,color:meta.color,background:meta.bg,border:"1px solid "+meta.border}}>{meta.label}</span>;};
   const filterOptions=[
-    ["pending_review","Awaiting review"],["replacement_requested","Replacement needed"],["resubmitted","Resubmitted"],["awaiting_upload","Awaiting upload"],["approved","Approved"],["excused","Excused"],["all","All"],
+    ["decision","Needs firm decision"],["client","Waiting on client"],["resolved","Resolved"],["all","All requests"],
   ];
   const versions=selected?documentReviewVersions(selected.document):[];
   const events=selected?(selected.document.reviewEvents||[]):[];
@@ -3302,13 +3449,13 @@ function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
   return <div data-testid="document-review-page" style={{padding:"24px 28px",flex:1,background:"#FBFAF7"}}>
     <div style={{display:"flex",justifyContent:"space-between",gap:20,alignItems:"flex-start",marginBottom:18,flexWrap:"wrap"}}>
       <div><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>LAW-FIRM WORKFLOW</p><h1 style={{fontSize:24,fontWeight:750,color:"#2f3b34",margin:0}}>Document Review</h1><p style={{fontSize:13,color:"#69726d",marginTop:6,maxWidth:720,lineHeight:1.55}}>Review client submissions, approve or excuse requirements, request replacements, track follow-up, and preserve every resubmitted version.</p></div>
-      <a href="./docs/document-review-workflow.md" target="_blank" rel="noreferrer" style={{...button,display:"inline-flex",alignItems:"center",color:"#214e5f"}}>Developer workflow spec</a>
+      <FeatureExplainer id="document-buckets" label="Why three queues" title="Documents are grouped by next action" explanation="The prior seven filters made staff translate system states. These three queues answer who acts next: the firm, the client, or nobody because the request is resolved."/>
     </div>
     <div style={{padding:"10px 13px",borderRadius:8,background:"#fff8df",border:"1px solid #ead28b",fontSize:12,color:"#6d5712",marginBottom:16}}>Fake-data branch prototype. Automated analysis recommends; only the law firm records a disposition. Production requires role-based authorization, private storage, immutable audit events, and conflict-safe APIs.</div>
     <div className="document-review-process" style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:10,marginBottom:16}}>
       {[["1","Receive","Upload creates a pending review item."],["2","Decide","Approve, replace, or excuse with a reason."],["3","Follow up","Send and log client-safe replacement instructions."],["4","Re-review","New version returns to review; history stays visible."]].map(step=><div key={step[0]} style={{background:"#fff",border:"1px solid #e2e6e2",borderRadius:8,padding:13}}><div style={{width:24,height:24,borderRadius:"50%",background:"#dce8de",color:"#3d5c43",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:7}}>{step[0]}</div><strong style={{fontSize:12.5,color:"#37433b"}}>{step[1]}</strong><p style={{fontSize:11,color:"#7b837e",lineHeight:1.45,marginTop:4}}>{step[2]}</p></div>)}
     </div>
-    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}}>{filterOptions.map(([key,label])=><button key={key} onClick={()=>{setFilter(key);setSelectedKey(null);setNotice("");}} style={{...button,background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863",borderColor:filter===key?"#214e5f":"#d8ddd9"}}>{label} ({key==="all"?items.length:counts[key]||0})</button>)}</div>
+    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}}>{filterOptions.map(([key,label])=><button data-testid={"document-bucket-"+key} key={key} onClick={()=>{setFilter(key);setSelectedKey(null);setNotice("");}} title={key==="decision"?"Uploaded or resubmitted files awaiting a firm ruling.":key==="client"?"Requests waiting for a client upload or replacement.":key==="resolved"?"Approved or excused requirements.":"Every document request."} style={{...button,background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863",borderColor:filter===key?"#214e5f":"#d8ddd9"}}>{label} ({counts[key]||0})</button>)}</div>
     {notice&&<div aria-live="polite" style={{padding:"9px 12px",borderRadius:7,background:"#e7f2e9",border:"1px solid #a6c6ac",color:"#315c39",fontSize:12,marginBottom:12}}>{notice}</div>}
     <div className="document-review-grid" style={{display:"grid",gridTemplateColumns:"minmax(310px,.9fr) minmax(420px,1.4fr)",gap:14,alignItems:"start"}}>
       <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:9,overflow:"hidden"}}>
@@ -3337,9 +3484,43 @@ function DocumentReviewPage({leads,setLeads,setPage,setSelectedLead}){
   </div>;
 }
 
-function AttorneyReviewPage({leads,setPage,setSelectedLead}){
-  const pilotLeads=leads.filter(lead=>lead.intakeCompletion);
-  return <div data-testid="attorney-review-page" style={{padding:"24px 28px",flex:1,background:"#FBFAF7"}}><div style={{marginBottom:16}}><p style={{fontSize:11,fontWeight:800,letterSpacing:".09em",color:"#7a9c80",marginBottom:5}}>INDEPENDENT WORKFLOW DIMENSION</p><h1 style={{fontSize:24,margin:0,color:"#2f3b34"}}>Attorney Review</h1><p style={{fontSize:13,color:"#69726d",maxWidth:760,lineHeight:1.55}}>Attorney Review stays available while Intake Completion or Document Review remains open. This prototype shows status only and does not make legal-readiness decisions.</p></div><div style={{display:"grid",gap:9}}>{pilotLeads.map(lead=><button key={lead.id} onClick={()=>{setSelectedLead(lead.id);setPage("lead-detail");}} style={{display:"grid",gridTemplateColumns:"minmax(180px,1.2fr) repeat(4,minmax(120px,.7fr))",gap:10,alignItems:"center",textAlign:"left",padding:13,border:"1px solid #dfe4e0",borderRadius:8,background:"#fff",cursor:"pointer"}}><strong>{lead.clientFullName}</strong><span>{lead.bankruptcyType}</span><span>{lead.intakeCompletion.states?.submission}</span><span>{lead.intakeCompletion.states?.attorneyReview||"not_started"}</span><span style={{color:"#315c39",fontWeight:700}}>Open matter</span></button>)}</div></div>;
+function AttorneyReviewPage({leads,setLeads,setPage,setSelectedLead}){
+  const bridge=window.BKFLIntakeBridge;
+  const [filter,setFilter]=useState("needs_review");
+  const [selectedKey,setSelectedKey]=useState(null);
+  const [reason,setReason]=useState("");
+  const [notice,setNotice]=useState("");
+  const pilotLeads=useMemo(()=>leads.filter(lead=>lead.intakeCompletion).map(lead=>({lead,readiness:bridge.evaluateLeadReadiness(lead)})).sort((left,right)=>Number(right.readiness.urgent)-Number(left.readiness.urgent)||right.readiness.blockerCount-left.readiness.blockerCount||String(left.lead.clientFullName).localeCompare(String(right.lead.clientFullName))),[bridge,leads]);
+  const filtered=pilotLeads.filter(item=>filter==="all"||filter==="urgent"&&item.readiness.urgent&&!item.readiness.gates.attorney||filter==="needs_review"&&!item.readiness.gates.attorney||filter==="reviewed"&&item.readiness.gates.attorney||filter==="returned"&&item.readiness.attorneyStatus==="needs_follow_up");
+  const selected=filtered.find(item=>String(item.lead.id)===selectedKey)||filtered[0]||null;
+  const counts={all:pilotLeads.length,urgent:pilotLeads.filter(item=>item.readiness.urgent&&!item.readiness.gates.attorney).length,needs_review:pilotLeads.filter(item=>!item.readiness.gates.attorney).length,reviewed:pilotLeads.filter(item=>item.readiness.gates.attorney).length,returned:pilotLeads.filter(item=>item.readiness.attorneyStatus==="needs_follow_up").length};
+  const options=[["needs_review","Needs review"],["urgent","Urgent"],["returned","Returned"],["reviewed","Reviewed"],["all","All matters"]];
+  const record=decision=>{
+    if(!selected)return;
+    if(decision==="needs_follow_up"&&!reason.trim()){setNotice("Enter a clear follow-up reason before returning this matter.");return;}
+    setLeads(current=>current.map(lead=>lead.id===selected.lead.id?bridge.recordAttorneyReview(lead,{actor:"Matt McCune",decision,reason}):lead));
+    setNotice(decision==="reviewed"?"Attorney workflow review recorded. The matter becomes Ready only when Intake Completion and Document Review are also complete.":"Matter returned for follow-up with the attorney's reason recorded.");
+    setReason("");
+  };
+  const gateRow=(label,done,detail)=><div style={{padding:10,border:"1px solid "+(done?"#b8d2bd":"#e3d4a7"),borderRadius:7,background:done?"#f2f8f3":"#fffaf0"}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><strong style={{fontSize:11.5,color:"#455149"}}>{label}</strong><span style={{fontSize:9.5,fontWeight:850,color:done?"#315c39":"#8a6517"}}>{done?"COMPLETE":"OPEN"}</span></div><p style={{fontSize:10.3,color:"#747e78",lineHeight:1.4,marginTop:4}}>{detail}</p></div>;
+  const countPhrase=(count,singular,plural=singular+"s")=>count+" "+(count===1?singular:plural);
+  return <div data-testid="attorney-review-page" style={{padding:"24px 28px 34px",flex:1,background:"#f7f6f2",minWidth:0}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:18,alignItems:"flex-start",marginBottom:16,flexWrap:"wrap"}}><div><p style={{fontSize:10.5,fontWeight:850,letterSpacing:".11em",color:"#5f8466",marginBottom:5}}>INDEPENDENT FIRM CHECK</p><h1 style={{fontSize:25,margin:0,color:"#2f3b34"}}>Attorney Review</h1><p style={{fontSize:13,color:"#69726d",maxWidth:760,lineHeight:1.55,marginTop:6}}>Review time-sensitive facts and workflow flags. Record the review or return the matter for follow-up. This does not make a legal conclusion and does not override the other two gates.</p></div><FeatureExplainer id="attorney-gate" label="Why this is a gate" title="Attorney Review is independent" explanation="Document approval cannot silently stand in for attorney review. Recording this check still leaves the matter Not Ready until Intake Completion and Document Review are complete."/></div>
+    <div style={{padding:"10px 13px",borderRadius:8,background:"#eff7fa",border:"1px solid #b5d1dc",fontSize:11.5,color:"#365f75",marginBottom:14}}><strong>Attorney-control boundary:</strong> this records that the workflow review occurred. It does not provide legal advice, select a chapter, determine exemptions, or certify a filing-ready petition.</div>
+    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:13}}>{options.map(([key,label])=><button type="button" data-testid={"attorney-filter-"+key} key={key} onClick={()=>{setFilter(key);setSelectedKey(null);setNotice("");}} style={{padding:"7px 10px",borderRadius:999,border:"1px solid "+(filter===key?"#214e5f":"#d7ddd8"),background:filter===key?"#214e5f":"#fff",color:filter===key?"#fff":"#5f6863",fontSize:10.5,fontWeight:750,cursor:"pointer"}}>{label} ({counts[key]})</button>)}</div>
+    {notice&&<div aria-live="polite" style={{padding:"9px 12px",borderRadius:7,background:"#e7f2e9",border:"1px solid #a6c6ac",color:"#315c39",fontSize:12,marginBottom:12}}>{notice}</div>}
+    <div className="attorney-review-grid" style={{display:"grid",gridTemplateColumns:"minmax(330px,.8fr) minmax(470px,1.2fr)",gap:14,alignItems:"start"}}>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:10,overflow:"hidden"}}><div style={{padding:"12px 14px",borderBottom:"1px solid #edf0ed",fontSize:11.5,fontWeight:800,color:"#455149"}}>Attorney queue · urgent matters first</div><div style={{maxHeight:690,overflowY:"auto",padding:9}}>{filtered.map(item=>{const active=selected?.lead.id===item.lead.id;return <button type="button" data-testid={"attorney-review-row-"+item.lead.intakePackage.source.scenarioId} key={item.lead.id} onClick={()=>{setSelectedKey(String(item.lead.id));setReason("");setNotice("");}} style={{width:"100%",textAlign:"left",padding:"11px 12px",marginBottom:7,border:"1px solid "+(active?"#7ca184":"#e5e8e5"),borderLeft:"4px solid "+(item.readiness.urgent?"#b5473f":item.readiness.gates.attorney?"#6f9b77":"#4e8198"),borderRadius:8,background:active?"#f1f7f2":"#fff",cursor:"pointer"}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><strong style={{fontSize:12.3,color:"#344038"}}>{item.lead.clientFullName}</strong>{item.readiness.urgent&&!item.readiness.gates.attorney&&<span style={{fontSize:9,fontWeight:850,color:"#9f3933"}}>URGENT</span>}</div><div style={{fontSize:10.5,color:"#7b837e",marginTop:4}}>{item.lead.bankruptcyType} · {item.lead.intakeCompletion.intakeChecklistCompletion}% complete</div><div style={{fontSize:10.3,color:item.readiness.gates.attorney?"#315c39":"#6b7280",marginTop:4}}>{item.readiness.gates.attorney?"Review recorded":"Review not recorded"} · {item.readiness.blockerCount} total blockers</div></button>})}{!filtered.length&&<div style={{padding:35,textAlign:"center",color:"#8a928d",fontSize:12}}>No matters match this view.</div>}</div></section>
+      <section style={{background:"#fff",border:"1px solid #dfe4e0",borderRadius:10,overflow:"hidden",position:"sticky",top:88}}>{!selected?<div style={{padding:42,textAlign:"center",color:"#8a928d",fontSize:12}}>Select a matter for review.</div>:<React.Fragment><div style={{padding:"15px 17px",borderBottom:"1px solid #edf0ed",display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start"}}><div><p style={{fontSize:9.5,fontWeight:850,letterSpacing:".08em",color:selected.readiness.urgent?"#9f3933":"#5f8466",marginBottom:4}}>{selected.readiness.urgent?"TIME-SENSITIVE FLAG":"WORKFLOW REVIEW"}</p><h2 style={{fontSize:18,color:"#344038",margin:0}}>{selected.lead.clientFullName}</h2><p style={{fontSize:11,color:"#7b837e",marginTop:4}}>{selected.lead.bankruptcyType} · submitted {selected.lead.intakeSubmittedDate}</p></div><span style={{padding:"4px 8px",borderRadius:999,background:selected.readiness.gates.attorney?"#e7f2e9":"#eff7fa",border:"1px solid "+(selected.readiness.gates.attorney?"#a6c6ac":"#b5d1dc"),fontSize:9.8,fontWeight:850,color:selected.readiness.gates.attorney?"#315c39":"#365f75",whiteSpace:"nowrap"}}>{selected.readiness.gates.attorney?"REVIEWED":"NEEDS REVIEW"}</span></div><div style={{padding:17}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:8,marginBottom:14}}>{gateRow("Intake Completion",selected.readiness.gates.intake,selected.readiness.gates.intake?"Required answers resolved.":countPhrase(selected.readiness.missingFieldCount,"missing answer")+", "+countPhrase(selected.readiness.partialSectionCount,"partial section")+", and "+countPhrase(selected.readiness.inconsistencyCount,"inconsistency","inconsistencies")+".")}{gateRow("Document Review",selected.readiness.gates.documents,selected.readiness.gates.documents?"Applicable requests resolved.":countPhrase(selected.readiness.unresolvedDocumentCount,"request")+" unresolved.")}{gateRow("Attorney Review",selected.readiness.gates.attorney,selected.readiness.gates.attorney?"Recorded by "+(selected.lead.attorneyReview?.actor||"the firm")+".":"No attorney workflow decision recorded.")}</div>
+        {selected.lead.intakeCompletion.urgentAttorneyTask&&<div style={{padding:11,background:"#fff3f1",border:"1px solid #e8b1ab",borderRadius:8,marginBottom:12}}><strong style={{display:"block",fontSize:11.8,color:"#92352d"}}>{selected.lead.intakeCompletion.urgentAttorneyTask.title}</strong><span style={{display:"block",fontSize:10.5,color:"#73514e",lineHeight:1.45,marginTop:4}}>{selected.lead.intakeCompletion.urgentAttorneyTask.reason}</span></div>}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:13}}><div style={{padding:11,border:"1px solid #e5e8e5",borderRadius:8}}><h3 style={{fontSize:11.5,margin:"0 0 7px",color:"#455149"}}>Source-backed flags</h3>{(selected.lead.intakePackage.reviewFlags||[]).slice(0,5).map(flag=><div key={flag.id} style={{padding:"7px 0",borderTop:"1px solid #f0f1f0",fontSize:10.3,color:"#69726d",lineHeight:1.4}}><strong style={{display:"block",color:"#455149",marginBottom:2}}>{flag.title}</strong><span>{flag.detail}</span></div>)}{!(selected.lead.intakePackage.reviewFlags||[]).length&&<span style={{fontSize:10.5,color:"#8a928d"}}>No reviewer-only flags.</span>}</div><div style={{padding:11,border:"1px solid #e5e8e5",borderRadius:8}}><h3 style={{fontSize:11.5,margin:"0 0 7px",color:"#455149"}}>Client goals and concerns</h3><p style={{fontSize:10.5,color:"#69726d",lineHeight:1.5,whiteSpace:"pre-wrap"}}>{selected.lead.leadNotes||"No client goal or urgent concern was entered."}</p></div></div>
+        <label htmlFor="attorney-review-reason" style={{display:"block",fontSize:11,fontWeight:750,color:"#455149",marginBottom:5}}>Attorney note or follow-up reason</label><textarea id="attorney-review-reason" data-testid="attorney-review-reason" value={reason} onChange={event=>setReason(event.target.value)} placeholder="Required when returning the matter; optional when recording review." rows={3} style={{width:"100%",padding:9,border:"1px solid #d5dad6",borderRadius:7,resize:"vertical",fontSize:11.5,lineHeight:1.45}}/>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:9}}><button type="button" data-testid="record-attorney-review" onClick={()=>record("reviewed")} style={{padding:"9px 12px",border:"none",borderRadius:7,background:"#315c39",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer"}}>Record workflow review</button><button type="button" data-testid="return-attorney-follow-up" onClick={()=>record("needs_follow_up")} style={{padding:"9px 12px",border:"1px solid #d39b95",borderRadius:7,background:"#fff",color:"#92352d",fontSize:11,fontWeight:800,cursor:"pointer"}}>Return for follow-up</button><button type="button" onClick={()=>{setSelectedLead(selected.lead.id);setPage("lead-detail");}} style={{padding:"9px 12px",border:"1px solid #d5dad6",borderRadius:7,background:"#fff",color:"#455149",fontSize:11,fontWeight:750,cursor:"pointer"}}>Open full record</button></div>
+        <p style={{fontSize:10,color:"#8a928d",lineHeight:1.45,marginTop:9}}>Recording this check does not certify the petition or override missing Intake information or unresolved documents.</p>
+      </div></React.Fragment>}</section>
+    </div>
+  </div>;
 }
 
 function PlaceholderPage({title}){
@@ -3366,6 +3547,7 @@ function App(){
     const requested=new URLSearchParams(window.location.search).get("view");
     return ["intake-inbox","intake-completion","document-review","attorney-review","leads","contacts","settings"].includes(requested)?requested:"dashboard";
   });
+  useEffect(()=>{window.scrollTo({top:0,left:0,behavior:"auto"});},[page]);
   const [selectedMatter,setSelectedMatter]=useState(null);
   const [selectedLead,setSelectedLead]=useState(null);
   const [selectedContact,setSelectedContact]=useState(null);
@@ -3396,7 +3578,7 @@ function App(){
         {page==="intake-completion"&&<CompletionReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="leads"&&<LeadsPage leads={leads} setLeads={setLeads} matters={matters} setMatters={setMatters} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead}/>}
         {page==="document-review"&&<DocumentReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
-        {page==="attorney-review"&&<AttorneyReviewPage leads={leads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
+        {page==="attorney-review"&&<AttorneyReviewPage leads={leads} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead}/>}
         {page==="lead-detail"&&<LeadDetail lead={currentLead} setLeads={setLeads} setPage={setPage} setSelectedLead={setSelectedLead} matters={matters} setMatters={setMatters} setSelectedMatter={setSelectedMatter} setSelectedContact={setSelectedContact} msgTemplates={msgTemplates} seqTemplates={seqTemplates} commAutomations={autoTemplates}/>}
         {page==="contacts"&&<ContactsPage matters={matters} leads={leads} standaloneContacts={standaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}
         {page==="contact-detail"&&selectedContact&&<ContactDetailPage contactId={selectedContact.id} contactSource={selectedContact.source} sourceId={selectedContact.sourceId} matters={matters} setMatters={setMatters} leads={leads} setLeads={setLeads} standaloneContacts={standaloneContacts} setStandaloneContacts={setStandaloneContacts} setPage={setPage} setSelectedMatter={setSelectedMatter} setSelectedLead={setSelectedLead} setSelectedContact={setSelectedContact}/>}

@@ -16,8 +16,24 @@ assert([10, 50].includes(expectedPackageCount), 'fixture feed must contain the t
 assert.ok(!publicPageSource.includes('mailto:'))
 assert.ok(!publicPageSource.includes('@mccunelegal.com'))
 assert.ok(!publicPageSource.includes('@uscourts.gov'))
-assert.ok(publicPageSource.includes('intake-bridge.js?v=20260714-attorney-ready-v1'))
-assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-attorney-ready-v1'))
+assert.ok(publicPageSource.includes('intake-bridge.js?v=20260714-attorney-command-v2'))
+assert.ok(publicPageSource.includes('intake-submissions.js?v=20260714-attorney-command-v2'))
+
+const requiredAttorneyReadyUiMarkers = [
+  'data-testid="attorney-command-center"',
+  'data-testid="needs-attention-queue"',
+  'data-testid="change-guide"',
+  'data-testid="summary-approval-state"',
+  'data-testid="attorney-review-page"',
+  'document-bucket-',
+  'feature-explainer-',
+]
+requiredAttorneyReadyUiMarkers.forEach((marker) => assert.ok(publicPageSource.includes(marker), `Missing attorney-ready UI marker: ${marker}`))
+assert.ok(publicPageSource.includes('What needs attention today?'))
+assert.ok(publicPageSource.includes('Ready for Petition Prep only after Intake Completion, Document Review, and Attorney Review'))
+assert.ok(publicPageSource.includes('Needs current DOJ threshold'))
+assert.ok(publicPageSource.includes('current DOJ threshold not configured, so no median conclusion is shown'))
+assert.ok(!publicPageSource.includes('mt.state||"California"'))
 
 const requiredTraitCoverage = [
   'chapter_7',
@@ -159,6 +175,65 @@ assert.deepEqual(
   repeatedImport.map((lead) => lead.docChecklist.map((document) => document.docId)),
   firstImport.map((lead) => lead.docChecklist.map((document) => document.docId)),
 )
+
+const attentionQueue = bridge.buildAttentionQueue(firstImport)
+assert.equal(attentionQueue.length, expectedPackageCount)
+assert.equal(attentionQueue[0].readiness.urgent, true)
+assert.ok(attentionQueue.every((item) => item.readiness.ready === false))
+assert.ok(attentionQueue.every((item) => item.reason && item.owner && item.actionPage))
+
+const readinessBeforeReview = bridge.evaluateLeadReadiness(firstImport[0])
+assert.equal(readinessBeforeReview.ready, false)
+assert.equal(readinessBeforeReview.gates.intake, false)
+assert.equal(readinessBeforeReview.gates.documents, false)
+assert.equal(readinessBeforeReview.gates.attorney, false)
+assert.ok(readinessBeforeReview.blockerCount >= 3)
+assert.ok(readinessBeforeReview.partialSectionCount >= 1)
+
+const attorneyReviewed = bridge.recordAttorneyReview(firstImport[0], {
+  actor: 'Matt McCune',
+  decision: 'reviewed',
+  now: '2026-07-13T18:00:00.000Z',
+})
+assert.equal(attorneyReviewed.attorneyReview.status, 'reviewed')
+assert.equal(bridge.evaluateLeadReadiness(attorneyReviewed).gates.attorney, true)
+assert.equal(bridge.evaluateLeadReadiness(attorneyReviewed).ready, false)
+assert.ok(attorneyReviewed.timeline.some((event) => event.action === 'Attorney review recorded'))
+
+assert.throws(
+  () => bridge.recordAttorneyReview(firstImport[0], { decision: 'needs_follow_up' }),
+  /reason is required/i,
+)
+const allGateCandidate = {
+  ...firstImport[0],
+  docChecklist: firstImport[0].docChecklist.map((document) => ({
+    ...document,
+    reviewStatus: 'approved',
+    status: 'approved',
+  })),
+  intakeCompletion: {
+    ...firstImport[0].intakeCompletion,
+    missingItems: [],
+    status: 'complete',
+  },
+}
+const trulyReady = bridge.recordAttorneyReview(allGateCandidate, {
+  actor: 'Matt McCune',
+  decision: 'reviewed',
+  now: '2026-07-13T18:01:00.000Z',
+})
+assert.equal(bridge.evaluateLeadReadiness(trulyReady).ready, true)
+assert.equal(trulyReady.leadStage, 'Ready for Petition Prep')
+
+const returnedAfterReview = bridge.recordAttorneyReview(trulyReady, {
+  actor: 'Matt McCune',
+  decision: 'needs_follow_up',
+  now: '2026-07-13T18:02:00.000Z',
+  reason: 'Confirm the household-income explanation before petition preparation.',
+})
+assert.equal(bridge.evaluateLeadReadiness(returnedAfterReview).ready, false)
+assert.equal(returnedAfterReview.leadStage, 'Intake Submitted — Client Action Needed')
+assert.ok(returnedAfterReview.tasks.filter((task) => task.stage === 'Attorney Review').every((task) => task.status === 'Open'))
 
 const approvalInput = {
   actor: 'pilot reviewer',

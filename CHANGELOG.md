@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-14 - Attorney-ready command center
+
+- Replaced the raw task-heavy home page with a one-row-per-matter Needs Attention queue ranked by urgency, due date, and blocker count.
+- Added a single readiness evaluator used by the dashboard and attorney workspace: Intake Completion, Document Review, and Attorney Review must all pass before Ready for Petition Prep.
+- Reorganized Document Review into Needs firm decision, Waiting on client, Resolved, and All requests queues.
+- Turned Attorney Review into a usable queue with time-sensitive flags, source-backed evidence, reasoned returns, and an auditable recorded-review action.
+- Added a report-to-product change guide plus clickable and hover explanations on significant workflow changes.
+- Added unmistakable draft/approval labels to AI summaries and retained exact-snapshot approval for reminder drafts.
+- Removed the AI view's generic California means-test fallback. Imported Intake state, household, income, debts, and document readiness now drive the display, and no median conclusion appears without a firm-configured current DOJ threshold.
+- Preserved the Jimmy-only, synthetic-data, browser-local, no-send boundary. Matt's upstream source branch was not changed.
+
 ## 2026-07-13 - Intake Completion fake-pilot acceptance
 
 - Made canonical Intake Completion bundle v2 the single applicability authority; CRM Lite consumes it without re-deriving missing items.
