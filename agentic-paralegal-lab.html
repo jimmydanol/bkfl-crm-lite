@@ -186,6 +186,18 @@
     .evidence p { font-family: "IBM Plex Mono", monospace; font-size: 9px; line-height: 1.6; }
     .finding-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
 
+    .cycle-output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
+    .cycle-output-card { padding: 13px; border: 1px solid rgba(105,182,173,.28); border-radius: 10px; background: rgba(8,19,24,.55); }
+    .cycle-output-card.analysis { border-color: rgba(137,184,221,.3); }
+    .cycle-output-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .cycle-output-head strong { display: block; font-size: 12px; }
+    .cycle-output-head small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .cycle-output-status { flex: 0 0 auto; color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 8px; font-weight: 800; text-transform: uppercase; }
+    .cycle-output-status.stale { color: var(--gold); }
+    .cycle-output-text { width: 100%; min-height: 196px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #08171c; color: var(--text); font-family: "IBM Plex Mono", monospace; font-size: 9px; line-height: 1.6; resize: vertical; }
+    .cycle-output-foot { margin: 8px 0 0; color: var(--muted); font-size: 9px; }
+    .cycle-output-card .finding-actions { margin-top: 8px; }
+
     .draft-box { margin-top: 12px; padding: 13px; border: 1px solid rgba(105,182,173,.28); border-radius: 10px; background: var(--teal-soft); }
     .draft-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
     .draft-head strong { font-size: 12px; }
@@ -258,6 +270,7 @@
       .stats { grid-template-columns: 1fr 1fr; }
       .loop-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .phase-trace { grid-template-columns: 1fr 1fr; }
+      .cycle-output-grid { grid-template-columns: 1fr; }
       .manager-panel { grid-column: auto; }
       .manager-panel .panel-body { grid-template-columns: 1fr; }
       .explain-grid { grid-template-columns: 1fr 1fr; }
@@ -366,6 +379,7 @@
             <div class="work-area">
               <div class="work-head"><h3>Findings + checkpoints</h3><span id="workSummary">Run the loop to produce cited findings.</span></div>
               <div class="finding-list" id="findingList"></div>
+              <div id="cycleOutcomeArea"></div>
               <div id="draftArea"></div>
               <div id="finalCheckpoint"></div>
             </div>
@@ -610,12 +624,14 @@
       next:"CONTINUE to Observe when you run the next step.",
       authority:"The agent may read only; no data or lifecycle state changes."
     });
+    const blankCycleStats = () => ({facts:null,documents:null,reconcile:null});
 
     const app = {
       selectedCase:3, packet:null, findings:[], logs:[], cycle:0, nextPhase:0, activePhase:-1,
       running:false, paused:false, status:"ready", decisions:0, role:"staff", autonomy:"draft", maxCycles:3,
       capabilities:{schema:true,documents:true,drafts:true,tasks:true}, draft:"", draftStatus:"none",
-      eligible:false, finalApproved:false, gateChecks:blankGateChecks(), phaseTrace:blankTrace(), runToken:0
+      eligible:false, finalApproved:false, gateChecks:blankGateChecks(), phaseTrace:blankTrace(),
+      cycleStats:blankCycleStats(), cycleReport:null, runToken:0
     };
 
     const $ = id => document.getElementById(id);
@@ -656,6 +672,7 @@
       packet.warnings=Array.isArray(packet.warnings)?packet.warnings:[];
       packet.events=Array.isArray(packet.events)?packet.events:[];
       packet.configuredPolicy=packet.configuredPolicy&&typeof packet.configuredPolicy==="object"?packet.configuredPolicy:{counselingBlocksStage4:null};
+      packet.caseFactVersion=Number.isFinite(packet.caseFactVersion)?packet.caseFactVersion:(packet.intakePackage.version||1);
       packet.documents.forEach((doc,index)=>{ doc.id=doc.id||`doc-${index+1}-${doc.doc_type||"unknown"}`; doc.doc_type=doc.doc_type||`unknown_${index+1}`; doc.files=Array.isArray(doc.files)?doc.files:[]; });
       packet.corrections.forEach((correction,index)=>{ correction.id=correction.id||`correction-${index+1}-${correction.field||"unknown"}`; correction.reopens=Array.isArray(correction.reopens)?correction.reopens:["Intake Completion"]; });
       packet.warnings.forEach((warning,index)=>{ warning.id=warning.id||`warning-${index+1}`; });
@@ -673,7 +690,7 @@
       app.runToken+=1;
       app.packet=normalizePacket(clone(parsed)); app.findings=[]; app.logs=[]; app.cycle=0; app.nextPhase=0; app.activePhase=-1;
       app.running=false; app.paused=false; app.status="ready"; app.decisions=0; app.draft=""; app.draftStatus="none"; app.eligible=false; app.finalApproved=false;
-      app.gateChecks=blankGateChecks(); app.phaseTrace=blankTrace();
+      app.gateChecks=blankGateChecks(); app.phaseTrace=blankTrace(); app.cycleStats=blankCycleStats(); app.cycleReport=null;
       addLog("SYSTEM","Synthetic packet queued",`${parsed.caseId} · immutable package v${parsed.intakePackage.version}`,"system");
       (parsed.events||[]).forEach(event=>addLog("EVENT",event.type,event.detail,"system"));
       render(); toast("Synthetic packet validated and queued.");
@@ -681,18 +698,19 @@
 
     function syncFindings(source, items) {
       const currentIds=new Set(items.map(item=>item.id));
-      const counts={current:items.length,created:0,reopened:0,resolved:0};
+      const counts={current:items.length,created:0,reopened:0,resolved:0,createdIds:[],reopenedIds:[],resolvedIds:[],persistingIds:[]};
       items.forEach(item=>{
         const existing=app.findings.find(f=>f.id===item.id);
         if(!existing){
           app.findings.push({...item,source,status:"open",resolution:null,conditionPresent:true,firstSeenCycle:app.cycle,lastSeenCycle:app.cycle});
-          counts.created+=1;
+          counts.created+=1; counts.createdIds.push(item.id);
           return;
         }
         const priorStatus=existing.status;
         const shouldReopen=priorStatus==="resolved";
         Object.assign(existing,item,{source,conditionPresent:true,lastSeenCycle:app.cycle});
-        if(shouldReopen){ existing.status="open"; existing.resolution="Condition remains or reappeared on re-check"; counts.reopened+=1; }
+        if(shouldReopen){ existing.status="open"; existing.resolution="Condition remains or reappeared on re-check"; counts.reopened+=1; counts.reopenedIds.push(item.id); }
+        else counts.persistingIds.push(item.id);
       });
       app.findings.filter(f=>f.source===source&&!currentIds.has(f.id)).forEach(f=>{
         const wasPresent=f.conditionPresent!==false;
@@ -701,7 +719,7 @@
           f.status="resolved";
           f.resolution="Condition no longer present on bounded re-check";
         }
-        if(wasPresent)counts.resolved+=1;
+        if(wasPresent){ counts.resolved+=1; counts.resolvedIds.push(f.id); }
       });
       return counts;
     }
@@ -790,28 +808,151 @@
       app.phaseTrace={phase,reads,does:doesText,produces,gate,next,authority};
     }
 
+    function markCycleReportStale(reason) {
+      if(!app.cycleReport) return;
+      app.cycleReport.status="stale";
+      app.cycleReport.staleReason=reason;
+    }
+
+    function cycleDelta() {
+      const checks=Object.values(app.cycleStats).filter(Boolean);
+      return {
+        created:checks.reduce((sum,item)=>sum+item.created,0),
+        reopened:checks.reduce((sum,item)=>sum+item.reopened,0),
+        resolved:checks.reduce((sum,item)=>sum+item.resolved,0),
+        createdIds:checks.flatMap(item=>item.createdIds),
+        reopenedIds:checks.flatMap(item=>item.reopenedIds),
+        resolvedIds:checks.flatMap(item=>item.resolvedIds)
+      };
+    }
+
+    function findingNames(ids) {
+      const names=ids.map(id=>app.findings.find(f=>f.id===id)).filter(Boolean).map(f=>`${f.title} — ${f.gate} — owner: ${f.owner}`);
+      return names.length?names.join("; "):"None";
+    }
+
+    function openFindingLines(findings) {
+      return findings.map(f=>`• ${f.title} [${f.gate}; owner: ${f.owner}; evidence: ${f.evidence}]`).join("\n");
+    }
+
+    function stageFourAnalysisLabel() {
+      if(app.finalApproved) return "Human approved: CRM lifecycle stage is Ready for Petition Prep.";
+      if(app.eligible) return "Eligible under configured rules; the human Stage 4 decision is pending.";
+      if(!coverageComplete()) return "Not assessed because required checker coverage is disabled.";
+      return "Not eligible under configured rules; the CRM lifecycle stage did not change.";
+    }
+
+    function buildOutcomeAnalysis(result) {
+      const p=app.packet, open=unresolvedFindings(), delta=cycleDelta();
+      const supplied=(p.requiredFacts||[]).filter(field=>p.facts?.[field]!==null&&p.facts?.[field]!==undefined&&p.facts?.[field]!=="").length;
+      const fileCount=p.documents.reduce((sum,doc)=>sum+doc.files.length,0);
+      const priorEventCount=app.cycleReport?.generatedForEventCount;
+      const eventDelta=priorEventCount===undefined?"first completed-cycle baseline":`${Math.max(0,p.events.length-priorEventCount)} added since the prior completed cycle`;
+      const lines=[
+        `CYCLE ${app.cycle} · EVIDENCE SNAPSHOT`,
+        "",
+        "OBSERVED EVIDENCE",
+        `• Locked Intake Package v${p.intakePackage.version} remained unchanged; case fact version ${p.caseFactVersion||p.intakePackage.version}.`,
+        `• ${supplied}/${p.requiredFacts.length} configured required facts contain submitted or attributed values.`,
+        `• ${p.documents.length} document categories · ${fileCount} fake file references · ${p.events.length} source/audit events (${eventDelta}).`,
+        `• Current CRM lifecycle stage: ${p.stage}. The agent did not change it.`,
+        "",
+        "FINDING CHANGES",
+        `• New (${delta.created}): ${findingNames(delta.createdIds)}`,
+        `• Reopened (${delta.reopened}): ${findingNames(delta.reopenedIds)}`,
+        `• Resolved on re-check (${delta.resolved}): ${findingNames(delta.resolvedIds)}`,
+        `• Still open (${open.length}): ${open.length?open.map(f=>`${f.title} — ${f.gate} — owner: ${f.owner}`).join("; "):"None"}`,
+        "",
+        "GATE RESULT",
+        ...requiredGates.map(gate=>`• ${gateSummary(gate)}`),
+        `• Stage 4: ${stageFourAnalysisLabel()}`,
+        "",
+        "UNKNOWN OR HUMAN-OWNED",
+        ...(open.length?open.map(f=>`• ${unknownForFinding(f)}`):["• No configured evidence blocker remains. The Stage 4 transition decision remains with Matt/Attorney."]),
+        "",
+        `OUTCOME · ${result.outcome}`
+      ];
+      return lines.join("\n");
+    }
+
+    function unknownForFinding(f) {
+      const labels={
+        fact:`No submitted value is available for ${humanizeKey(f.field)}. Owner: Staff/Debtor.`,
+        mismatch:"The agent does not know which source is correct. Owner: Staff/Debtor.",
+        correction:"The attributed correction has not been applied and versioned. Owner: Staff.",
+        document_coverage:"The missing configured document coverage is not in the current bundle. Owner: Client/Firm.",
+        document_quality:"The firm has not accepted the image or requested a clearer copy. Owner: Firm.",
+        document_ruling:"Keep Chasing versus Excuse has not been decided. Owner: Firm/Attorney.",
+        policy:"Whether the counseling certificate blocks Stage 4 or filing only is not frozen. Owner: Matt/Attorney.",
+        counseling_blocker:"The configured counseling certificate requirement remains open. Owner: Client/Firm.",
+        warning:"Attorney disposition is not recorded. Owner: Attorney.",
+        review_stale:"Attorney re-review of the current fact version is not recorded. Owner: Attorney.",
+        regression:"Authorized human confirmation of the stage regression is not recorded. Owner: Firm."
+      };
+      return labels[f.kind]||`${f.title} remains unresolved. Owner: ${f.owner}.`;
+    }
+
+    function buildSuggestedPrompt() {
+      const p=app.packet, open=unresolvedFindings();
+      const debtor=open.filter(isDebtorFacingFinding), internal=open.filter(f=>!isDebtorFacingFinding(f));
+      const base=`Synthetic case ${p.caseId} · completed cycle ${app.cycle}. Use only cited packet evidence and the append-only event log.`;
+      if(app.status==="limited") return `${base}\n\nAudit the current agent configuration. Identify which required checker is disabled and which gate therefore remains unassessed. Do not infer readiness. Stop for the agent manager to restore coverage or end the run.`;
+      if(app.eligible) return `${base}\n\nPrepare a concise attorney checkpoint showing the latest evidence-based result for Intake Completion, Document Review, and Attorney Review. Request an explicit human decision on CRM lifecycle Stage 4 Ready for Petition Prep. Do not change the stage, begin petition preparation, provide legal advice, or send anything.`;
+      if(debtor.length&&internal.length) return `${base}\n\nSeparate debtor-facing follow-up from firm- and attorney-only decisions. Draft neutral questions only for the debtor-facing findings; keep policy, waiver, warning, document-ruling, and legal-significance issues internal. Return evidence, proposed Task, owner, and affected gate for each item. Do not send, approve, waive, or change Stage 4.\n\nDEBTOR-FACING\n${openFindingLines(debtor)}\n\nINTERNAL / HUMAN-OWNED\n${openFindingLines(internal)}`;
+      if(debtor.length) return `${base}\n\nDraft neutral, firm-review-required Client Portal follow-up for the findings below and propose Task owners. Do not send anything, invent an answer, characterize legal significance, waive a requirement, approve a document, or change the lifecycle stage. Stop after returning: evidence citation, proposed question, owner, and gate to re-check.\n\n${openFindingLines(debtor)}`;
+      if(internal.length) return `${base}\n\nPrepare an internal human-review handoff for the findings below. List cited evidence, configured rule, affected gate, and required decision owner. Do not decide the issue, recommend a legal conclusion, excuse a requirement, contact the debtor, or change Stage 4. Stop for the named human decision.\n\n${openFindingLines(internal)}`;
+      return `${base}\n\nExplain which required gate remains unassessed and stop for the responsible human. Do not infer readiness or change the lifecycle stage.`;
+    }
+
+    function buildCycleReport(result) {
+      return {cycle:app.cycle,status:"current",analysis:buildOutcomeAnalysis(result),suggestedPrompt:buildSuggestedPrompt(),outcome:result.outcome,generatedForEventCount:app.packet.events.length,staleReason:""};
+    }
+
+    function buildFinalCycleReport() {
+      const p=app.packet;
+      return {
+        cycle:app.cycle,status:"current",outcome:"Authorized human Stage 4 decision recorded.",generatedForEventCount:p.events.length,staleReason:"",
+        analysis:`CYCLE ${app.cycle} · AUTHORIZED HUMAN DECISION\n\n• Intake Completion: clear.\n• Document Review: clear.\n• Attorney Review: clear.\n• Matt/Attorney explicitly approved CRM lifecycle Stage 4.\n• Current stage: Ready for Petition Prep.\n• The agent reported eligibility but did not make or infer the transition decision.`,
+        suggestedPrompt:`Synthetic case ${p.caseId}. Summarize the cited audit trail through the authorized human Stage 4 decision, identify the next internal owner, and stop. Do not begin petition generation, filing, billing, or client communication.`
+      };
+    }
+
     function processPhase(index) {
       const phase=phases[index]; app.activePhase=index;
       if(index===0){
         app.cycle+=1;
+        app.cycleStats=blankCycleStats();
+        markCycleReportStale("Prior cycle snapshot · a new cycle is in progress and refreshes at Pause.");
         const p=app.packet;
         const inventory=`${Object.keys(p.facts).length} fact fields · ${p.documents.length} document categories · ${p.corrections.length} correction(s) · ${p.warnings.length} warning(s) · ${p.events.length} source event(s)`;
         addLog("AGENT","Observe latest case state",`${p.caseId} · cycle ${app.cycle} · ${inventory}`,"agent");
         setTrace("Observe",`Locked Intake Package v${p.intakePackage.version}, current stage “${p.stage},” and ${p.events.length} timeline event(s).`,`Verifies demoOnly = true and package locked = true, then inventories facts, documents, corrections, warnings, and event order.`,inventory,"No gate changes. Observe creates the evidence inventory only.","CONTINUE to Check facts. This advances the loop; it does not clear Intake Completion.","Read-only. The locked package and lifecycle stage are unchanged.");
       }
       if(phase.key==="facts"){
-        const items=factFindings(); const counts=syncFindings("facts",items); markGateChecked("Intake Completion");
-        addLog("AGENT","Fact checks complete",transitionSummary(counts),"agent");
-        setTrace("Check facts",`${app.packet.requiredFacts.length} configured required fact(s), literal cross-source values, and ${app.packet.corrections.length} attributed correction(s).`,`Checks blanks, exact string mismatches, and post-lock corrections. It does not infer missing answers or choose which source is true.`,transitionSummary(counts),gateSummary("Intake Completion"),"CONTINUE to Screen docs even if facts are blocked; the next independent gate can still be assessed.",items.length?"Staff or the debtor supplies/attributes facts. The agent may draft a neutral question only.":"No human fact action is needed from this check.");
+        if(!app.capabilities.schema){
+          app.gateChecks["Intake Completion"]={state:"not_checked",cycle:app.cycle};
+          addLog("AGENT","Fact checks skipped","Schema + fact checker is disabled; existing findings are preserved","agent");
+          setTrace("Check facts","The capability configuration and previously cited fact findings.","Skips fact evaluation because the required checker is disabled. Existing findings are not falsely resolved.","No fact result produced.",gateSummary("Intake Completion"),"CONTINUE to Screen docs; final readiness will remain unassessed.","The human agent manager controls checker coverage.");
+        } else {
+          const items=factFindings(); const counts=syncFindings("facts",items); app.cycleStats.facts=counts; markGateChecked("Intake Completion");
+          addLog("AGENT","Fact checks complete",transitionSummary(counts),"agent");
+          setTrace("Check facts",`${app.packet.requiredFacts.length} configured required fact(s), literal cross-source values, and ${app.packet.corrections.length} attributed correction(s).`,`Checks blanks, exact string mismatches, and post-lock corrections. It does not infer missing answers or choose which source is true.`,transitionSummary(counts),gateSummary("Intake Completion"),"CONTINUE to Screen docs even if facts are blocked; the next independent gate can still be assessed.",items.length?"Staff or the debtor supplies/attributes facts. The agent may draft a neutral question only.":"No human fact action is needed from this check.");
+        }
       }
       if(phase.key==="documents"){
-        const items=documentFindings(); const counts=syncFindings("documents",items); markGateChecked("Document Review");
-        const fileCount=app.packet.documents.reduce((total,doc)=>total+doc.files.length,0);
-        addLog("AGENT","Document screening complete",transitionSummary(counts),"agent");
-        setTrace("Screen docs",`${app.packet.documents.length} document categories and ${fileCount} append-only fake file reference(s), including configured month coverage and image-quality metadata.`,`Compares received months to configured coverage, flags unreadable images, and identifies reasons that require a firm ruling. No file is approved or excused.`,transitionSummary(counts),gateSummary("Document Review"),"CONTINUE to Reconcile gates and attorney-owned policy/warnings.",items.length?"Staff may request evidence; only an authorized firm reviewer may excuse a requirement.":"No document follow-up is proposed from this check.");
+        if(!app.capabilities.documents){
+          app.gateChecks["Document Review"]={state:"not_checked",cycle:app.cycle};
+          addLog("AGENT","Document screening skipped","Document checker is disabled; existing findings are preserved","agent");
+          setTrace("Screen docs","The capability configuration and previously cited document findings.","Skips document evaluation because the required checker is disabled. Existing findings are not falsely resolved.","No document result produced.",gateSummary("Document Review"),"CONTINUE to Reconcile; final readiness will remain unassessed.","The human agent manager controls checker coverage.");
+        } else {
+          const items=documentFindings(); const counts=syncFindings("documents",items); app.cycleStats.documents=counts; markGateChecked("Document Review");
+          const fileCount=app.packet.documents.reduce((total,doc)=>total+doc.files.length,0);
+          addLog("AGENT","Document screening complete",transitionSummary(counts),"agent");
+          setTrace("Screen docs",`${app.packet.documents.length} document categories and ${fileCount} append-only fake file reference(s), including configured month coverage and image-quality metadata.`,`Compares received months to configured coverage, flags unreadable images, and identifies reasons that require a firm ruling. No file is approved or excused.`,transitionSummary(counts),gateSummary("Document Review"),"CONTINUE to Reconcile gates and attorney-owned policy/warnings.",items.length?"Staff may request evidence; only an authorized firm reviewer may excuse a requirement.":"No document follow-up is proposed from this check.");
+        }
       }
       if(phase.key==="reconcile"){
-        const items=reconciliationFindings(); const counts=syncFindings("reconcile",items); markGateChecked("Attorney Review");
+        const items=reconciliationFindings(); const counts=syncFindings("reconcile",items); app.cycleStats.reconcile=counts; markGateChecked("Attorney Review");
         addLog("AGENT","Gate reconciliation complete",transitionSummary(counts),"agent");
         setTrace("Reconcile",`${app.packet.warnings.length} configured warning(s), counseling policy = ${String(app.packet.configuredPolicy.counselingBlocksStage4)}, prior stage = ${app.packet.priorStage||"none"}, and fact-review versions when present.`,`Maps open evidence to gate owners, detects stale reviews or post-Stage-4 activity, and keeps attorney-owned items open.`,transitionSummary(counts),gateSummary("Attorney Review"),"CONTINUE to Propose bounded follow-up work. No gate is cleared by drafting.",items.length?"Matt/Attorney owns policy, warning resolution, stale-review confirmation, and any Stage 4 decision.":"No attorney-owned blocker was produced by this reconciliation.");
       }
@@ -828,6 +969,7 @@
       }
       if(phase.key==="pause"){
         const result=evaluateCheckpoint();
+        app.cycleReport=buildCycleReport(result);
         setTrace("Pause",`${requiredGates.map(gate=>gateSummary(gate)).join(" · ")} · ${unresolvedFindings().length} unresolved finding(s).`,`Evaluates the exact rule: Intake Completion clear + Document Review clear + Attorney Review clear, with no unresolved configured blocker.`,result.outcome,result.gate,result.next,result.authority);
       }
       $("currentAction").textContent=`${phase.label}: ${phase.detail}`;
@@ -928,12 +1070,18 @@
       app.decisions+=1; app.eligible=false; app.finalApproved=false;
       let affectedGates=f.reopens||[f.gate];
       if(action==="apply-fact"){
-        if(f.kind==="mismatch") app.packet.facts.employerName=app.packet.facts.employerNameOnPaystub;
+        if(f.kind==="mismatch"){
+          app.packet.facts.employerName=app.packet.facts.employerNameOnPaystub;
+          app.packet.caseFactVersion+=1;
+        }
         else if(f.kind==="correction"){
           const c=app.packet.corrections.find(x=>x.id===f.correctionId||x.field===f.field);
-          if(c){ c.status="applied_with_audit"; app.packet.facts[c.field]=c.newValue; affectedGates=c.reopens||affectedGates; }
+          if(c){
+            c.status="applied_with_audit"; app.packet.facts[c.field]=c.newValue; affectedGates=c.reopens||affectedGates;
+            if(app.packet.caseFactVersion<=app.packet.intakePackage.version)app.packet.caseFactVersion+=1;
+          }
         }
-        else app.packet.facts[f.field]=fakeValueFor(f.field);
+        else { app.packet.facts[f.field]=fakeValueFor(f.field); app.packet.caseFactVersion+=1; }
         f.status="resolved"; f.resolution="Synthetic attributed update applied; locked package v1 preserved";
       }
       if(action==="request-upload"||action==="keep-chasing"){ f.status="waiting_client"; f.resolution="Client Portal request proposed"; }
@@ -962,6 +1110,7 @@
       reopenGates(affectedGates,actionLabel(action));
       appendSyntheticEvent(`simulation.${action}`,`${f.title} · ${f.resolution||"recorded"}`,affectedGates);
       addLog("HUMAN",actionLabel(action),`${f.title} · ${f.resolution||"recorded"}`,"human");
+      markCycleReportStale("Superseded by new attributed evidence · re-loop required.");
       app.nextPhase=0; app.activePhase=-1; app.status="paused";
       setTrace("Attributed event",`${actionLabel(action)} for “${f.title},” recorded as a synthetic event with source, affected gates, and evidence version.`,`Preserves the locked intake package, applies only the approved simulated update, and marks dependent checks for another cycle.`,f.resolution||"Human action recorded.",affectedGates.length?affectedGates.map(gate=>gateSummary(gate)).join(" · "):"No configured gate changed.","RE-LOOP from Observe so current evidence—not the prior result—drives the next checkpoint.","The human supplied authority; the agent still cannot send, waive, approve, or change Stage 4.");
       render();
@@ -1060,6 +1209,15 @@
       $("draftArea").innerHTML=`<div class="draft-box"><div class="draft-head"><strong>Agent-drafted follow-up work</strong><span>${escapeHtml(app.draftStatus)} · never auto-sent</span></div><textarea class="draft-text" id="draftText" aria-label="Agent drafted follow-up" ${app.running?"disabled":""}>${escapeHtml(app.draft)}</textarea><div class="finding-actions"><button class="btn btn-small" type="button" data-draft="approve" ${app.running?"disabled":""}>Approve draft for simulated Task</button><button class="btn btn-small" type="button" data-draft="reject" ${app.running?"disabled":""}>Reject draft</button></div></div>`;
     }
 
+    function renderCycleReport() {
+      const area=$("cycleOutcomeArea"), report=app.cycleReport;
+      if(!report){ area.innerHTML=""; return; }
+      const stale=report.status==="stale";
+      const statusLabel=`Cycle ${report.cycle} · ${stale?"stale":"current"}`;
+      const foot=stale?report.staleReason:"Generated from synthetic packet evidence and configured rules. This is not legal advice or a lifecycle decision.";
+      area.innerHTML=`<div class="cycle-output-grid" aria-label="Post-cycle agent outcome"><section class="cycle-output-card analysis"><div class="cycle-output-head"><div><strong>Analysis · What this cycle established</strong><small>Evidence differences, not private model reasoning.</small></div><span class="cycle-output-status ${stale?"stale":""}">${escapeHtml(statusLabel)}</span></div><textarea class="cycle-output-text" id="cycleAnalysis" aria-label="Post-cycle evidence analysis" readonly>${escapeHtml(report.analysis)}</textarea><p class="cycle-output-foot">${escapeHtml(foot)}</p></section><section class="cycle-output-card"><div class="cycle-output-head"><div><strong>Suggested next agent prompt</strong><small>Outcome-driven · read-only · never auto-run</small></div><span class="cycle-output-status ${stale?"stale":""}">${escapeHtml(statusLabel)}</span></div><textarea class="cycle-output-text" id="suggestedPrompt" aria-label="Suggested next agent prompt" readonly>${escapeHtml(report.suggestedPrompt)}</textarea><div class="finding-actions"><button class="btn btn-small" type="button" data-cycle-action="copy-prompt" ${stale||app.running?"disabled":""}>Copy suggested prompt</button></div><p class="cycle-output-foot">${escapeHtml(foot)}</p></section></div>`;
+    }
+
     function renderFinalCheckpoint() {
       if(!app.eligible||app.finalApproved){ $("finalCheckpoint").innerHTML=""; return; }
       $("finalCheckpoint").innerHTML=`<article class="finding waiting_attorney"><div class="finding-top"><div><span class="finding-type">Stage 4 · Attorney-owned</span><h4>Eligible under configured rules</h4><p>Intake Completion, Document Review, and Attorney Review appear clear with zero unresolved configured warnings. The agent cannot transition the lifecycle stage.</p></div><span class="finding-status">human checkpoint</span></div><div class="finding-actions"><button class="btn btn-primary btn-small" type="button" id="approveStage4Btn" ${app.running||app.role!=="attorney"?"disabled":""}>Attorney approves Stage 4${app.role!=="attorney"?" · attorney":""}</button></div></article>`;
@@ -1084,7 +1242,7 @@
     function escapeAttr(text) { return escapeHtml(text); }
 
     function render() {
-      renderCases(); renderLoop(); renderGates(); renderFindings(); renderDraft(); renderFinalCheckpoint(); renderManager(); renderLog();
+      renderCases(); renderLoop(); renderGates(); renderFindings(); renderCycleReport(); renderDraft(); renderFinalCheckpoint(); renderManager(); renderLog();
       const label=statusLabel(); $("statState").textContent=label; $("statCycle").textContent=app.cycle; $("statFindings").textContent=unresolvedFindings().length; $("statDecisions").textContent=app.decisions;
       const badge=$("agentBadge"); badge.textContent=label; badge.className=`badge ${app.status}`;
     }
@@ -1093,6 +1251,14 @@
       const caseButton=event.target.closest("[data-case]"); if(caseButton){ selectCase(Number(caseButton.dataset.case)); return; }
       const findingButton=event.target.closest("[data-finding]"); if(findingButton){ humanAction(findingButton.dataset.finding,findingButton.dataset.action); return; }
       const eventButton=event.target.closest("[data-event]"); if(eventButton){ injectEvent(eventButton.dataset.event); return; }
+      const cycleButton=event.target.closest("[data-cycle-action]"); if(cycleButton){
+        if(cycleButton.dataset.cycleAction==="copy-prompt"&&app.cycleReport?.status==="current"){
+          const value=app.cycleReport.suggestedPrompt;
+          if(navigator.clipboard?.writeText) navigator.clipboard.writeText(value).then(()=>toast("Suggested prompt copied.")).catch(()=>toast("Copy unavailable. Select the prompt text manually."));
+          else toast("Copy unavailable. Select the prompt text manually.");
+        }
+        return;
+      }
       const draftButton=event.target.closest("[data-draft]"); if(draftButton){
         if(app.running){toast("Pause the loop before reviewing a draft.");return;}
         app.draft=$("draftText").value; app.draftStatus=draftButton.dataset.draft==="approve"?"approved":"rejected"; app.decisions+=1;
@@ -1103,6 +1269,7 @@
         app.finalApproved=true; app.packet.stage="Ready for Petition Prep"; app.status="complete"; app.decisions+=1;
         appendSyntheticEvent("stage.changed","Authorized human changed CRM lifecycle stage to Ready for Petition Prep",requiredGates);
         addLog("ATTORNEY","Stage 4 approved","Human lifecycle transition recorded after configured gates cleared","human");
+        app.cycleReport=buildFinalCycleReport();
         setTrace("Human Stage 4 decision","The three clear gate results and the explicit Attorney/Matt approval action.","Records the human-owned lifecycle transition; the agent does not perform or infer this decision.","CRM lifecycle stage = Ready for Petition Prep.","Stage 4 is human approved.","STOP: the intended v1 finish line has been reached.","The approving attorney owns the transition and its audit event.");
         render();
       }
@@ -1119,6 +1286,7 @@
       const capability=event.target.dataset.capability; app.capabilities[capability]=event.target.checked; app.eligible=false; app.finalApproved=false;
       if(capability==="schema")app.gateChecks["Intake Completion"]={state:"not_checked",cycle:app.cycle};
       if(capability==="documents")app.gateChecks["Document Review"]={state:"not_checked",cycle:app.cycle};
+      markCycleReportStale("Superseded by an agent-configuration change · re-loop required.");
       addLog("HUMAN","Capability changed",`${capability} = ${event.target.checked}`,"human");render();
     }));
 
