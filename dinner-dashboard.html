@@ -263,10 +263,23 @@
     .ask-section-head h3 { margin-bottom: 0; font-size: 20px; }
     .ask-section-head p { max-width: 610px; margin-bottom: 0; font-size: 13px; }
     .ask-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
-    .ask-item { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.05); }
+    .ask-item { overflow: hidden; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.05); transition: border-color .16s ease, background .16s ease; }
+    .ask-item[open] { border-color: rgba(240,199,128,.54); background: rgba(255,255,255,.09); }
+    .ask-item > summary { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 16px; cursor: pointer; list-style: none; }
+    .ask-item > summary::-webkit-details-marker { display: none; }
+    .ask-item > summary::marker { content: ""; }
+    .ask-item > summary:focus-visible { outline: 2px solid #f0c780; outline-offset: -4px; border-radius: 10px; }
+    .ask-summary-main { min-width: 0; }
     .ask-number { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: rgba(227,179,95,.16); color: #f0c780; font-size: 11px; font-weight: 800; }
     .ask-item strong { display: block; margin-bottom: 5px; font-size: 14px; }
     .ask-item p { margin-bottom: 0; font-size: 12px; line-height: 1.55; }
+    .ask-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; color: #f0c780; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .ask-hint::after { content: "↓"; transition: transform .16s ease; }
+    .ask-item[open] .ask-hint::after { transform: rotate(180deg); }
+    .ask-layman { margin: 0 16px 16px 64px; padding: 13px 15px; border-left: 3px solid #e3b35f; background: rgba(227,179,95,.1); animation: layman-reveal .16s ease-out; }
+    .ask-layman strong { color: #f4d49c; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .ask-layman p { color: rgba(255,255,255,.9); font-size: 13px; line-height: 1.5; }
+    @keyframes layman-reveal { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     .ask-item code, .ask-guardrail code { color: #f4d49c; }
     .milestone-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
     .milestone { padding: 14px 12px; border-top: 3px solid rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
@@ -333,6 +346,7 @@
       .action-cluster { display: grid; grid-template-columns: 1fr 1fr; }
       .btn { width: 100%; }
       .ask-section-head, .ask-close { align-items: flex-start; flex-direction: column; }
+      .ask-layman { margin-left: 16px; }
       .milestone-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 430px) {
@@ -341,6 +355,10 @@
       .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .hero-meta { display: grid; }
       .pill { justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ask-item, .ask-hint::after { transition: none; }
+      .ask-layman { animation: none; }
     }
     @media print {
       .branch-banner, .topbar, .launch-grid, .decision-rail, .decision-actions, .toast { display: none !important; }
@@ -529,17 +547,17 @@
           <div class="ask-section">
             <div class="ask-section-head">
               <h3>Required return package</h3>
-              <p>Ask for all eight. Every artifact should label confirmed rules, developer assumptions, and decisions still owed by Matt.</p>
+              <p>Ask for all eight. Hover, tap, or press Enter on any item for its plain-English meaning.</p>
             </div>
-            <div class="ask-grid" role="list" aria-label="Required developer return package">
-              <div class="ask-item" role="listitem"><span class="ask-number">01</span><div><strong>Architecture + ownership map</strong><p>Show existing Azure services, proposed Intake and CRM boundaries, integrations, tenant boundary, and the system of record for Contact, Lead, Intake Package, Document, Task, Communication, lifecycle Stage, and Matter.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">02</span><div><strong>Data + event model</strong><p>Define entity IDs, immutable versus mutable records, gate state, audit history, idempotency, and the events that advance or regress Intake Completion, Document Review, Attorney Review, and Stage 4.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">03</span><div><strong>API + shared-contract map</strong><p>Specify Intake submission, the locked Intake Package, <code>doc_type</code> and <code>files[]</code> bundles, skip/ruling codes, Client Portal token flow, uploads/reasons, corrections, and versioned AI output contracts.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">04</span><div><strong>Security + operations assumptions</strong><p>State identity and roles, tenant isolation, encryption, private Blob access, malware/type/size controls, token expiry/revocation, audit logging, retention/deletion, secrets, AI-provider boundaries, and dev/staging/production separation.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">05</span><div><strong>Milestones + acceptance criteria</strong><p>Break the slice into demoable vertical milestones. For each: inputs, observable behavior, owner, test data, definition of done, dependencies, and the exact acceptance walkthrough against Matt’s prototypes.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">06</span><div><strong>Estimate + dependency register</strong><p>Give ranges tied to staffing and assumptions—not false precision. Name third-party services, accounts/keys, migration needs, unresolved decisions, technical spikes, risks, and what would materially change the estimate.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">07</span><div><strong>Staging-build proposal</strong><p>Recommend the first deployable staging slice, environment owner, seeded demo scenarios, observability, rollback approach, review cadence, and the date when Matt can test an end-to-end happy path plus reopening cases.</p></div></div>
-              <div class="ask-item" role="listitem"><span class="ask-number">08</span><div><strong>Contradiction + decision log</strong><p>List every rule conflict with source links, impact, recommended resolution, decision owner, and deadline. Do not bury product or legal questions inside architecture assumptions or estimates.</p></div></div>
+            <div class="ask-grid" aria-label="Required developer return package">
+              <details class="ask-item"><summary><span class="ask-number">01</span><span class="ask-summary-main"><strong>Architecture + ownership map</strong><p>Show existing Azure services, proposed Intake and CRM boundaries, integrations, tenant boundary, and the system of record for Contact, Lead, Intake Package, Document, Task, Communication, lifecycle Stage, and Matter.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Draw one picture showing what lives where, which app owns each part, and where the official version of every record lives.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">02</span><span class="ask-summary-main"><strong>Data + event model</strong><p>Define entity IDs, immutable versus mutable records, gate state, audit history, idempotency, and the events that advance or regress Intake Completion, Document Review, Attorney Review, and Stage 4.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>List the records the system keeps and the exact actions that move a case forward or send it back for more work.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">03</span><span class="ask-summary-main"><strong>API + shared-contract map</strong><p>Specify Intake submission, the locked Intake Package, <code>doc_type</code> and <code>files[]</code> bundles, skip/ruling codes, Client Portal token flow, uploads/reasons, corrections, and versioned AI output contracts.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Agree on the exact information each part passes to the others so Intake, CRM, documents, the portal, and AI do not interpret the same field differently.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">04</span><span class="ask-summary-main"><strong>Security + operations assumptions</strong><p>State identity and roles, tenant isolation, encryption, private Blob access, malware/type/size controls, token expiry/revocation, audit logging, retention/deletion, secrets, AI-provider boundaries, and dev/staging/production separation.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Explain who can see or change debtor data, how files and links are protected, what is logged, and how test systems stay separate from production.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">05</span><span class="ask-summary-main"><strong>Milestones + acceptance criteria</strong><p>Break the slice into demoable vertical milestones. For each: inputs, observable behavior, owner, test data, definition of done, dependencies, and the exact acceptance walkthrough against Matt’s prototypes.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Split the build into small working demos and define exactly what Matt must be able to see and do before each one is accepted.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">06</span><span class="ask-summary-main"><strong>Estimate + dependency register</strong><p>Give ranges tied to staffing and assumptions—not false precision. Name third-party services, accounts/keys, migration needs, unresolved decisions, technical spikes, risks, and what would materially change the estimate.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Give honest time and cost ranges, name what the team is waiting on, and show which unanswered choices could change the estimate.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">07</span><span class="ask-summary-main"><strong>Staging-build proposal</strong><p>Recommend the first deployable staging slice, environment owner, seeded demo scenarios, observability, rollback approach, review cadence, and the date when Matt can test an end-to-end happy path plus reopening cases.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Propose the first safe test version Matt can use with fake cases, including who runs it, how failures are detected or reversed, and when it will be ready.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">08</span><span class="ask-summary-main"><strong>Contradiction + decision log</strong><p>List every rule conflict with source links, impact, recommended resolution, decision owner, and deadline. Do not bury product or legal questions inside architecture assumptions or estimates.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Keep a visible list of where the prototypes or rules disagree, with the recommended answer and the person and date needed for a decision.</p></div></details>
             </div>
           </div>
 
@@ -772,6 +790,34 @@
       link.remove();
       URL.revokeObjectURL(url);
       showToast("Markdown notes downloaded.");
+    });
+
+    const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+    document.querySelectorAll("#developer-ask details.ask-item").forEach(card => {
+      const summary = card.querySelector("summary");
+      let hoverOpened = false;
+
+      card.addEventListener("pointerenter", () => {
+        if (!fineHover.matches || card.open) return;
+        card.open = true;
+        hoverOpened = true;
+      });
+
+      card.addEventListener("pointerleave", () => {
+        if (!fineHover.matches || !hoverOpened) return;
+        card.open = false;
+        hoverOpened = false;
+      });
+
+      summary.addEventListener("click", event => {
+        if (!hoverOpened) return;
+        event.preventDefault();
+        hoverOpened = false;
+      });
+
+      card.addEventListener("toggle", () => {
+        if (!card.open) hoverOpened = false;
+      });
     });
 
     render();
