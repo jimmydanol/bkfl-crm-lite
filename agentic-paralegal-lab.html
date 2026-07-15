@@ -126,6 +126,9 @@
     .field-error { min-height: 18px; margin-top: 7px; color: #f0aaa1; font-size: 10px; }
 
     .loop-wrap { padding: 16px; border-bottom: 1px solid var(--line-soft); }
+    .goal-line { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px 12px; align-items: center; margin-bottom: 13px; padding: 11px 12px; border: 1px solid rgba(186,215,123,.34); border-radius: 10px; background: var(--lime-soft); }
+    .goal-line span { color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .goal-line strong { font-size: 11px; }
     .loop-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
     .loop-step { min-height: 76px; padding: 10px 9px; border: 1px solid var(--line-soft); border-radius: 9px; background: rgba(8,19,24,.46); }
     .loop-step span { display: block; margin-bottom: 13px; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 9px; }
@@ -143,6 +146,16 @@
     .btn-small { min-height: 32px; padding: 6px 9px; font-size: 10px; }
     .current-action { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: var(--muted); font-size: 11px; }
     .current-action::before { content: ""; flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+    .phase-workbench { margin-top: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(8,19,24,.55); }
+    .phase-workbench-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .phase-workbench-head strong { font-size: 12px; }
+    .phase-workbench-head span { color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+    .phase-trace { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .trace-cell { min-height: 84px; padding: 9px; border-left: 2px solid var(--line); background: rgba(16,36,43,.55); }
+    .trace-cell span { display: block; margin-bottom: 5px; color: var(--teal); font-family: "IBM Plex Mono", monospace; font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .trace-cell p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .continue-note { margin: 9px 0 0; color: var(--muted); font-size: 9px; }
+    .continue-note strong { color: var(--gold); }
 
     .gate-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); }
     .gate { padding: 9px; border-radius: 8px; background: rgba(8,19,24,.42); }
@@ -244,6 +257,7 @@
       .hero, .control-room, .demo-script { grid-template-columns: 1fr; }
       .stats { grid-template-columns: 1fr 1fr; }
       .loop-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .phase-trace { grid-template-columns: 1fr 1fr; }
       .manager-panel { grid-column: auto; }
       .manager-panel .panel-body { grid-template-columns: 1fr; }
       .explain-grid { grid-template-columns: 1fr 1fr; }
@@ -253,6 +267,7 @@
       .shell { width: min(100% - 18px, 1460px); }
       .stats, .gate-row, .event-grid, .explain-grid { grid-template-columns: 1fr; }
       .loop-strip { grid-template-columns: 1fr 1fr; }
+      .phase-trace { grid-template-columns: 1fr; }
       .loop-controls { display: grid; grid-template-columns: 1fr 1fr; }
       .btn { width: 100%; }
       .finding-top { flex-direction: column; }
@@ -310,7 +325,7 @@
 
         <div class="control-room">
           <aside class="panel">
-            <div class="panel-head"><h3>Synthetic packet queue</h3><span class="badge">3 demos</span></div>
+            <div class="panel-head"><h3>Synthetic packet queue</h3><span class="badge" id="demoCount">6 demos</span></div>
             <div class="panel-body">
               <div class="case-list" id="caseList"></div>
               <details>
@@ -325,6 +340,7 @@
           <section class="panel" aria-labelledby="loop-title">
             <div class="panel-head"><h3 id="loop-title">Agent loop</h3><span class="badge" id="agentBadge">Ready</span></div>
             <div class="loop-wrap">
+              <div class="goal-line"><span>Goal</span><strong>Intake Completion clear + Document Review clear + Attorney Review clear → eligible under configured rules → authorized human decides CRM lifecycle Stage 4.</strong></div>
               <div class="loop-strip" id="loopStrip" aria-label="Agent loop phases"></div>
               <div class="loop-controls">
                 <button class="btn" id="nextStepBtn" type="button">Run next step</button>
@@ -333,6 +349,18 @@
                 <button class="btn btn-danger" id="resetBtn" type="button">Reset fake case</button>
               </div>
               <div class="current-action" id="currentAction">Packet queued. The agent has not read it yet.</div>
+              <div class="phase-workbench" id="phaseWorkbench" aria-live="polite">
+                <div class="phase-workbench-head"><strong>What the agent is doing now</strong><span id="tracePhase">Queued</span></div>
+                <div class="phase-trace">
+                  <div class="trace-cell"><span>Reads</span><p id="traceReads">The selected locked synthetic packet and its event history.</p></div>
+                  <div class="trace-cell"><span>Does</span><p id="traceDoes">Waits for a bounded step. No checker has run.</p></div>
+                  <div class="trace-cell"><span>Produces</span><p id="traceProduces">No findings or drafts yet.</p></div>
+                  <div class="trace-cell"><span>Gate effect</span><p id="traceGate">All three required gates remain not checked.</p></div>
+                  <div class="trace-cell"><span>Next</span><p id="traceNext">CONTINUE to Observe when you run the next step.</p></div>
+                  <div class="trace-cell"><span>Authority</span><p id="traceAuthority">The agent may read only; no data or lifecycle state changes.</p></div>
+                </div>
+                <p class="continue-note"><strong>Continue</strong> means advance to the next bounded check. It never means clear a gate.</p>
+              </div>
             </div>
             <div class="gate-row" id="gateRow" aria-label="Configured gate status"></div>
             <div class="work-area">
@@ -397,18 +425,18 @@
       <section id="dinner-demo" aria-labelledby="demo-title">
         <div class="section-head">
           <div><div class="eyebrow">Dinner walkthrough</div><h2 id="demo-title">A 90-second proof for Matt</h2></div>
-          <p>Start with Riley to show productive looping. End with Taylor to show the more important capability: knowing when to stop.</p>
+          <p>Use the new fake debtors as a three-act demo: progress, document control, and selective reopening.</p>
         </div>
         <div class="demo-script">
           <article class="script-card">
             <h3>Say and click</h3>
             <ol class="script-list">
-              <li><span><strong>Load Riley Chen.</strong> “This is a fake locked Intake Package, not a chatbot prompt.”</span></li>
-              <li><span><strong>Run to human checkpoint.</strong> Show the missing fact, partial bank bundle, employer-name mismatch, correction event, and counseling-policy question—with evidence.</span></li>
-              <li><span><strong>Inspect the draft.</strong> The agent prepares neutral follow-up work but cannot send it.</span></li>
-              <li><span><strong>Inject a fake answer and upload.</strong> Run the loop again and show only affected gates being re-checked.</span></li>
-              <li><span><strong>Switch role to Attorney.</strong> Resolve policy/warnings, then show “eligible under configured rules”—not an autonomous Stage 4 transition.</span></li>
-              <li><span><strong>Load Taylor Brooks.</strong> Show attorney-only transfer/property conflicts and the agent stopping instead of inventing legal consequences.</span></li>
+              <li><span><strong>Load Sam Rivera.</strong> “This is a locked fake Intake Package. Watch the six bounded steps explain their inputs, work, output, gate effect, next move, and authority.”</span></li>
+              <li><span><strong>Run to checkpoint, then Debtor answers.</strong> The agent cites one missing income fact, drafts but does not send, records the attributed fake answer, and reopens only Intake Completion.</span></li>
+              <li><span><strong>Re-loop Sam.</strong> Show all three gates clear and “eligible under configured rules.” Switch to Attorney only for the explicit Stage 4 transition.</span></li>
+              <li><span><strong>Load Nadia Wilson.</strong> Show a blurry ID, five-of-six bank bundle, and tax-return reason. Staff may chase; Attorney/Matt alone may excuse.</span></li>
+              <li><span><strong>Load Theo Campbell.</strong> Apply the late fake income correction. Intake Completion rechecks, Document Review stays separate, and Attorney Review remains stale.</span></li>
+              <li><span><strong>Attorney records re-review.</strong> Re-loop to the same finish line: three clear gates, eligibility reported, human Stage 4 decision.</span></li>
             </ol>
           </article>
           <aside class="guardrail-card">
@@ -442,7 +470,7 @@
       {key:"facts", label:"Check facts", detail:"Schema + consistency"},
       {key:"documents", label:"Screen docs", detail:"Bundles + quality"},
       {key:"reconcile", label:"Reconcile", detail:"Gates + policies"},
-      {key:"propose", label:"Propose", detail:"Draft + Task payload"},
+      {key:"propose", label:"Propose", detail:"Draft + routing proposal"},
       {key:"pause", label:"Pause", detail:"Human authority"}
     ];
 
@@ -503,14 +531,91 @@
           events:[{type:"document.uploaded",at:"15:02",detail:"New synthetic property record arrived after Stage 4"}],
           configuredPolicy:{counselingBlocksStage4:false}, priorStage:"Ready for Petition Prep"
         }
+      },
+      {
+        id:"FL-DEMO-004", name:"Sam Rivera", scenario:"Missing fact → attributed answer → eligibility",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-004", syntheticName:"Sam Rivera", stage:"Intake Submitted",
+          intakePackage:{locked:true, submittedAt:"2026-07-15T16:05:00-06:00", version:1},
+          requiredFacts:["county","householdSize","monthlyIncome"],
+          facts:{county:"Demo County", householdSize:3, monthlyIncome:null},
+          fakeAnswers:{monthlyIncome:5150},
+          documents:[
+            {doc_type:"id_license",status:"approved",quality:"clear",files:["demo-sam-id.pdf"]},
+            {doc_type:"bank_statements",status:"approved",quality:"clear",requiredMonths:6,monthsReceived:6,files:["demo-sam-bank-bundle.pdf"]},
+            {doc_type:"pay_stubs",status:"approved",quality:"clear",files:["demo-sam-paystubs.pdf"]},
+            {doc_type:"counseling_certificate",status:"approved",quality:"clear",files:["demo-sam-certificate.pdf"]}
+          ],
+          corrections:[], warnings:[],
+          events:[{type:"intake.submitted",at:"16:05",detail:"Locked synthetic Intake Package v1 received"}],
+          configuredPolicy:{counselingBlocksStage4:false}, priorStage:null
+        }
+      },
+      {
+        id:"FL-DEMO-005", name:"Nadia Wilson", scenario:"Blurry ID, partial bundle, and firm ruling",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-005", syntheticName:"Nadia Wilson", stage:"Intake Submitted",
+          intakePackage:{locked:true, submittedAt:"2026-07-15T16:20:00-06:00", version:1},
+          requiredFacts:["county","householdSize","monthlyIncome"],
+          facts:{county:"Demo County", householdSize:2, monthlyIncome:4760},
+          documents:[
+            {doc_type:"id_license",status:"uploaded",quality:"unreadable",files:["demo-nadia-id-blurry.pdf"]},
+            {doc_type:"bank_statements",status:"uploaded",quality:"clear",requiredMonths:6,monthsReceived:5,files:["demo-nadia-bank-5-months.pdf"]},
+            {doc_type:"tax_return_y1",status:"reason_given",reason:"cannot_locate",files:[]},
+            {doc_type:"counseling_certificate",status:"approved",quality:"clear",files:["demo-nadia-certificate.pdf"]}
+          ],
+          corrections:[], warnings:[],
+          events:[
+            {type:"intake.submitted",at:"16:20",detail:"Locked synthetic Intake Package received"},
+            {type:"document.bundle.received",at:"16:24",detail:"Three synthetic document categories indexed"}
+          ],
+          configuredPolicy:{counselingBlocksStage4:false}, priorStage:null
+        }
+      },
+      {
+        id:"FL-DEMO-006", name:"Theo Campbell", scenario:"Late correction selectively reopens review",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-006", syntheticName:"Theo Campbell", stage:"Attorney Review",
+          intakePackage:{locked:true, submittedAt:"2026-07-15T14:48:00-06:00", version:1},
+          caseFactVersion:2,
+          requiredFacts:["county","householdSize","monthlyIncome"],
+          facts:{county:"Demo County", householdSize:1, monthlyIncome:3800},
+          documents:[
+            {doc_type:"id_license",status:"approved",quality:"clear",files:["demo-theo-id.pdf"]},
+            {doc_type:"bank_statements",status:"approved",quality:"clear",requiredMonths:6,monthsReceived:6,files:["demo-theo-bank-bundle.pdf"]},
+            {doc_type:"counseling_certificate",status:"approved",quality:"clear",files:["demo-theo-certificate.pdf"]}
+          ],
+          reviewHistory:{intakeCompletionAt:"15:10",documentReviewAt:"15:18",attorneyReviewAt:"15:30",attorneyReviewedFactVersion:1},
+          corrections:[{id:"corr-theo-income-v2",field:"monthlyIncome",oldValue:3800,newValue:4300,source:"debtor_portal",receivedAt:"15:42",status:"pending",reopens:["Intake Completion","Attorney Review"]}],
+          warnings:[],
+          events:[
+            {type:"intake.completion.recorded",at:"15:10",detail:"Configured intake checks completed on fact version 1"},
+            {type:"document.review.completed",at:"15:18",detail:"Synthetic document review completed"},
+            {type:"attorney.review.completed",at:"15:30",detail:"Attorney reviewed fact version 1"},
+            {type:"correction.received",at:"15:42",detail:"Synthetic monthly-income correction received after attorney review"}
+          ],
+          configuredPolicy:{counselingBlocksStage4:false}, priorStage:null
+        }
       }
     ];
 
+    const requiredGates = ["Intake Completion","Document Review","Attorney Review"];
+    const blankGateChecks = () => Object.fromEntries(requiredGates.map(gate=>[gate,{state:"not_checked",cycle:0}]));
+    const blankTrace = () => ({
+      phase:"Queued",
+      reads:"The selected locked synthetic packet and its event history.",
+      does:"Waits for a bounded step. No checker has run.",
+      produces:"No findings or drafts yet.",
+      gate:"All three required gates remain not checked.",
+      next:"CONTINUE to Observe when you run the next step.",
+      authority:"The agent may read only; no data or lifecycle state changes."
+    });
+
     const app = {
-      selectedCase:1, packet:null, findings:[], logs:[], cycle:0, nextPhase:0, activePhase:-1,
+      selectedCase:3, packet:null, findings:[], logs:[], cycle:0, nextPhase:0, activePhase:-1,
       running:false, paused:false, status:"ready", decisions:0, role:"staff", autonomy:"draft", maxCycles:3,
       capabilities:{schema:true,documents:true,drafts:true,tasks:true}, draft:"", draftStatus:"none",
-      eligible:false, finalApproved:false
+      eligible:false, finalApproved:false, gateChecks:blankGateChecks(), phaseTrace:blankTrace(), runToken:0
     };
 
     const $ = id => document.getElementById(id);
@@ -537,9 +642,25 @@
     }
 
     function selectCase(index) {
+      if(app.running){ toast("Pause the active loop before switching fake cases."); return; }
       app.selectedCase=index;
       $("packetInput").value=JSON.stringify(demoCases[index].packet,null,2);
       queuePacket();
+    }
+
+    function normalizePacket(packet) {
+      packet.facts=packet.facts&&typeof packet.facts==="object"?packet.facts:{};
+      packet.requiredFacts=Array.isArray(packet.requiredFacts)?packet.requiredFacts:[];
+      packet.documents=Array.isArray(packet.documents)?packet.documents:[];
+      packet.corrections=Array.isArray(packet.corrections)?packet.corrections:[];
+      packet.warnings=Array.isArray(packet.warnings)?packet.warnings:[];
+      packet.events=Array.isArray(packet.events)?packet.events:[];
+      packet.configuredPolicy=packet.configuredPolicy&&typeof packet.configuredPolicy==="object"?packet.configuredPolicy:{counselingBlocksStage4:null};
+      packet.documents.forEach((doc,index)=>{ doc.id=doc.id||`doc-${index+1}-${doc.doc_type||"unknown"}`; doc.doc_type=doc.doc_type||`unknown_${index+1}`; doc.files=Array.isArray(doc.files)?doc.files:[]; });
+      packet.corrections.forEach((correction,index)=>{ correction.id=correction.id||`correction-${index+1}-${correction.field||"unknown"}`; correction.reopens=Array.isArray(correction.reopens)?correction.reopens:["Intake Completion"]; });
+      packet.warnings.forEach((warning,index)=>{ warning.id=warning.id||`warning-${index+1}`; });
+      packet.events.forEach((event,index)=>{ event.id=event.id||`event-${index+1}`; });
+      return packet;
     }
 
     function queuePacket() {
@@ -549,18 +670,59 @@
       catch (error) { $("packetError").textContent="Invalid JSON: "+error.message; return; }
       if(parsed.demoOnly!==true){ $("packetError").textContent="Refused: packet must include demoOnly: true. Never use real debtor data here."; return; }
       if(!parsed.caseId||!parsed.intakePackage||parsed.intakePackage.locked!==true){ $("packetError").textContent="Packet needs caseId and a locked intakePackage."; return; }
-      app.packet=clone(parsed); app.findings=[]; app.logs=[]; app.cycle=0; app.nextPhase=0; app.activePhase=-1;
+      app.runToken+=1;
+      app.packet=normalizePacket(clone(parsed)); app.findings=[]; app.logs=[]; app.cycle=0; app.nextPhase=0; app.activePhase=-1;
       app.running=false; app.paused=false; app.status="ready"; app.decisions=0; app.draft=""; app.draftStatus="none"; app.eligible=false; app.finalApproved=false;
+      app.gateChecks=blankGateChecks(); app.phaseTrace=blankTrace();
       addLog("SYSTEM","Synthetic packet queued",`${parsed.caseId} · immutable package v${parsed.intakePackage.version}`,"system");
       (parsed.events||[]).forEach(event=>addLog("EVENT",event.type,event.detail,"system"));
       render(); toast("Synthetic packet validated and queued.");
     }
 
-    function upsertFindings(items) {
+    function syncFindings(source, items) {
+      const currentIds=new Set(items.map(item=>item.id));
+      const counts={current:items.length,created:0,reopened:0,resolved:0};
       items.forEach(item=>{
         const existing=app.findings.find(f=>f.id===item.id);
-        if(!existing) app.findings.push({...item,status:"open",resolution:null});
+        if(!existing){
+          app.findings.push({...item,source,status:"open",resolution:null,conditionPresent:true,firstSeenCycle:app.cycle,lastSeenCycle:app.cycle});
+          counts.created+=1;
+          return;
+        }
+        const priorStatus=existing.status;
+        const shouldReopen=priorStatus==="resolved";
+        Object.assign(existing,item,{source,conditionPresent:true,lastSeenCycle:app.cycle});
+        if(shouldReopen){ existing.status="open"; existing.resolution="Condition remains or reappeared on re-check"; counts.reopened+=1; }
       });
+      app.findings.filter(f=>f.source===source&&!currentIds.has(f.id)).forEach(f=>{
+        const wasPresent=f.conditionPresent!==false;
+        f.conditionPresent=false;
+        if(f.status!=="resolved"){
+          f.status="resolved";
+          f.resolution="Condition no longer present on bounded re-check";
+        }
+        if(wasPresent)counts.resolved+=1;
+      });
+      return counts;
+    }
+
+    function markGateChecked(gate) {
+      const blocked=unresolvedFindings().some(f=>f.gate===gate);
+      app.gateChecks[gate]={state:blocked?"blocked":"clear",cycle:app.cycle};
+    }
+
+    function reopenGates(gates, reason) {
+      [...new Set(gates)].filter(gate=>app.gateChecks[gate]).forEach(gate=>{
+        app.gateChecks[gate]={state:"reopened",cycle:app.cycle,reason};
+      });
+      app.eligible=false;
+      app.finalApproved=false;
+    }
+
+    function gateSummary(gate) {
+      const check=app.gateChecks[gate]||{state:"not_checked",cycle:0};
+      const labels={not_checked:"not checked",reopened:"reopened and awaiting re-check",clear:"clear",blocked:"blocked"};
+      return `${gate}: ${labels[check.state]}${check.cycle?` in cycle ${check.cycle}`:""}`;
     }
 
     function factFindings() {
@@ -574,7 +736,7 @@
       if(p.facts?.employerName&&p.facts?.employerNameOnPaystub&&p.facts.employerName!==p.facts.employerNameOnPaystub){
         found.push({id:"fact-employer-mismatch",kind:"mismatch",gate:"Intake Completion",owner:"Staff",title:"Employer names differ",detail:"The intake answer and fake pay stub do not match literally. The agent asks for clarification without deciding which is correct.",evidence:`facts.employerName = “${p.facts.employerName}” ↔ pay stub = “${p.facts.employerNameOnPaystub}”`,rule:"Literal cross-source consistency check",field:"employerName"});
       }
-      (p.corrections||[]).filter(c=>c.status==="pending").forEach(c=>found.push({id:`correction-${c.field}`,kind:"correction",gate:"Intake Completion",owner:"Staff",title:`Locked-answer correction: ${c.field}`,detail:"A post-submit correction must create a new attributed version and audit event; the original Intake Package remains immutable.",evidence:`corrections.${c.field} = “${c.newValue}” from ${c.source}`,rule:"Submit-and-lock plus attorney-side correction rule",field:c.field}));
+      (p.corrections||[]).filter(c=>c.status==="pending").forEach(c=>found.push({id:`finding-${c.id}`,kind:"correction",gate:"Intake Completion",owner:"Staff",title:`Locked-answer correction: ${c.field}`,detail:"A post-submit correction must create a new attributed version and audit event; the original Intake Package remains immutable.",evidence:`corrections.${c.field} = “${c.newValue}” from ${c.source}`,rule:"Submit-and-lock plus attorney-side correction rule",field:c.field,correctionId:c.id,correctionSource:c.source,reopens:c.reopens}));
       return found;
     }
 
@@ -583,13 +745,13 @@
       const found=[];
       (app.packet.documents||[]).forEach(doc=>{
         if(doc.requiredMonths&&doc.monthsReceived<doc.requiredMonths){
-          found.push({id:`doc-${doc.doc_type}-coverage`,kind:"document_coverage",gate:"Document Review",owner:"Firm",title:`Incomplete ${doc.doc_type} bundle`,detail:`${doc.monthsReceived} of ${doc.requiredMonths} configured months are present. Originals remain append-only; a follow-up adds files to the bundle.`,evidence:`documents.${doc.doc_type}.monthsReceived = ${doc.monthsReceived}/${doc.requiredMonths}`,rule:"Bundle Rule plus configured lookback",docType:doc.doc_type});
+          found.push({id:`finding-${doc.id}-coverage`,kind:"document_coverage",gate:"Document Review",owner:"Firm",title:`Incomplete ${doc.doc_type} bundle`,detail:`${doc.monthsReceived} of ${doc.requiredMonths} configured months are present. Originals remain append-only; a follow-up adds files to the bundle.`,evidence:`documents.${doc.doc_type}.monthsReceived = ${doc.monthsReceived}/${doc.requiredMonths}`,rule:"Bundle Rule plus configured lookback",docType:doc.doc_type,docId:doc.id});
         }
         if(doc.quality&&doc.quality!=="clear"){
-          found.push({id:`doc-${doc.doc_type}-quality`,kind:"document_quality",gate:"Document Review",owner:"Firm",title:`${doc.doc_type} needs attention`,detail:"The agent may flag image quality; the firm decides whether to reject and re-request.",evidence:`documents.${doc.doc_type}.quality = ${doc.quality}`,rule:"AI screening is a recommendation; firm approval required",docType:doc.doc_type});
+          found.push({id:`finding-${doc.id}-quality`,kind:"document_quality",gate:"Document Review",owner:"Firm",title:`${doc.doc_type} needs attention`,detail:"The agent may flag image quality; the firm decides whether to reject and re-request.",evidence:`documents.${doc.doc_type}.quality = ${doc.quality}`,rule:"AI screening is a recommendation; firm approval required",docType:doc.doc_type,docId:doc.id});
         }
         if(doc.status==="reason_given"&&!["not_taken_yet","will_send_later"].includes(doc.reason)){
-          found.push({id:`doc-${doc.doc_type}-ruling`,kind:"document_ruling",gate:"Document Review",owner:"Firm / Attorney",title:`Firm ruling needed: ${doc.doc_type}`,detail:`The debtor reason “${doc.reason}” does not self-close the requirement. The firm must Excuse or Keep Chasing.`,evidence:`documents.${doc.doc_type}.reason = ${doc.reason}`,rule:"Firm-ruling model for skipped Documents",docType:doc.doc_type});
+          found.push({id:`finding-${doc.id}-ruling`,kind:"document_ruling",gate:"Document Review",owner:"Firm / Attorney",title:`Firm ruling needed: ${doc.doc_type}`,detail:`The debtor reason “${doc.reason}” does not self-close the requirement. The firm must Excuse or Keep Chasing.`,evidence:`documents.${doc.doc_type}.reason = ${doc.reason}`,rule:"Firm-ruling model for skipped Documents",docType:doc.doc_type,docId:doc.id});
         }
       });
       return found;
@@ -605,6 +767,9 @@
         found.push({id:"policy-counseling",kind:"counseling_blocker",gate:"Attorney Review",owner:"Client + Firm",title:"Counseling certificate blocks configured Stage 4",detail:"The configured policy requires the certificate before readiness. The agent can request it but cannot waive the blocker.",evidence:"counseling_certificate.reason = not_taken_yet; policy = blocks Stage 4",rule:"Matt-approved counseling gate policy",docType:"counseling_certificate"});
       }
       (p.warnings||[]).filter(w=>!w.resolved).forEach(w=>found.push({id:`warning-${w.id}`,kind:"warning",gate:"Attorney Review",owner:"Attorney",title:w.title,detail:w.detail,evidence:w.evidence,rule:"Configured attorney-only warning",warningId:w.id}));
+      if(p.reviewHistory?.attorneyReviewedFactVersion!==undefined&&p.caseFactVersion!==undefined&&p.reviewHistory.attorneyReviewedFactVersion<p.caseFactVersion){
+        found.push({id:"attorney-review-stale",kind:"review_stale",gate:"Attorney Review",owner:"Attorney",title:"Attorney Review is stale after fact-version change",detail:"The latest attributed fact version was created after the recorded attorney review. Document Review stays separate because no document dependency changed.",evidence:`attorneyReviewedFactVersion = ${p.reviewHistory.attorneyReviewedFactVersion}; current caseFactVersion = ${p.caseFactVersion}`,rule:"Changed facts reopen dependent review only",reopens:["Attorney Review"]});
+      }
       if(p.priorStage==="Ready for Petition Prep"&&(p.documents||[]).some(d=>d.newAfterStage4)){
         found.push({id:"stage-regression",kind:"regression",gate:"Stage 4",owner:"System + Firm",title:"New activity requires Stage 4 regression",detail:"A new Document arrived after readiness. The badge must tell the truth while affected Document and Attorney Review gates reopen.",evidence:"document.uploaded after priorStage = Ready for Petition Prep",rule:"Ready-for-prep regression rule"});
       }
@@ -613,23 +778,54 @@
 
     function unresolvedFindings() { return app.findings.filter(f=>!["resolved"].includes(f.status)); }
 
+    function transitionSummary(counts) {
+      return `${counts.current} current condition(s) · ${counts.created} new · ${counts.reopened} reopened · ${counts.resolved} resolved on re-check`;
+    }
+
+    function setTrace(phase, reads, doesText, produces, gate, next, authority) {
+      app.phaseTrace={phase,reads,does:doesText,produces,gate,next,authority};
+    }
+
     function processPhase(index) {
       const phase=phases[index]; app.activePhase=index;
-      if(index===0){ app.cycle+=1; addLog("AGENT","Observe latest case state",`${app.packet.caseId} · cycle ${app.cycle}`,"agent"); }
+      if(index===0){
+        app.cycle+=1;
+        const p=app.packet;
+        const inventory=`${Object.keys(p.facts).length} fact fields · ${p.documents.length} document categories · ${p.corrections.length} correction(s) · ${p.warnings.length} warning(s) · ${p.events.length} source event(s)`;
+        addLog("AGENT","Observe latest case state",`${p.caseId} · cycle ${app.cycle} · ${inventory}`,"agent");
+        setTrace("Observe",`Locked Intake Package v${p.intakePackage.version}, current stage “${p.stage},” and ${p.events.length} timeline event(s).`,`Verifies demoOnly = true and package locked = true, then inventories facts, documents, corrections, warnings, and event order.`,inventory,"No gate changes. Observe creates the evidence inventory only.","CONTINUE to Check facts. This advances the loop; it does not clear Intake Completion.","Read-only. The locked package and lifecycle stage are unchanged.");
+      }
       if(phase.key==="facts"){
-        const items=factFindings(); upsertFindings(items); addLog("AGENT","Fact checks complete",`${items.length} finding(s) cited`,"agent");
+        const items=factFindings(); const counts=syncFindings("facts",items); markGateChecked("Intake Completion");
+        addLog("AGENT","Fact checks complete",transitionSummary(counts),"agent");
+        setTrace("Check facts",`${app.packet.requiredFacts.length} configured required fact(s), literal cross-source values, and ${app.packet.corrections.length} attributed correction(s).`,`Checks blanks, exact string mismatches, and post-lock corrections. It does not infer missing answers or choose which source is true.`,transitionSummary(counts),gateSummary("Intake Completion"),"CONTINUE to Screen docs even if facts are blocked; the next independent gate can still be assessed.",items.length?"Staff or the debtor supplies/attributes facts. The agent may draft a neutral question only.":"No human fact action is needed from this check.");
       }
       if(phase.key==="documents"){
-        const items=documentFindings(); upsertFindings(items); addLog("AGENT","Document screening complete",`${items.length} finding(s) cited`,"agent");
+        const items=documentFindings(); const counts=syncFindings("documents",items); markGateChecked("Document Review");
+        const fileCount=app.packet.documents.reduce((total,doc)=>total+doc.files.length,0);
+        addLog("AGENT","Document screening complete",transitionSummary(counts),"agent");
+        setTrace("Screen docs",`${app.packet.documents.length} document categories and ${fileCount} append-only fake file reference(s), including configured month coverage and image-quality metadata.`,`Compares received months to configured coverage, flags unreadable images, and identifies reasons that require a firm ruling. No file is approved or excused.`,transitionSummary(counts),gateSummary("Document Review"),"CONTINUE to Reconcile gates and attorney-owned policy/warnings.",items.length?"Staff may request evidence; only an authorized firm reviewer may excuse a requirement.":"No document follow-up is proposed from this check.");
       }
       if(phase.key==="reconcile"){
-        const items=reconciliationFindings(); upsertFindings(items); addLog("AGENT","Gate reconciliation complete",`${items.length} policy, warning, or regression finding(s)`,"agent");
+        const items=reconciliationFindings(); const counts=syncFindings("reconcile",items); markGateChecked("Attorney Review");
+        addLog("AGENT","Gate reconciliation complete",transitionSummary(counts),"agent");
+        setTrace("Reconcile",`${app.packet.warnings.length} configured warning(s), counseling policy = ${String(app.packet.configuredPolicy.counselingBlocksStage4)}, prior stage = ${app.packet.priorStage||"none"}, and fact-review versions when present.`,`Maps open evidence to gate owners, detects stale reviews or post-Stage-4 activity, and keeps attorney-owned items open.`,transitionSummary(counts),gateSummary("Attorney Review"),"CONTINUE to Propose bounded follow-up work. No gate is cleared by drafting.",items.length?"Matt/Attorney owns policy, warning resolution, stale-review confirmation, and any Stage 4 decision.":"No attorney-owned blocker was produced by this reconciliation.");
       }
       if(phase.key==="propose"){
-        if(app.autonomy!=="observe"&&app.capabilities.drafts){ app.draft=buildDraft(); app.draftStatus="draft"; addLog("AGENT","Neutral follow-up work drafted","No message sent; awaiting firm review","agent"); }
-        else addLog("AGENT","Proposal skipped","Observe-only mode or drafting capability off","agent");
+        const open=unresolvedFindings();
+        if(app.autonomy!=="observe"&&app.capabilities.drafts){
+          app.draft=buildDraft(); app.draftStatus="draft"; addLog("AGENT","Neutral follow-up work drafted","No message sent; awaiting firm review","agent");
+          const debtorCount=open.filter(isDebtorFacingFinding).length;
+          setTrace("Propose",`${open.length} open finding(s), their owners, evidence, and the current autonomy/capability limits.`,`Groups work by owner and creates ${debtorCount?"a neutral debtor-facing draft plus internal routing":"an internal routing note only"}.`,`Draft created · ${debtorCount} debtor-facing item(s) · ${open.length-debtorCount} internal/attorney item(s).`,`No gate changes. A draft is work product, not a completed review.`,"CONTINUE to Pause so the exact readiness equation can be evaluated.","Nothing is sent. Staff reviews debtor language; attorney-owned issues stay internal.");
+        } else {
+          addLog("AGENT","Proposal skipped","Observe-only mode or drafting capability off","agent");
+          setTrace("Propose",`${open.length} open finding(s) and the current capability settings.`,`Honors observe-only mode or the disabled drafting tool.`,`No draft created.`,`No gate changes.`,"CONTINUE to Pause for the readiness check.","The human manager controls whether drafting is available.");
+        }
       }
-      if(phase.key==="pause") evaluateCheckpoint();
+      if(phase.key==="pause"){
+        const result=evaluateCheckpoint();
+        setTrace("Pause",`${requiredGates.map(gate=>gateSummary(gate)).join(" · ")} · ${unresolvedFindings().length} unresolved finding(s).`,`Evaluates the exact rule: Intake Completion clear + Document Review clear + Attorney Review clear, with no unresolved configured blocker.`,result.outcome,result.gate,result.next,result.authority);
+      }
       $("currentAction").textContent=`${phase.label}: ${phase.detail}`;
     }
 
@@ -637,17 +833,28 @@
 
     function evaluateCheckpoint() {
       const open=unresolvedFindings();
-      if(!coverageComplete()){ app.status="limited"; app.eligible=false; addLog("AGENT","Stopped: coverage limited","Required fact or document checks are disabled","agent"); return; }
-      if(open.length){ app.status="waiting"; app.eligible=false; addLog("AGENT","Human checkpoint",`${open.length} unresolved finding(s); no autonomous action taken`,"agent"); return; }
+      const allGatesClear=requiredGates.every(gate=>app.gateChecks[gate].state==="clear");
+      if(!coverageComplete()){
+        app.status="limited"; app.eligible=false; addLog("AGENT","Stopped: coverage limited","Required fact or document checks are disabled","agent");
+        return {outcome:"STOP: required checker coverage is disabled.",gate:"Stage 4 remains not assessed.",next:"HAND OFF to the agent manager to restore required coverage or end the run.",authority:"A human controls capabilities; the agent cannot claim an unchecked gate is clear."};
+      }
+      if(open.length||!allGatesClear){
+        app.status="waiting"; app.eligible=false; addLog("AGENT","Human checkpoint",`${open.length} unresolved finding(s); no autonomous action taken`,"agent");
+        const owners=[...new Set(open.map(f=>f.owner))].join(", ")||"assigned reviewer";
+        return {outcome:`STOP: ${open.length} unresolved finding(s); readiness is not established.`,gate:"Stage 4 is not eligible because the three-gate equation is not fully clear.",next:`HAND OFF to ${owners}. After an attributed event, start a new Observe cycle.`,authority:"The agent cannot waive, approve, send, or transition the lifecycle stage."};
+      }
       app.eligible=true; app.status=app.finalApproved?"complete":"eligible";
       addLog("AGENT","Eligibility recommendation","Configured gates appear clear; attorney Stage 4 approval still required","agent");
+      return {outcome:"All three required gates are clear: eligible under configured rules.",gate:"Eligibility reported; CRM lifecycle Stage 4 has not changed.",next:"HAND OFF to Matt/Attorney for the explicit Stage 4 decision.",authority:"Only an authorized human may transition the case to Ready for Petition Prep."};
     }
 
     async function runNextStep() {
       if(app.running||!app.packet) return;
       if(app.nextPhase===0&&app.cycle>=app.maxCycles){ toast("Maximum cycle limit reached. Change the limit or reset the fake case."); return; }
+      const token=++app.runToken;
       app.running=true; app.paused=false; app.status="running"; render();
       processPhase(app.nextPhase); await sleep(260);
+      if(token!==app.runToken) return;
       if(app.nextPhase===phases.length-1) app.nextPhase=0; else app.nextPhase+=1;
       app.running=false; if(app.status==="running") app.status="paused"; render();
     }
@@ -655,10 +862,12 @@
     async function runToCheckpoint() {
       if(app.running||!app.packet) return;
       if(app.cycle>=app.maxCycles&&app.nextPhase===0){ toast("Maximum cycle limit reached. Change the limit or reset the fake case."); return; }
+      const token=++app.runToken;
       app.running=true; app.paused=false; app.status="running"; render();
       let index=app.nextPhase;
       while(index<phases.length&&!app.paused){
         processPhase(index); render(); await sleep(window.matchMedia("(prefers-reduced-motion: reduce)").matches?20:420); index+=1;
+        if(token!==app.runToken) return;
       }
       app.nextPhase=index>=phases.length?0:index;
       app.running=false;
@@ -667,10 +876,17 @@
       render();
     }
 
+    function isDebtorFacingFinding(finding) {
+      if(["warning","policy","regression","review_stale"].includes(finding.kind)) return false;
+      if(finding.kind==="correction") return false;
+      if(finding.kind==="document_ruling"&&finding.status!=="waiting_client") return false;
+      return true;
+    }
+
     function buildDraft() {
       const open=unresolvedFindings();
       if(!open.length) return "Internal note: configured checks found no unresolved items. Route to Attorney Review for the human Stage 4 decision.";
-      const debtorItems=open.filter(f=>!["warning","policy","regression"].includes(f.kind));
+      const debtorItems=open.filter(isDebtorFacingFinding);
       if(!debtorItems.length) return "INTERNAL DRAFT — requires firm review\n\nAttorney-owned findings remain open. No debtor-facing request is proposed because the agent cannot resolve or characterize their legal significance.";
       const firstName=(app.packet.syntheticName||"Demo debtor").split(" ")[0];
       const lines=["DRAFT — requires firm review; not sent","",`Hello ${firstName},`,"","To continue our review, please help with the following:"];
@@ -687,26 +903,41 @@
       return f.title;
     }
 
-    function findDocument(docType) { return (app.packet.documents||[]).find(d=>d.doc_type===docType); }
+    function findDocument(docType, docId=null) { return (app.packet.documents||[]).find(d=>docId?d.id===docId:d.doc_type===docType); }
+
+    function fakeValueFor(field) {
+      if(app.packet.fakeAnswers&&Object.hasOwn(app.packet.fakeAnswers,field)) return app.packet.fakeAnswers[field];
+      const defaults={county:"Demo County",householdSize:2,monthlyIncome:5150,employerName:"Synthetic Employer"};
+      return Object.hasOwn(defaults,field)?defaults[field]:`Synthetic ${field}`;
+    }
+
+    function appendSyntheticEvent(type, detail, affectedGates) {
+      app.packet.events.push({id:`event-${app.packet.events.length+1}-${Date.now()}`,type,at:nowTime(),detail,source:"simulation",affectedGates:[...affectedGates],evidenceVersion:app.packet.caseFactVersion||app.packet.intakePackage.version});
+    }
 
     function humanAction(findingId, action) {
+      if(app.running){ toast("Pause the loop before applying a simulated human action."); return; }
       const f=app.findings.find(item=>item.id===findingId); if(!f) return;
-      const attorneyOnly=["excuse","policy-filing","policy-stage4","clear-warning","approve-stage4"];
+      const attorneyOnly=["excuse","policy-filing","policy-stage4","clear-warning","record-rereview","approve-stage4"];
       if(attorneyOnly.includes(action)&&app.role!=="attorney"){ toast("Switch the simulated reviewer role to Attorney / Matt for that action."); return; }
       app.decisions+=1; app.eligible=false; app.finalApproved=false;
+      let affectedGates=f.reopens||[f.gate];
       if(action==="apply-fact"){
         if(f.kind==="mismatch") app.packet.facts.employerName=app.packet.facts.employerNameOnPaystub;
-        else if(f.kind==="correction"){ const c=app.packet.corrections.find(x=>x.field===f.field); if(c)c.status="applied_with_audit"; }
-        else app.packet.facts[f.field]="Synthetic County";
-        f.status="resolved"; f.resolution="Synthetic correction applied with audit event";
+        else if(f.kind==="correction"){
+          const c=app.packet.corrections.find(x=>x.id===f.correctionId||x.field===f.field);
+          if(c){ c.status="applied_with_audit"; app.packet.facts[c.field]=c.newValue; affectedGates=c.reopens||affectedGates; }
+        }
+        else app.packet.facts[f.field]=fakeValueFor(f.field);
+        f.status="resolved"; f.resolution="Synthetic attributed update applied; locked package v1 preserved";
       }
       if(action==="request-upload"||action==="keep-chasing"){ f.status="waiting_client"; f.resolution="Client Portal request proposed"; }
       if(action==="simulate-upload"){
-        const doc=findDocument(f.docType); if(doc){ if(doc.requiredMonths)doc.monthsReceived=doc.requiredMonths; doc.quality="clear"; doc.status="uploaded"; doc.reason=null; doc.files.push(`demo-follow-up-${doc.doc_type}.pdf`); }
+        const doc=findDocument(f.docType,f.docId); if(doc){ if(doc.requiredMonths)doc.monthsReceived=doc.requiredMonths; doc.quality="clear"; doc.status="uploaded"; doc.reason=null; doc.files.push(`demo-follow-up-${doc.doc_type}-${doc.files.length+1}.pdf`); }
         f.status="resolved"; f.resolution="Synthetic follow-up upload appended to bundle";
       }
       if(action==="excuse"){
-        const doc=findDocument(f.docType); if(doc)doc.status="excused";
+        const doc=findDocument(f.docType,f.docId); if(doc)doc.status="excused";
         f.status="resolved"; f.resolution="Simulated attorney ruling: Excused";
       }
       if(action==="policy-filing"){ app.packet.configuredPolicy.counselingBlocksStage4=false; f.status="resolved"; f.resolution="Matt policy: blocks filing only"; }
@@ -716,20 +947,30 @@
         const w=app.packet.warnings.find(x=>x.id===f.warningId); if(w)w.resolved=true;
         f.status="resolved"; f.resolution="Simulated attorney resolution recorded";
       }
-      if(action==="confirm-regression"){ app.packet.stage="Intake Submitted"; f.status="resolved"; f.resolution="Stage regressed; affected gates reopened"; }
+      if(action==="record-rereview"){
+        app.packet.reviewHistory.attorneyReviewedFactVersion=app.packet.caseFactVersion;
+        app.packet.reviewHistory.attorneyReviewAt=nowTime();
+        f.status="resolved"; f.resolution=`Attorney re-review recorded for fact version ${app.packet.caseFactVersion}`;
+      }
+      if(action==="confirm-regression"){ app.packet.stage="Intake Submitted"; app.packet.priorStage="Regressed from Ready for Petition Prep"; affectedGates=["Document Review","Attorney Review"]; f.status="resolved"; f.resolution="Stage regressed; affected gates reopened"; }
+      affectedGates=affectedGates.filter(gate=>requiredGates.includes(gate));
+      reopenGates(affectedGates,actionLabel(action));
+      appendSyntheticEvent(`simulation.${action}`,`${f.title} · ${f.resolution||"recorded"}`,affectedGates);
       addLog("HUMAN",actionLabel(action),`${f.title} · ${f.resolution||"recorded"}`,"human");
-      app.status="paused"; render();
+      app.nextPhase=0; app.activePhase=-1; app.status="paused";
+      setTrace("Attributed event",`${actionLabel(action)} for “${f.title},” recorded as a synthetic event with source, affected gates, and evidence version.`,`Preserves the locked intake package, applies only the approved simulated update, and marks dependent checks for another cycle.`,f.resolution||"Human action recorded.",affectedGates.length?affectedGates.map(gate=>gateSummary(gate)).join(" · "):"No configured gate changed.","RE-LOOP from Observe so current evidence—not the prior result—drives the next checkpoint.","The human supplied authority; the agent still cannot send, waive, approve, or change Stage 4.");
+      render();
     }
 
     function actionLabel(action) {
-      const labels={"apply-fact":"Apply synthetic correction","request-upload":"Request more evidence","keep-chasing":"Keep Chasing","simulate-upload":"Inject synthetic upload","excuse":"Attorney: Excuse","policy-filing":"Policy: filing only","policy-stage4":"Policy: blocks Stage 4","escalate":"Escalate to attorney","clear-warning":"Attorney resolves warning","confirm-regression":"Confirm stage regression"};
+      const labels={"apply-fact":"Apply synthetic correction","request-upload":"Request more evidence","keep-chasing":"Keep Chasing","simulate-upload":"Inject synthetic upload","excuse":"Attorney: Excuse","policy-filing":"Policy: filing only","policy-stage4":"Policy: blocks Stage 4","escalate":"Escalate to attorney","clear-warning":"Attorney resolves warning","record-rereview":"Attorney records re-review","confirm-regression":"Confirm stage regression"};
       return labels[action]||action;
     }
 
     function findingButtons(f) {
       if(f.status==="resolved") return "";
       const buttons=[];
-      const add=(action,label,role=null)=>buttons.push(`<button class="btn btn-small" type="button" data-finding="${f.id}" data-action="${action}" ${role&&app.role!==role?"disabled":""}>${label}${role&&app.role!==role?" · "+role:""}</button>`);
+      const add=(action,label,role=null)=>buttons.push(`<button class="btn btn-small" type="button" data-finding="${escapeAttr(f.id)}" data-action="${escapeAttr(action)}" ${app.running||role&&app.role!==role?"disabled":""}>${escapeHtml(label)}${role&&app.role!==role?" · "+escapeHtml(role):""}</button>`);
       if(["fact","mismatch","correction"].includes(f.kind)) add("apply-fact","Apply fake correction");
       if(["document_coverage","document_quality"].includes(f.kind)) f.status==="waiting_client"?add("simulate-upload","Inject fake upload"):add("request-upload","Request more evidence");
       if(f.kind==="document_ruling"){
@@ -739,6 +980,7 @@
       if(f.kind==="counseling_blocker") add("simulate-upload","Inject fake certificate");
       if(f.kind==="policy"){ add("policy-filing","Blocks filing only","attorney"); add("policy-stage4","Blocks Stage 4","attorney"); }
       if(f.kind==="warning"){ if(f.status!=="waiting_attorney")add("escalate","Escalate to attorney"); add("clear-warning","Resolve warning","attorney"); }
+      if(f.kind==="review_stale") add("record-rereview","Record re-review","attorney");
       if(f.kind==="regression") add("confirm-regression","Confirm regression");
       return buttons.join("");
     }
@@ -746,42 +988,53 @@
     function injectEvent(type) {
       let target;
       if(type==="answer"||type==="correction") target=app.findings.find(f=>["fact","mismatch","correction"].includes(f.kind)&&f.status!=="resolved");
-      if(type==="upload") target=app.findings.find(f=>f.kind.startsWith("document")&&f.status!=="resolved");
-      if(type==="attorney") target=app.findings.find(f=>["warning","policy"].includes(f.kind)&&f.status!=="resolved");
+      if(type==="upload") target=app.findings.find(f=>(f.kind.startsWith("document")||f.kind==="counseling_blocker")&&f.status!=="resolved");
+      if(type==="attorney") target=app.findings.find(f=>["warning","policy","review_stale"].includes(f.kind)&&f.status!=="resolved");
       if(!target){ toast("No matching open checkpoint in this fake case."); return; }
       if(type==="attorney"&&app.role!=="attorney"){ toast("Switch role to Attorney / Matt first."); return; }
-      const action=type==="upload"?"simulate-upload":type==="attorney"?(target.kind==="warning"?"clear-warning":"policy-filing"):"apply-fact";
+      const action=type==="upload"?"simulate-upload":type==="attorney"?(target.kind==="warning"?"clear-warning":target.kind==="review_stale"?"record-rereview":"policy-filing"):"apply-fact";
       humanAction(target.id,action);
     }
 
     function gateState(gate) {
-      if(!app.packet) return "pending";
-      const relevant=app.findings.filter(f=>f.gate===gate);
-      if(!relevant.length){
-        if(gate==="Intake Completion"&&!app.capabilities.schema)return "pending";
-        if(gate==="Document Review"&&!app.capabilities.documents)return "pending";
-        return app.cycle>0?"clear":"pending";
-      }
-      return relevant.every(f=>f.status==="resolved")?"clear":"blocked";
+      if(!app.packet) return "not_checked";
+      return app.gateChecks[gate]?.state||"not_checked";
     }
 
     function renderCases() {
-      $("caseList").innerHTML=demoCases.map((c,i)=>`<button class="case-btn ${i===app.selectedCase?"active":""}" type="button" data-case="${i}"><span class="case-id">${c.id}</span><span class="case-name">${c.name}</span><span class="case-scenario">${c.scenario}</span></button>`).join("");
+      $("caseList").innerHTML=demoCases.map((c,i)=>`<button class="case-btn ${i===app.selectedCase?"active":""}" type="button" data-case="${i}" ${app.running?"disabled":""}><span class="case-id">${escapeHtml(c.id)}</span><span class="case-name">${escapeHtml(c.name)}</span><span class="case-scenario">${escapeHtml(c.scenario)}</span></button>`).join("");
+      $("demoCount").textContent=`${demoCases.length} demos`;
     }
 
     function renderLoop() {
       $("loopStrip").innerHTML=phases.map((phase,i)=>`<div class="loop-step ${i===app.activePhase?"active":app.activePhase>=0&&i<app.activePhase?"done":""}"><span>${String(i+1).padStart(2,"0")}</span><strong>${phase.label}</strong></div>`).join("");
-      $("currentAction").textContent=app.activePhase<0?"Packet queued. The agent has not read it yet.":`${phases[app.activePhase].label}: ${phases[app.activePhase].detail}`;
+      $("currentAction").textContent=app.activePhase<0?(app.phaseTrace.phase==="Attributed event"?"New attributed evidence recorded. Re-loop from Observe.":"Packet queued. The agent has not read it yet."):`${phases[app.activePhase].label}: ${phases[app.activePhase].detail}`;
+      $("tracePhase").textContent=app.phaseTrace.phase;
+      $("traceReads").textContent=app.phaseTrace.reads;
+      $("traceDoes").textContent=app.phaseTrace.does;
+      $("traceProduces").textContent=app.phaseTrace.produces;
+      $("traceGate").textContent=app.phaseTrace.gate;
+      $("traceNext").textContent=app.phaseTrace.next;
+      $("traceAuthority").textContent=app.phaseTrace.authority;
       $("nextStepBtn").disabled=app.running||!app.packet;
       $("runCheckpointBtn").disabled=app.running||!app.packet;
       $("pauseBtn").disabled=!app.running;
+      $("resetBtn").disabled=app.running;
+      $("queuePacketBtn").disabled=app.running;
+      $("packetInput").disabled=app.running;
     }
 
     function renderGates() {
       const gates=["Intake Completion","Document Review","Attorney Review","Stage 4"];
       $("gateRow").innerHTML=gates.map(g=>{
-        let state=gateState(g),label=state==="clear"?"Clear":state==="blocked"?"Blocked":"Not checked";
-        if(g==="Stage 4"){ state=app.finalApproved?"clear":app.eligible?"pending":"blocked"; label=app.finalApproved?"Human approved":app.eligible?"Eligible · approval needed":"Not eligible"; }
+        const raw=gateState(g);
+        let state=raw==="clear"?"clear":raw==="blocked"?"blocked":"pending";
+        let label=raw==="clear"?"Clear":raw==="blocked"?"Blocked":raw==="reopened"?"Reopened · re-check required":"Not checked";
+        if(g==="Stage 4"){
+          const needsAssessment=requiredGates.some(gate=>["not_checked","reopened"].includes(gateState(gate)));
+          state=app.finalApproved?"clear":app.eligible?"pending":needsAssessment?"pending":"blocked";
+          label=app.finalApproved?"Human approved":app.eligible?"Eligible · approval needed":needsAssessment?"Not assessed":"Not eligible";
+        }
         return `<div class="gate ${state}"><span>${g}</span><strong>${label}</strong></div>`;
       }).join("");
     }
@@ -789,35 +1042,41 @@
     function renderFindings() {
       const list=$("findingList");
       if(!app.findings.length){ list.innerHTML='<div class="empty">No findings yet. Run the bounded loop to inspect the fake packet.</div>'; }
-      else list.innerHTML=app.findings.map(f=>`<article class="finding ${f.status}"><div class="finding-top"><div><span class="finding-type">${f.gate} · ${f.owner}</span><h4>${f.title}</h4><p>${f.detail}</p></div><span class="finding-status">${f.status.replaceAll("_"," ")}</span></div><details class="evidence"><summary>Why did the agent stop?</summary><p>Evidence: ${f.evidence}<br>Rule: ${f.rule}</p></details><div class="finding-actions">${findingButtons(f)}</div></article>`).join("");
+      else list.innerHTML=app.findings.map(f=>{
+        const status=["open","resolved","waiting_client","waiting_attorney"].includes(f.status)?f.status:"open";
+        return `<article class="finding ${status}"><div class="finding-top"><div><span class="finding-type">${escapeHtml(f.gate)} · ${escapeHtml(f.owner)}</span><h4>${escapeHtml(f.title)}</h4><p>${escapeHtml(f.detail)}</p></div><span class="finding-status">${escapeHtml(status.replaceAll("_"," "))}</span></div><details class="evidence"><summary>Why did the agent stop?</summary><p>Evidence: ${escapeHtml(f.evidence)}<br>Rule: ${escapeHtml(f.rule)}</p></details><div class="finding-actions">${findingButtons(f)}</div></article>`;
+      }).join("");
       const open=unresolvedFindings().length;
       $("workSummary").textContent=app.findings.length?`${open} open · ${app.findings.length-open} resolved`:`Run the loop to produce cited findings.`;
     }
 
     function renderDraft() {
       if(!app.draft){ $("draftArea").innerHTML=""; return; }
-      $("draftArea").innerHTML=`<div class="draft-box"><div class="draft-head"><strong>Agent-drafted follow-up work</strong><span>${app.draftStatus} · never auto-sent</span></div><textarea class="draft-text" id="draftText" aria-label="Agent drafted follow-up">${escapeHtml(app.draft)}</textarea><div class="finding-actions"><button class="btn btn-small" type="button" data-draft="approve">Approve draft for simulated Task</button><button class="btn btn-small" type="button" data-draft="reject">Reject draft</button></div></div>`;
+      $("draftArea").innerHTML=`<div class="draft-box"><div class="draft-head"><strong>Agent-drafted follow-up work</strong><span>${escapeHtml(app.draftStatus)} · never auto-sent</span></div><textarea class="draft-text" id="draftText" aria-label="Agent drafted follow-up" ${app.running?"disabled":""}>${escapeHtml(app.draft)}</textarea><div class="finding-actions"><button class="btn btn-small" type="button" data-draft="approve" ${app.running?"disabled":""}>Approve draft for simulated Task</button><button class="btn btn-small" type="button" data-draft="reject" ${app.running?"disabled":""}>Reject draft</button></div></div>`;
     }
 
     function renderFinalCheckpoint() {
       if(!app.eligible||app.finalApproved){ $("finalCheckpoint").innerHTML=""; return; }
-      $("finalCheckpoint").innerHTML=`<article class="finding waiting_attorney"><div class="finding-top"><div><span class="finding-type">Stage 4 · Attorney-owned</span><h4>Eligible under configured rules</h4><p>Intake Completion, Document Review, and Attorney Review appear clear with zero unresolved configured warnings. The agent cannot transition the lifecycle stage.</p></div><span class="finding-status">human checkpoint</span></div><div class="finding-actions"><button class="btn btn-primary btn-small" type="button" id="approveStage4Btn" ${app.role!=="attorney"?"disabled":""}>Attorney approves Stage 4${app.role!=="attorney"?" · attorney":""}</button></div></article>`;
+      $("finalCheckpoint").innerHTML=`<article class="finding waiting_attorney"><div class="finding-top"><div><span class="finding-type">Stage 4 · Attorney-owned</span><h4>Eligible under configured rules</h4><p>Intake Completion, Document Review, and Attorney Review appear clear with zero unresolved configured warnings. The agent cannot transition the lifecycle stage.</p></div><span class="finding-status">human checkpoint</span></div><div class="finding-actions"><button class="btn btn-primary btn-small" type="button" id="approveStage4Btn" ${app.running||app.role!=="attorney"?"disabled":""}>Attorney approves Stage 4${app.role!=="attorney"?" · attorney":""}</button></div></article>`;
     }
 
     function renderManager() {
       $("roleSelect").value=app.role; $("autonomySelect").value=app.autonomy; $("maxCyclesSelect").value=String(app.maxCycles);
       document.querySelectorAll("[data-capability]").forEach(input=>input.checked=app.capabilities[input.dataset.capability]);
+      $("roleSelect").disabled=app.running; $("autonomySelect").disabled=app.running; $("maxCyclesSelect").disabled=app.running;
+      document.querySelectorAll("[data-capability], [data-event]").forEach(input=>input.disabled=app.running||input.closest(".locked")!==null);
       const draftAllowed=app.autonomy!=="observe"&&app.capabilities.drafts;
       const permissions=[["Read packet","Allowed",""],["Create cited findings","Allowed",""],["Draft work",draftAllowed?"Allowed":"Off",draftAllowed?"":"denied"],["Apply internal update",app.autonomy==="apply"?"After approval":"Draft only",app.autonomy==="apply"?"human":"denied"],["Send externally","Human only","human"],["Waive / approve","Human only","human"],["Stage transition","Denied","denied"]];
       $("permissionGrid").innerHTML=permissions.map(p=>`<span>${p[0]}</span><strong class="perm ${p[2]}">${p[1]}</strong>`).join("");
     }
 
     function renderLog() {
-      $("eventLog").innerHTML=app.logs.length?app.logs.map(entry=>`<div class="log-entry ${entry.kind}"><span class="log-time">${entry.time}</span><span class="log-actor">${entry.actor}${entry.cycle?` · C${entry.cycle}`:""}</span><span class="log-detail"><strong>${entry.title}</strong><span>${entry.detail}</span></span></div>`).join(""):'<div class="empty">No events yet.</div>';
+      $("eventLog").innerHTML=app.logs.length?app.logs.map(entry=>`<div class="log-entry ${["agent","human","system"].includes(entry.kind)?entry.kind:"agent"}"><span class="log-time">${escapeHtml(entry.time)}</span><span class="log-actor">${escapeHtml(entry.actor)}${entry.cycle?` · C${entry.cycle}`:""}</span><span class="log-detail"><strong>${escapeHtml(entry.title)}</strong><span>${escapeHtml(entry.detail)}</span></span></div>`).join(""):'<div class="empty">No events yet.</div>';
       $("logCount").textContent=`${app.logs.length} event${app.logs.length===1?"":"s"}`;
     }
 
-    function escapeHtml(text) { return text.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+    function escapeHtml(text) { return String(text??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;"); }
+    function escapeAttr(text) { return escapeHtml(text); }
 
     function render() {
       renderCases(); renderLoop(); renderGates(); renderFindings(); renderDraft(); renderFinalCheckpoint(); renderManager(); renderLog();
@@ -830,12 +1089,17 @@
       const findingButton=event.target.closest("[data-finding]"); if(findingButton){ humanAction(findingButton.dataset.finding,findingButton.dataset.action); return; }
       const eventButton=event.target.closest("[data-event]"); if(eventButton){ injectEvent(eventButton.dataset.event); return; }
       const draftButton=event.target.closest("[data-draft]"); if(draftButton){
+        if(app.running){toast("Pause the loop before reviewing a draft.");return;}
         app.draft=$("draftText").value; app.draftStatus=draftButton.dataset.draft==="approve"?"approved":"rejected"; app.decisions+=1;
         addLog("HUMAN",app.draftStatus==="approved"?"Draft approved":"Draft rejected","Simulation only; no external message sent","human"); render(); return;
       }
       if(event.target.id==="approveStage4Btn"){
         if(app.role!=="attorney"){toast("Switch role to Attorney / Matt.");return;}
-        app.finalApproved=true; app.status="complete"; app.decisions+=1; addLog("ATTORNEY","Stage 4 approved","Human lifecycle transition recorded after configured gates cleared","human"); render();
+        app.finalApproved=true; app.packet.stage="Ready for Petition Prep"; app.status="complete"; app.decisions+=1;
+        appendSyntheticEvent("stage.changed","Authorized human changed CRM lifecycle stage to Ready for Petition Prep",requiredGates);
+        addLog("ATTORNEY","Stage 4 approved","Human lifecycle transition recorded after configured gates cleared","human");
+        setTrace("Human Stage 4 decision","The three clear gate results and the explicit Attorney/Matt approval action.","Records the human-owned lifecycle transition; the agent does not perform or infer this decision.","CRM lifecycle stage = Ready for Petition Prep.","Stage 4 is human approved.","STOP: the intended v1 finish line has been reached.","The approving attorney owns the transition and its audit event.");
+        render();
       }
     });
     $("queuePacketBtn").addEventListener("click",queuePacket);
@@ -846,9 +1110,14 @@
     $("roleSelect").addEventListener("change",event=>{app.role=event.target.value;addLog("HUMAN","Reviewer role changed",app.role,"human");render();});
     $("autonomySelect").addEventListener("change",event=>{app.autonomy=event.target.value;addLog("HUMAN","Agent autonomy changed",app.autonomy,"human");render();});
     $("maxCyclesSelect").addEventListener("change",event=>{app.maxCycles=Number(event.target.value);render();});
-    document.querySelectorAll("[data-capability]").forEach(input=>input.addEventListener("change",event=>{app.capabilities[event.target.dataset.capability]=event.target.checked;app.eligible=false;app.finalApproved=false;addLog("HUMAN","Capability changed",`${event.target.dataset.capability} = ${event.target.checked}`,"human");render();}));
+    document.querySelectorAll("[data-capability]").forEach(input=>input.addEventListener("change",event=>{
+      const capability=event.target.dataset.capability; app.capabilities[capability]=event.target.checked; app.eligible=false; app.finalApproved=false;
+      if(capability==="schema")app.gateChecks["Intake Completion"]={state:"not_checked",cycle:app.cycle};
+      if(capability==="documents")app.gateChecks["Document Review"]={state:"not_checked",cycle:app.cycle};
+      addLog("HUMAN","Capability changed",`${capability} = ${event.target.checked}`,"human");render();
+    }));
 
-    selectCase(1);
+    selectCase(3);
   </script>
 </body>
 </html>
