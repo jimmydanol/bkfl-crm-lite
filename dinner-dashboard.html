@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BK FastLane working-dinner dashboard for freezing the Intake to Ready for Petition Prep workflow.">
+  <title>BK FastLane — Working Dinner Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #18313b;
+      --muted: #65747a;
+      --paper: #f7f4ed;
+      --surface: #fffdf8;
+      --surface-strong: #ffffff;
+      --teal: #214e5f;
+      --teal-2: #2d6876;
+      --teal-soft: #e6f0ef;
+      --gold: #b98532;
+      --gold-soft: #f7ebd5;
+      --red: #a0443d;
+      --red-soft: #f7e7e4;
+      --green: #2f6b52;
+      --green-soft: #e4f0e9;
+      --line: #d9d6cd;
+      --shadow: 0 18px 55px rgba(30, 52, 59, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(185, 133, 50, 0.11), transparent 28rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, select, textarea { font: inherit; }
+    a { color: inherit; }
+    button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(185, 133, 50, 0.55);
+      outline-offset: 3px;
+    }
+
+    .branch-banner {
+      background: var(--teal);
+      color: white;
+      padding: 8px 20px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(247, 244, 237, 0.94);
+      border-bottom: 1px solid rgba(33, 78, 95, 0.13);
+      backdrop-filter: blur(12px);
+    }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 58px;
+    }
+    .brand { font-weight: 800; letter-spacing: -.02em; text-decoration: none; }
+    .brand span { color: var(--gold); }
+    .nav { display: flex; flex-wrap: wrap; gap: 6px; }
+    .nav a {
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav a:hover { background: var(--teal-soft); color: var(--teal); }
+
+    .hero { padding: 58px 0 32px; }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 850px;
+      margin: 10px 0 16px;
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+    .hero-copy { max-width: 800px; color: var(--muted); font-size: 18px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 6px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.62);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+
+    section { padding: 34px 0; scroll-margin-top: 74px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+    .section-head h2 { margin-bottom: 0; font-size: clamp(25px, 4vw, 38px); letter-spacing: -.035em; }
+    .section-head p { max-width: 570px; margin-bottom: 2px; color: var(--muted); }
+
+    .launch-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .launch-card {
+      min-height: 180px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 9px 28px rgba(30,52,59,.06);
+      text-decoration: none;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .launch-card:hover { transform: translateY(-3px); border-color: var(--teal-2); box-shadow: var(--shadow); }
+    .launch-card .owner { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .launch-card h3 { margin: 30px 0 8px; font-size: 20px; }
+    .launch-card p { margin-bottom: 0; color: var(--muted); font-size: 13px; }
+    .launch-card.primary { background: var(--teal); border-color: var(--teal); color: white; }
+    .launch-card.primary .owner { color: #f0c780; }
+    .launch-card.primary p { color: rgba(255,255,255,.73); }
+
+    .focus-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 26px;
+      padding: clamp(22px, 4vw, 38px);
+      border-radius: 22px;
+      background: var(--teal);
+      color: white;
+      box-shadow: var(--shadow);
+    }
+    .focus-label { color: #f0c780; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .focus-question { margin: 10px 0 16px; font-family: "Source Serif 4", Georgia, serif; font-size: clamp(28px, 4.5vw, 48px); line-height: 1.08; }
+    .focus-card p { color: rgba(255,255,255,.74); }
+    .rule-box { align-self: stretch; padding: 20px; border: 1px solid rgba(255,255,255,.24); border-radius: 14px; background: rgba(255,255,255,.08); }
+    .rule-box strong { display: block; margin-bottom: 10px; color: #f4d49c; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+    .equation { font-weight: 700; line-height: 1.65; }
+    .equation .equals { color: #f4d49c; }
+
+    .decision-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
+    .decision-rail { display: grid; gap: 8px; }
+    .decision-tab {
+      display: grid;
+      grid-template-columns: 31px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+    .decision-tab:hover { background: rgba(255,255,255,.58); color: var(--ink); }
+    .decision-tab.active { border-color: var(--line); background: var(--surface-strong); color: var(--ink); box-shadow: 0 8px 24px rgba(30,52,59,.06); }
+    .decision-num { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px; background: var(--teal-soft); color: var(--teal); font-size: 12px; font-weight: 800; }
+    .decision-tab.active .decision-num { background: var(--teal); color: white; }
+    .decision-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 700; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #aaa; }
+    .status-dot.open { background: var(--gold); }
+    .status-dot.approved { background: var(--green); }
+
+    .decision-panel { padding: clamp(20px, 3.4vw, 34px); border: 1px solid var(--line); border-radius: 18px; background: var(--surface-strong); box-shadow: var(--shadow); }
+    .decision-progress { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .progress-track { flex: 1; height: 7px; overflow: hidden; border-radius: 999px; background: #e6e3db; }
+    .progress-fill { width: 10%; height: 100%; border-radius: inherit; background: var(--gold); transition: width .2s ease; }
+    .current-tag { display: inline-block; margin-top: 25px; color: var(--teal-2); font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .decision-panel h3 { margin: 7px 0 11px; font-family: "Source Serif 4", Georgia, serif; font-size: clamp(25px, 4vw, 38px); line-height: 1.14; }
+    .test-box { margin: 20px 0; padding: 15px 17px; border-left: 4px solid var(--gold); background: var(--gold-soft); color: #5b4724; }
+    .test-box strong { display: block; margin-bottom: 4px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .fields { display: grid; grid-template-columns: 1fr 190px; gap: 14px; margin-top: 22px; }
+    label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    textarea, select {
+      width: 100%;
+      border: 1px solid #c9c8c2;
+      border-radius: 10px;
+      background: white;
+      color: var(--ink);
+    }
+    textarea { min-height: 138px; padding: 13px; resize: vertical; line-height: 1.5; }
+    select { min-height: 44px; padding: 8px 10px; }
+    .flag-row { display: flex; align-items: flex-start; gap: 9px; margin-top: 14px; color: var(--muted); font-size: 13px; }
+    .flag-row input { margin-top: 3px; accent-color: var(--red); }
+    .decision-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 24px; }
+    .action-cluster { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+      color: var(--ink);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--teal-2); background: var(--teal-soft); }
+    .btn-primary { border-color: var(--teal); background: var(--teal); color: white; }
+    .btn-primary:hover { background: #173e4c; color: white; }
+    .save-note { color: var(--muted); font-size: 12px; }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      counter-reset: step;
+    }
+    .workflow-step { position: relative; min-height: 115px; padding: 15px; border-top: 3px solid var(--line); background: rgba(255,255,255,.42); }
+    .workflow-step::before { counter-increment: step; content: counter(step, decimal-leading-zero); display: block; margin-bottom: 16px; color: var(--gold); font-size: 11px; font-weight: 800; }
+    .workflow-step strong { display: block; font-size: 14px; line-height: 1.3; }
+    .workflow-step span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .workflow-step.finish { border-top-color: var(--green); background: var(--green-soft); }
+    .workflow-step.lock { border-top-color: var(--gold); background: var(--gold-soft); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .paper-card { padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .paper-card h3 { margin-bottom: 14px; font-size: 19px; }
+    .source-list, .guardrail-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .source-list a { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 0; border-bottom: 1px solid #e9e5db; color: var(--teal); font-size: 13px; font-weight: 700; text-decoration: none; }
+    .source-list a::after { content: "↗"; color: var(--gold); }
+    .source-list li:last-child a { border-bottom: 0; }
+    .guardrail-list li { position: relative; padding-left: 19px; color: var(--muted); font-size: 13px; }
+    .guardrail-list li::before { content: ""; position: absolute; left: 0; top: .52em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+    .ambiguity { display: grid; gap: 10px; margin-top: 18px; }
+    .ambiguity-item { padding: 13px 14px; border-left: 3px solid var(--red); background: var(--red-soft); color: #633936; font-size: 13px; }
+
+    .ask-box { padding: clamp(24px, 4vw, 40px); border-radius: 20px; background: #172f39; color: white; }
+    .ask-box h2 { margin-bottom: 9px; font-size: clamp(25px, 4vw, 38px); }
+    .ask-box p { color: rgba(255,255,255,.72); }
+    .ask-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-top: 22px; }
+    .ask-item { padding: 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.05); font-size: 13px; font-weight: 700; }
+
+    footer { padding: 36px 0 54px; color: var(--muted); font-size: 12px; }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      max-width: min(360px, calc(100% - 36px));
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: white;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 960px) {
+      .launch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .decision-layout { grid-template-columns: 1fr; }
+      .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .decision-tab { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 8px; }
+      .decision-name { display: none; }
+      .status-dot { position: absolute; margin: -27px 0 0 25px; }
+      .workflow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .topbar { position: static; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      .nav { width: 100%; }
+      .nav a { flex: 1 1 auto; text-align: center; background: rgba(255,255,255,.52); }
+      .hero { padding-top: 38px; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .launch-grid, .two-col, .ask-grid { grid-template-columns: 1fr; }
+      .focus-card { grid-template-columns: 1fr; }
+      .fields { grid-template-columns: 1fr; }
+      .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .decision-actions { align-items: stretch; flex-direction: column; }
+      .action-cluster { display: grid; grid-template-columns: 1fr 1fr; }
+      .btn { width: 100%; }
+    }
+    @media (max-width: 430px) {
+      .launch-grid, .workflow { grid-template-columns: 1fr; }
+      .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .hero-meta { display: grid; }
+      .pill { justify-content: center; }
+    }
+    @media print {
+      .branch-banner, .topbar, .launch-grid, .decision-rail, .decision-actions, .toast { display: none !important; }
+      body { background: white; }
+      .shell { width: 100%; }
+      section { break-inside: avoid; }
+      .decision-layout { display: block; }
+      .decision-panel, .paper-card, .focus-card, .ask-box { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="branch-banner">Jimmy Branch · Working Dinner Control Room · Demo Data Only</div>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top">BK <span>FastLane</span></a>
+      <nav class="nav" aria-label="Dinner dashboard">
+        <a href="#launch">Demos</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#sources">Sources</a>
+        <a href="#developer-ask">Thursday ask</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow">Working dinner · July 15, 2026</div>
+        <h1 id="page-title">Freeze the path to petition prep.</h1>
+        <p class="hero-copy">One outcome tonight: Matt’s exact, developer-testable rules for moving a debtor from New Lead through firm review to CRM lifecycle Stage 4 — Ready for Petition Prep.</p>
+        <div class="hero-meta" aria-label="Meeting boundaries">
+          <span class="pill">One question at a time</span>
+          <span class="pill">Matt decides product + legal rules</span>
+          <span class="pill">Prototype behavior, not production security</span>
+          <span class="pill">No real debtor data</span>
+        </div>
+      </section>
+
+      <section id="launch" aria-labelledby="launch-title">
+        <div class="section-head">
+          <div><div class="eyebrow">Open the four windows</div><h2 id="launch-title">Demo launchpad</h2></div>
+          <p>Compare Matt’s source-of-truth behavior with Jimmy’s working branch. Each link opens in a new tab.</p>
+        </div>
+        <div class="launch-grid">
+          <a class="launch-card primary" href="https://mmccune22.github.io/mccune-legal-intake-mockups/Intake%20Pages/login.html" target="_blank" rel="noopener">
+            <div class="owner">Matt · source of truth</div><h3>Debtor Intake</h3><p>Start at login and walk submission, lock, documents, and confirmation.</p>
+          </a>
+          <a class="launch-card primary" href="https://mmccune22.github.io/bkfl-crm-lite/" target="_blank" rel="noopener">
+            <div class="owner">Matt · source of truth</div><h3>CRM Lite</h3><p>Walk Intake Completion, document review, attorney work, and lifecycle stage.</p>
+          </a>
+          <a class="launch-card" href="https://jimmydanol.github.io/mccune-legal-intake-mockups-review/Intake%20Pages/login.html" target="_blank" rel="noopener">
+            <div class="owner">Jimmy · working branch</div><h3>Intake Review</h3><p>Compare branch behavior without treating it as an approved rule.</p>
+          </a>
+          <a class="launch-card" href="https://jimmydanol.github.io/bkfl-crm-lite/" target="_blank" rel="noopener">
+            <div class="owner">Jimmy · working branch</div><h3>CRM Review</h3><p>Inspect branch views, intake package review, and document review.</p>
+          </a>
+        </div>
+      </section>
+
+      <section aria-labelledby="focus-title">
+        <div class="focus-card">
+          <div>
+            <div class="focus-label">Ask this first — then stop talking</div>
+            <h2 class="focus-question" id="focus-title">“What exactly must be true before you personally trust the words Ready for Petition Prep?”</h2>
+            <p>Capture Matt’s wording before showing the recommended test. If he chooses document completion alone, name that state <strong>Documents Complete</strong>.</p>
+          </div>
+          <div class="rule-box">
+            <strong>Recommended truth test</strong>
+            <div class="equation">Intake Completion complete<br>+ Document Review complete<br>+ Attorney Review complete<br><span class="equals">= Ready for Petition Prep</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="decisions" aria-labelledby="decisions-title">
+        <div class="section-head">
+          <div><div class="eyebrow">Live decision runner</div><h2 id="decisions-title">Ten rules to freeze</h2></div>
+          <p>Ask only the question on screen. Notes save in this browser; do not enter client information.</p>
+        </div>
+        <div class="decision-layout">
+          <div class="decision-rail" id="decisionRail" aria-label="Decision questions"></div>
+          <article class="decision-panel" aria-live="polite">
+            <div class="decision-progress">
+              <span id="progressLabel">Question 1 of 10</span>
+              <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+              <span id="approvedCount">0 approved</span>
+            </div>
+            <span class="current-tag" id="currentTag">Stage 4 truth test</span>
+            <h3 id="currentQuestion"></h3>
+            <div class="test-box"><strong>Test / recommendation</strong><span id="currentTest"></span></div>
+            <div class="fields">
+              <div>
+                <label for="answer">Matt’s answer — capture close to verbatim</label>
+                <textarea id="answer" placeholder="Record the rule, exact trigger, approver, blocker, or event..."></textarea>
+              </div>
+              <div>
+                <label for="status">Decision status</label>
+                <select id="status">
+                  <option value="unasked">Unasked</option>
+                  <option value="open">Open / needs precision</option>
+                  <option value="approved">Approved by Matt</option>
+                </select>
+                <label class="flag-row" for="flagged"><input id="flagged" type="checkbox"> Contradiction or developer ambiguity remains</label>
+              </div>
+            </div>
+            <div class="decision-actions">
+              <span class="save-note" id="saveNote">Saved locally in this browser</span>
+              <div class="action-cluster">
+                <button class="btn" id="prevBtn" type="button">← Previous</button>
+                <button class="btn" id="copyBtn" type="button">Copy question</button>
+                <button class="btn btn-primary" id="nextBtn" type="button">Next question →</button>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="decision-actions">
+          <span class="save-note">Export produces product-decision notes only. Review before sharing.</span>
+          <div class="action-cluster">
+            <button class="btn" id="copyNotesBtn" type="button">Copy all notes</button>
+            <button class="btn" id="downloadNotesBtn" type="button">Download Markdown</button>
+            <button class="btn" type="button" onclick="window.print()">Print / Save PDF</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow" aria-labelledby="workflow-title">
+        <div class="section-head">
+          <div><div class="eyebrow">The v1 boundary</div><h2 id="workflow-title">One workflow to freeze</h2></div>
+          <p>These are workflow events and gates, not ten editable CRM lifecycle stages.</p>
+        </div>
+        <div class="workflow" role="list" aria-label="New Lead to Ready for Petition Prep workflow">
+          <div class="workflow-step" role="listitem"><strong>New Lead</strong><span>Lead exists; identity and dedupe rules apply.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Intake Sent</strong><span>System sends debtor intake link.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Debtor Intake</strong><span>Debtor answers and uploads triggered documents.</span></div>
+          <div class="workflow-step lock" role="listitem"><strong>Submit + lock</strong><span>Immutable Intake Package is created.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Intake Completion</strong><span>Firm resolves missing facts and corrections.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Document Review</strong><span>Firm approves, rejects, excuses, or chases.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Attorney Review</strong><span>Attorney-owned warnings and readiness checks resolve.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Client Portal follow-up</strong><span>Outstanding items return through one secure link.</span></div>
+          <div class="workflow-step finish" role="listitem"><strong>Stage 4</strong><span>Ready for Petition Prep only when its approved gate is true.</span></div>
+          <div class="workflow-step" role="listitem"><strong>Stop v1</strong><span>No petition generation, filing, billing, or full case management.</span></div>
+        </div>
+      </section>
+
+      <section id="sources" aria-labelledby="sources-title">
+        <div class="section-head">
+          <div><div class="eyebrow">Evidence before opinion</div><h2 id="sources-title">Primary sources + guardrails</h2></div>
+          <p>Repositories and implemented behavior outrank stale copies. Matt’s answer tonight can amend the rule.</p>
+        </div>
+        <div class="two-col">
+          <article class="paper-card">
+            <h3>Open the source</h3>
+            <ul class="source-list">
+              <li><a href="https://github.com/mmccune22/mccune-legal-intake-mockups" target="_blank" rel="noopener">Intake repository</a></li>
+              <li><a href="https://github.com/mmccune22/bkfl-crm-lite" target="_blank" rel="noopener">CRM Lite repository</a></li>
+              <li><a href="https://github.com/mmccune22/bkfl-crm-lite/blob/main/docs/HANDOFF.md" target="_blank" rel="noopener">Developer handoff</a></li>
+              <li><a href="https://github.com/mmccune22/mccune-legal-intake-mockups/blob/main/Intake%20Pages/DOC-LOGIC.md" target="_blank" rel="noopener">Intake document logic</a></li>
+              <li><a href="https://github.com/mmccune22/bkfl-crm-lite/blob/main/docs/india-handoff-checklist.md" target="_blank" rel="noopener">CRM decision checklist</a></li>
+            </ul>
+          </article>
+          <article class="paper-card">
+            <h3>Do not blur these boundaries</h3>
+            <ul class="guardrail-list">
+              <li><strong>Intake Step 4: Debts</strong> is not <strong>CRM lifecycle Stage 4</strong>.</li>
+              <li>GitHub Pages demonstrates behavior; it is not the production security model.</li>
+              <li>Use fake/demo data only. Never enter debtor PII in this dashboard.</li>
+              <li>AI may summarize, flag, classify, or draft for review. It does not give legal advice, select a chapter, determine exemptions, or create a filing-ready petition.</li>
+              <li>Full CRM, petition generation, filing, billing, and general practice management stay outside v1.</li>
+            </ul>
+            <div class="ambiguity" aria-label="Known source contradictions">
+              <div class="ambiguity-item"><strong>Stage 4:</strong> the current CRM checklist uses document completion alone; tonight’s recommended rule requires three completed gates.</div>
+              <div class="ambiguity-item"><strong>Portal route:</strong> Intake logic says <code>/portal/{token}</code>; the CRM checklist still contains <code>/upload/{token}</code>.</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="developer-ask" aria-labelledby="ask-title">
+        <div class="ask-box">
+          <div class="eyebrow">Provisional until question 10 is approved</div>
+          <h2 id="ask-title">Exact Thursday developer-team ask</h2>
+          <p>Confirm how the two prototypes fit the existing Azure platform, identify rule contradictions before estimating, and return one implementation path to the Stage 4 finish line.</p>
+          <div class="ask-grid">
+            <div class="ask-item">Architecture map</div><div class="ask-item">Data + event model</div><div class="ask-item">Milestones + acceptance criteria</div>
+            <div class="ask-item">Security assumptions</div><div class="ask-item">Estimate + dependencies</div><div class="ask-item">Staging-build plan</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner"><span>BK FastLane · Working decision aid · Jimmy branch</span><span>Local notes stay in this browser until exported.</span></div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const questions = [
+      {
+        tag: "Stage 4 truth test",
+        short: "Ready definition",
+        question: "What exactly must be true before you personally trust the words ‘Ready for Petition Prep’?",
+        test: "Recommended: Intake Completion complete + Document Review complete + Attorney Review complete = Ready for Petition Prep. If documents alone are enough, call that state Documents Complete."
+      },
+      {
+        tag: "Authority boundary",
+        short: "Fact waivers",
+        question: "Which missing facts may staff waive, and which missing facts require attorney approval before the gate can close?",
+        test: "Require named categories, the allowed ruling, who may make it, and the audit event. Avoid a vague ‘staff can handle minor items’ rule."
+      },
+      {
+        tag: "Blocking logic",
+        short: "Warnings",
+        question: "Which exact warnings block Stage 4, and which warnings may remain visible without blocking it?",
+        test: "A developer needs a finite warning-code list with blocking severity, owner, resolution event, and reopen behavior."
+      },
+      {
+        tag: "Filing prerequisite",
+        short: "Counseling",
+        question: "Does the counseling certificate block Stage 4, or does it block filing only?",
+        test: "Current Intake document logic treats it as a soft intake gate and a filing blocker. Decide explicitly whether Ready for Petition Prep may be true without it."
+      },
+      {
+        tag: "Regression rules",
+        short: "Reopen gates",
+        question: "Which new facts, corrected answers, or uploads reopen Intake Completion, Document Review, Attorney Review, or Stage 4?",
+        test: "Name the triggering event, the gate it reopens, the new owner/task, whether prepReadyDate is retained, and the visible stage regression."
+      },
+      {
+        tag: "Object lifecycle",
+        short: "Lead → Matter",
+        question: "What exact event converts a Lead into a Matter?",
+        test: "Choose one auditable event—not a feeling or manual stage edit—and say whether conversion occurs before, at, or after Ready for Petition Prep."
+      },
+      {
+        tag: "Shared route contract",
+        short: "Portal route",
+        question: "Is the canonical debtor-facing post-submit route /portal/{token}?",
+        test: "Recommended: yes. Intake owns the Client Portal route; every follow-up email carries one fresh token; the submitted intake form remains locked."
+      },
+      {
+        tag: "AI boundary",
+        short: "AI drafts",
+        question: "What may draft AI output say before attorney approval, and what language is always prohibited?",
+        test: "Permit preliminary summaries, classifications, flags, and firm-voiced drafts. Prohibit legal advice, chapter selection, exemption determinations, and claims of a filing-ready petition."
+      },
+      {
+        tag: "Build direction",
+        short: "Platform path",
+        question: "Are developers extending the existing Azure platform, building the canonical BK FastLane stack, or integrating both—and which system owns each record?",
+        test: "Require one system-of-record map for identity, Lead, Intake Package, documents, tasks, communications, audit events, and lifecycle stage."
+      },
+      {
+        tag: "Thursday handoff",
+        short: "Developer ask",
+        question: "What exactly must the developer team return after Thursday: architecture map, data/event model, milestones, security assumptions, estimate, staging build—or all of them?",
+        test: "Recommended: all six, with assumptions and unanswered product/legal questions separated from estimates."
+      }
+    ];
+
+    const storageKey = "bkfl-dinner-2026-07-15-v1";
+    const blankState = () => questions.map(() => ({ answer: "", status: "unasked", flagged: false }));
+    let state;
+    try {
+      const parsed = JSON.parse(localStorage.getItem(storageKey));
+      state = Array.isArray(parsed) && parsed.length === questions.length ? parsed : blankState();
+    } catch (_) { state = blankState(); }
+    let current = 0;
+
+    const rail = document.getElementById("decisionRail");
+    const answer = document.getElementById("answer");
+    const status = document.getElementById("status");
+    const flagged = document.getElementById("flagged");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1900);
+    }
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      document.getElementById("saveNote").textContent = "Saved locally · " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+    }
+
+    function renderRail() {
+      rail.innerHTML = "";
+      questions.forEach((q, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "decision-tab" + (index === current ? " active" : "");
+        button.setAttribute("aria-current", index === current ? "step" : "false");
+        button.innerHTML = `<span class="decision-num">${String(index + 1).padStart(2, "0")}</span><span class="decision-name">${q.short}</span><span class="status-dot ${state[index].status}" aria-label="${state[index].status}"></span>`;
+        button.addEventListener("click", () => { current = index; render(); });
+        rail.appendChild(button);
+      });
+    }
+
+    function render() {
+      const q = questions[current];
+      document.getElementById("progressLabel").textContent = `Question ${current + 1} of ${questions.length}`;
+      document.getElementById("progressFill").style.width = `${((current + 1) / questions.length) * 100}%`;
+      document.getElementById("approvedCount").textContent = `${state.filter(item => item.status === "approved").length} approved`;
+      document.getElementById("currentTag").textContent = q.tag;
+      document.getElementById("currentQuestion").textContent = q.question;
+      document.getElementById("currentTest").textContent = q.test;
+      answer.value = state[current].answer;
+      status.value = state[current].status;
+      flagged.checked = state[current].flagged;
+      document.getElementById("prevBtn").disabled = current === 0;
+      document.getElementById("nextBtn").textContent = current === questions.length - 1 ? "Finish review ✓" : "Next question →";
+      renderRail();
+    }
+
+    answer.addEventListener("input", () => { state[current].answer = answer.value; save(); });
+    status.addEventListener("change", () => { state[current].status = status.value; save(); render(); });
+    flagged.addEventListener("change", () => { state[current].flagged = flagged.checked; save(); renderRail(); });
+    document.getElementById("prevBtn").addEventListener("click", () => { if (current > 0) { current -= 1; render(); } });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (current < questions.length - 1) { current += 1; render(); }
+      else { showToast("Decision review complete — export the notes when ready."); }
+    });
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(questions[current].question);
+      showToast("Question copied.");
+    });
+
+    function buildMarkdown() {
+      const approved = state.filter(item => item.status === "approved").length;
+      let md = `# BK FastLane Working Dinner — Decision Notes\n\nDate: July 15, 2026\nApproved: ${approved}/${questions.length}\n\n`;
+      questions.forEach((q, index) => {
+        const item = state[index];
+        md += `## ${index + 1}. ${q.short}\n\n**Question:** ${q.question}\n\n**Test / recommendation:** ${q.test}\n\n**Status:** ${item.status}${item.flagged ? " — CONTRADICTION OR DEVELOPER AMBIGUITY REMAINS" : ""}\n\n**Matt's answer:** ${item.answer.trim() || "_Not captured_"}\n\n`;
+      });
+      md += `## Guardrails\n\n- Intake Step 4: Debts is not CRM lifecycle Stage 4.\n- Use fake/demo data only.\n- GitHub Pages demonstrates behavior, not production security.\n- AI does not give legal advice, select a chapter, determine exemptions, or create a filing-ready petition.\n- Full CRM, petition generation, filing, billing, and general practice management are outside v1.\n`;
+      return md;
+    }
+
+    document.getElementById("copyNotesBtn").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(buildMarkdown());
+      showToast("All decision notes copied.");
+    });
+    document.getElementById("downloadNotesBtn").addEventListener("click", () => {
+      const blob = new Blob([buildMarkdown()], {type: "text/markdown;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "bk-fastlane-working-dinner-decisions-2026-07-15.md";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("Markdown notes downloaded.");
+    });
+
+    render();
+  </script>
+</body>
+</html>
