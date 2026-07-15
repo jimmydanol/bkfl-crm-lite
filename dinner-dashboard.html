@@ -142,6 +142,21 @@
     .launch-card.primary { background: var(--teal); border-color: var(--teal); color: white; }
     .launch-card.primary .owner { color: #f0c780; }
     .launch-card.primary p { color: rgba(255,255,255,.73); }
+    .launch-card.agent {
+      grid-column: 1 / -1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(180px, .7fr) minmax(0, 1.6fr) auto;
+      align-items: center;
+      gap: 22px;
+      background: #172f39;
+      border-color: #172f39;
+      color: white;
+    }
+    .launch-card.agent .owner { color: #f0c780; }
+    .launch-card.agent h3 { margin: 0; font-size: 22px; }
+    .launch-card.agent p { color: rgba(255,255,255,.75); }
+    .launch-card.agent .launch-action { color: #f4d49c; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
 
     .focus-card {
       display: grid;
@@ -160,6 +175,28 @@
     .rule-box strong { display: block; margin-bottom: 10px; color: #f4d49c; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
     .equation { font-weight: 700; line-height: 1.65; }
     .equation .equals { color: #f4d49c; }
+    .rule-box small { display: block; margin-top: 12px; color: rgba(255,255,255,.68); font-size: 11px; line-height: 1.45; }
+
+    .agent-demo-box {
+      padding: clamp(22px, 4vw, 36px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: 0 9px 28px rgba(30,52,59,.06);
+    }
+    .agent-demo-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+    .agent-demo-head h2 { margin: 4px 0 0; font-size: clamp(25px, 4vw, 38px); }
+    .agent-demo-head p { max-width: 560px; margin: 0; color: var(--muted); }
+    .agent-demo-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; counter-reset: agent-step; }
+    .agent-demo-step { min-height: 190px; padding: 15px; border-top: 3px solid var(--line); background: var(--paper); }
+    .agent-demo-step::before { counter-increment: agent-step; content: counter(agent-step, decimal-leading-zero); display: block; margin-bottom: 15px; color: var(--gold); font-size: 11px; font-weight: 800; }
+    .agent-demo-step strong { display: block; margin-bottom: 7px; font-size: 14px; line-height: 1.3; }
+    .agent-demo-step p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .agent-demo-step.outcome { border-top-color: var(--green); background: var(--green-soft); }
+    .agent-demo-cue { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: 14px; padding: 15px 17px; border-left: 4px solid var(--gold); background: var(--gold-soft); }
+    .agent-demo-cue .cue-label { color: #6b4f23; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .agent-demo-cue strong { color: #4f3c1c; font-family: "Source Serif 4", Georgia, serif; font-size: 17px; line-height: 1.35; }
+    .agent-demo-cue a { color: var(--teal); font-size: 12px; font-weight: 800; text-decoration: none; white-space: nowrap; }
 
     .decision-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
     .decision-rail { display: grid; gap: 8px; }
@@ -322,6 +359,9 @@
 
     @media (max-width: 960px) {
       .launch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .launch-card.agent { grid-template-columns: minmax(160px, .65fr) minmax(0, 1.35fr); }
+      .launch-card.agent .launch-action { grid-column: 1 / -1; }
+      .agent-demo-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .decision-layout { grid-template-columns: 1fr; }
       .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .decision-tab { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 8px; }
@@ -339,7 +379,11 @@
       .hero { padding-top: 38px; }
       .section-head { align-items: flex-start; flex-direction: column; }
       .launch-grid, .two-col, .ask-grid, .ask-two-col { grid-template-columns: 1fr; }
+      .launch-card.agent { grid-template-columns: 1fr; gap: 10px; }
       .focus-card { grid-template-columns: 1fr; }
+      .agent-demo-head { align-items: flex-start; flex-direction: column; }
+      .agent-demo-steps { grid-template-columns: 1fr 1fr; }
+      .agent-demo-cue { grid-template-columns: 1fr; }
       .fields { grid-template-columns: 1fr; }
       .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .decision-actions { align-items: stretch; flex-direction: column; }
@@ -351,6 +395,7 @@
     }
     @media (max-width: 430px) {
       .launch-grid, .workflow { grid-template-columns: 1fr; }
+      .agent-demo-steps { grid-template-columns: 1fr; }
       .milestone-grid { grid-template-columns: 1fr; }
       .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .hero-meta { display: grid; }
@@ -377,6 +422,7 @@
       <a class="brand" href="#top">BK <span>FastLane</span></a>
       <nav class="nav" aria-label="Dinner dashboard">
         <a href="#launch">Demos</a>
+        <a href="#agent-demo">Agent demo</a>
         <a href="#decisions">Decisions</a>
         <a href="#workflow">Workflow</a>
         <a href="#sources">Sources</a>
@@ -401,7 +447,7 @@
 
       <section id="launch" aria-labelledby="launch-title">
         <div class="section-head">
-          <div><div class="eyebrow">Open the four windows</div><h2 id="launch-title">Demo launchpad</h2></div>
+          <div><div class="eyebrow">Open the five windows</div><h2 id="launch-title">Demo launchpad</h2></div>
           <p>Compare Matt’s source-of-truth behavior with Jimmy’s working branch. Each link opens in a new tab.</p>
         </div>
         <div class="launch-grid">
@@ -417,6 +463,11 @@
           <a class="launch-card" href="https://jimmydanol.github.io/bkfl-crm-lite/" target="_blank" rel="noopener">
             <div class="owner">Jimmy · working branch</div><h3>CRM Review</h3><p>Inspect branch views, intake package review, and document review.</p>
           </a>
+          <a class="launch-card agent" href="https://jimmydanol.github.io/bkfl-crm-lite/agentic-paralegal-lab.html#control-room" target="_blank" rel="noopener">
+            <div class="owner">Jimmy · supervised agent demo</div>
+            <div><h3>Paralegal Agent Control Room</h3><p>Run a synthetic Intake Package through one bounded cycle, then inspect what the evidence established and the suggested next prompt. Nothing auto-runs, approves a gate, or changes Stage 4.</p></div>
+            <span class="launch-action">Open agent lab ↗</span>
+          </a>
         </div>
       </section>
 
@@ -430,6 +481,28 @@
           <div class="rule-box">
             <strong>Recommended truth test</strong>
             <div class="equation">Intake Completion complete<br>+ Document Review complete<br>+ Attorney Review complete<br><span class="equals">= Ready for Petition Prep</span></div>
+            <small>The agent may report eligibility under this rule. Only Matt or an authorized attorney makes the Stage 4 transition.</small>
+          </div>
+        </div>
+      </section>
+
+      <section id="agent-demo" aria-labelledby="agent-demo-title">
+        <div class="agent-demo-box">
+          <div class="agent-demo-head">
+            <div><div class="eyebrow">Five-minute dinner moment</div><h2 id="agent-demo-title">Make the agent loop legible to Matt</h2></div>
+            <p>Demonstrate supervision, evidence changes, and the next bounded move—not autonomous legal judgment.</p>
+          </div>
+          <div class="agent-demo-steps" role="list" aria-label="Agent Control Room dinner walkthrough">
+            <div class="agent-demo-step" role="listitem"><strong>Freeze Matt’s trust rule</strong><p>Ask the Stage 4 question above and capture his answer before opening the agent demo.</p></div>
+            <div class="agent-demo-step" role="listitem"><strong>Run Sam Rivera</strong><p>Use the synthetic packet. Let the six bounded checks pause at the human checkpoint.</p></div>
+            <div class="agent-demo-step" role="listitem"><strong>Read the Analysis</strong><p>Show changed, resolved, and reopened findings; cited evidence; gate status; unknowns; owners; and the Stage 4 consequence. This is an evidence summary—not private reasoning or legal advice.</p></div>
+            <div class="agent-demo-step" role="listitem"><strong>Inspect the suggested prompt</strong><p>It proposes one reviewable next check or handoff. It is tied to the cycle, read-only, and never auto-runs, sends, waives, approves, or transitions.</p></div>
+            <div class="agent-demo-step outcome" role="listitem"><strong>Add fake evidence + re-loop</strong><p>The prior report becomes stale. The new cycle can report eligibility under configured rules; only Matt or an authorized attorney may transition Stage 4.</p></div>
+          </div>
+          <div class="agent-demo-cue">
+            <span class="cue-label">Ask Matt</span>
+            <strong>“Is this the evidence, owner, and next bounded instruction you would trust—and what would you change?”</strong>
+            <a href="https://jimmydanol.github.io/bkfl-crm-lite/agentic-paralegal-lab.html#control-room" target="_blank" rel="noopener">Open Control Room ↗</a>
           </div>
         </div>
       </section>
@@ -499,7 +572,7 @@
           <div class="workflow-step" role="listitem"><strong>Document Review</strong><span>Firm approves, rejects, excuses, or chases.</span></div>
           <div class="workflow-step" role="listitem"><strong>Attorney Review</strong><span>Attorney-owned warnings and readiness checks resolve.</span></div>
           <div class="workflow-step" role="listitem"><strong>Client Portal follow-up</strong><span>Outstanding items return through one secure link.</span></div>
-          <div class="workflow-step finish" role="listitem"><strong>Stage 4</strong><span>Ready for Petition Prep only when its approved gate is true.</span></div>
+          <div class="workflow-step finish" role="listitem"><strong>Stage 4</strong><span>Ready for Petition Prep only after the approved gates are clear and an authorized human transitions it.</span></div>
           <div class="workflow-step" role="listitem"><strong>Stop v1</strong><span>No petition generation, filing, billing, or full case management.</span></div>
         </div>
       </section>
@@ -527,6 +600,7 @@
               <li>GitHub Pages demonstrates behavior; it is not the production security model.</li>
               <li>Use fake/demo data only. Never enter debtor PII in this dashboard.</li>
               <li>AI may summarize, flag, classify, or draft for review. It does not give legal advice, select a chapter, determine exemptions, or create a filing-ready petition.</li>
+              <li>Post-cycle Analysis means an evidence-based outcome summary, not private reasoning. The Suggested next prompt is read-only and never runs, sends, waives, approves, or transitions anything by itself.</li>
               <li>Full CRM, petition generation, filing, billing, and general practice management stay outside v1.</li>
             </ul>
             <div class="ambiguity" aria-label="Known source contradictions">
@@ -541,8 +615,8 @@
         <div class="ask-box">
           <div class="eyebrow">Recommended return package · provisional until question 10 is approved</div>
           <h2 id="ask-title">Exact Thursday developer-team ask</h2>
-          <p class="ask-intro">The team is not being asked to redesign bankruptcy practice management or start coding from screenshots. The assignment is to turn the two behavioral prototypes and tonight’s approved rules into one buildable, secure plan for the debtor-to-Stage-4 vertical slice.</p>
-          <div class="ask-quote">“Please return one recommended implementation path—not three unranked options—for moving a debtor from New Lead through Intake Completion, Document Review, and Attorney Review to Ready for Petition Prep. Map the prototypes onto the existing Azure platform, expose contradictions before estimating, and show us what a secure staging milestone requires.”</div>
+          <p class="ask-intro">The team is not being asked to redesign bankruptcy practice management or start coding from screenshots. The assignment is to turn the two behavioral prototypes, the bounded agent loop, and tonight’s approved rules into one buildable, secure plan for the debtor-to-Stage-4 vertical slice.</p>
+          <div class="ask-quote">“Please return one recommended implementation path—not three unranked options—for moving a debtor from New Lead through Intake Completion, Document Review, and Attorney Review to Ready for Petition Prep. Map the prototypes and supervised agent loop onto the existing Azure platform, expose contradictions before estimating, and show us what a secure staging milestone requires.”</div>
 
           <div class="ask-section">
             <div class="ask-section-head">
@@ -551,12 +625,12 @@
             </div>
             <div class="ask-grid" aria-label="Required developer return package">
               <details class="ask-item"><summary><span class="ask-number">01</span><span class="ask-summary-main"><strong>Architecture + ownership map</strong><p>Show existing Azure services, proposed Intake and CRM boundaries, integrations, tenant boundary, and the system of record for Contact, Lead, Intake Package, Document, Task, Communication, lifecycle Stage, and Matter.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Draw one picture showing what lives where, which app owns each part, and where the official version of every record lives.</p></div></details>
-              <details class="ask-item"><summary><span class="ask-number">02</span><span class="ask-summary-main"><strong>Data + event model</strong><p>Define entity IDs, immutable versus mutable records, gate state, audit history, idempotency, and the events that advance or regress Intake Completion, Document Review, Attorney Review, and Stage 4.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>List the records the system keeps and the exact actions that move a case forward or send it back for more work.</p></div></details>
-              <details class="ask-item"><summary><span class="ask-number">03</span><span class="ask-summary-main"><strong>API + shared-contract map</strong><p>Specify Intake submission, the locked Intake Package, <code>doc_type</code> and <code>files[]</code> bundles, skip/ruling codes, Client Portal token flow, uploads/reasons, corrections, and versioned AI output contracts.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Agree on the exact information each part passes to the others so Intake, CRM, documents, the portal, and AI do not interpret the same field differently.</p></div></details>
-              <details class="ask-item"><summary><span class="ask-number">04</span><span class="ask-summary-main"><strong>Security + operations assumptions</strong><p>State identity and roles, tenant isolation, encryption, private Blob access, malware/type/size controls, token expiry/revocation, audit logging, retention/deletion, secrets, AI-provider boundaries, and dev/staging/production separation.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Explain who can see or change debtor data, how files and links are protected, what is logged, and how test systems stay separate from production.</p></div></details>
-              <details class="ask-item"><summary><span class="ask-number">05</span><span class="ask-summary-main"><strong>Milestones + acceptance criteria</strong><p>Break the slice into demoable vertical milestones. For each: inputs, observable behavior, owner, test data, definition of done, dependencies, and the exact acceptance walkthrough against Matt’s prototypes.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Split the build into small working demos and define exactly what Matt must be able to see and do before each one is accepted.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">02</span><span class="ask-summary-main"><strong>Data + event model</strong><p>Define entity IDs, immutable versus mutable records, gate state, audit history, idempotency, and the events that advance or regress each gate. Include a versioned <code>AgentCycleOutcome</code>: cycle ID, packet/event version, checker coverage, finding delta, gate snapshot, unresolved items and owners, stop reason, Analysis, Suggested next prompt, and current/stale status.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>List the records the system keeps, the exact actions that move a case forward or back, and what makes each agent report attributable and current—or visibly out of date.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">03</span><span class="ask-summary-main"><strong>API + shared-contract map</strong><p>Specify Intake submission, the locked Intake Package, document bundles, skip/ruling codes, portal follow-up, corrections, and a versioned post-cycle Analysis + Suggested-prompt contract. Require evidence references, finding delta, gate results, unknowns/owners, stale-state rules, and audit history; distinguish a suggested prompt, proposed task, and executed action.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Agree on the exact information every part passes around, and make it impossible to confuse an agent’s suggested next instruction with something the system actually did.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">04</span><span class="ask-summary-main"><strong>Security + operations assumptions</strong><p>State identity and roles, tenant isolation, encryption, private Blob access, malware/type/size controls, token expiry/revocation, audit logging, retention/deletion, secrets, AI-provider boundaries, prompt/output access and redaction, and dev/staging/production separation.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Explain who can see or change debtor data and agent artifacts, how files and links are protected, what is retained or redacted, what is logged, and how test systems stay separate from production.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">05</span><span class="ask-summary-main"><strong>Milestones + acceptance criteria</strong><p>Break the slice into demoable vertical milestones. Require post-cycle outputs only after pause/stop; new evidence visibly stales the old outcome; re-looping separates new, repeated, resolved, and reopened findings; prompts route to the correct debtor, staff, or attorney owner; copying never executes; clear gates report eligibility only; Stage 4 remains a human audit event.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Split the build into small working demos and prove the agent exposes what changed and what should happen next without secretly doing the next action or moving the case.</p></div></details>
               <details class="ask-item"><summary><span class="ask-number">06</span><span class="ask-summary-main"><strong>Estimate + dependency register</strong><p>Give ranges tied to staffing and assumptions—not false precision. Name third-party services, accounts/keys, migration needs, unresolved decisions, technical spikes, risks, and what would materially change the estimate.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Give honest time and cost ranges, name what the team is waiting on, and show which unanswered choices could change the estimate.</p></div></details>
-              <details class="ask-item"><summary><span class="ask-number">07</span><span class="ask-summary-main"><strong>Staging-build proposal</strong><p>Recommend the first deployable staging slice, environment owner, seeded demo scenarios, observability, rollback approach, review cadence, and the date when Matt can test an end-to-end happy path plus reopening cases.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Propose the first safe test version Matt can use with fake cases, including who runs it, how failures are detected or reversed, and when it will be ready.</p></div></details>
+              <details class="ask-item"><summary><span class="ask-number">07</span><span class="ask-summary-main"><strong>Staging-build proposal</strong><p>Recommend the first deployable staging slice, environment owner, observability, rollback, review cadence, and test date. Seed synthetic cases for a missing-fact follow-up, a document/attorney boundary, selective gate reopening, stale-output behavior, re-loop attribution, and the end-to-end happy path.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Propose the first safe test version Matt can use with fake cases that prove follow-up, stale reports, gate reopening, attorney checkpoints, and human-owned Stage 4.</p></div></details>
               <details class="ask-item"><summary><span class="ask-number">08</span><span class="ask-summary-main"><strong>Contradiction + decision log</strong><p>List every rule conflict with source links, impact, recommended resolution, decision owner, and deadline. Do not bury product or legal questions inside architecture assumptions or estimates.</p><span class="ask-hint">Plain English</span></span></summary><div class="ask-layman"><strong>In plain English</strong><p>Keep a visible list of where the prototypes or rules disagree, with the recommended answer and the person and date needed for a decision.</p></div></details>
             </div>
           </div>
@@ -569,9 +643,9 @@
             <div class="milestone-grid" role="list" aria-label="Expected milestone sequence">
               <div class="milestone" role="listitem"><span>Milestone 0</span><strong>Contract freeze</strong><p>Resolve contradictions; freeze IDs, events, gates, routes, roles, and v1 boundary.</p></div>
               <div class="milestone" role="listitem"><span>Milestone 1</span><strong>Submit + lock</strong><p>Debtor completes Intake; immutable Intake Package reaches CRM with audit event.</p></div>
-              <div class="milestone" role="listitem"><span>Milestone 2</span><strong>Firm review gates</strong><p>Staff and attorney resolve facts, warnings, documents, rulings, and tasks.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 2</span><strong>Firm gates + bounded agent loop</strong><p>Staff and attorney resolve work while versioned cycles expose evidence changes, owners, and the next reviewable prompt.</p></div>
               <div class="milestone" role="listitem"><span>Milestone 3</span><strong>Client Portal loop</strong><p>One secure link handles outstanding uploads/reasons without reopening Intake.</p></div>
-              <div class="milestone" role="listitem"><span>Milestone 4</span><strong>Stage 4 truth</strong><p>Approved gates set readiness; new activity reopens the right gate and audit trail.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 4</span><strong>Human-owned Stage 4</strong><p>Clear gates establish eligibility; only an authorized human transitions Stage 4, with regression and audit history.</p></div>
             </div>
           </div>
 
@@ -590,6 +664,7 @@
                   <li>Whether counseling blocks Stage 4 or filing only.</li>
                   <li>Canonical Client Portal route, token scope, expiry, identity check, and revocation.</li>
                   <li>Exactly what reopens each completed gate and how Stage 4 regresses.</li>
+                  <li>What a post-cycle Analysis and Suggested next prompt may contain, who may run it, and how old output becomes stale.</li>
                 </ul>
               </div>
               <div class="ask-guardrail">
@@ -599,7 +674,8 @@
                   <li>Source links for every interpreted product rule.</li>
                   <li>Assumptions separated from approved decisions.</li>
                   <li>Estimate ranges connected to scope, staffing, dependencies, and risks.</li>
-                  <li>Acceptance tests include happy path, missing facts, rejected documents, corrections, late uploads, and stage regression.</li>
+                  <li>Acceptance tests include happy path, missing facts, rejected documents, corrections, late uploads, stale agent outcomes, re-loop attribution, and stage regression.</li>
+                  <li>Copying a Suggested next prompt never executes it; clear gates say only “Eligible under configured rules”; Stage 4 changes only through an authorized human event.</li>
                   <li>Staging uses synthetic cases only and never treats GitHub Pages as the security model.</li>
                 </ul>
               </div>
@@ -612,7 +688,7 @@
               <p>Architect seams for later expansion if useful, but do not estimate or build these as part of this slice.</p>
             </div>
             <div class="scope-chips" aria-label="Out of scope for version one">
-              <span class="scope-chip">Full CRM</span><span class="scope-chip">Petition generation</span><span class="scope-chip">Chapter selection</span><span class="scope-chip">Exemption determinations</span><span class="scope-chip">Filing / ECF</span><span class="scope-chip">Billing</span><span class="scope-chip">General practice management</span><span class="scope-chip">Filing-ready AI output</span>
+              <span class="scope-chip">Full CRM</span><span class="scope-chip">Petition generation</span><span class="scope-chip">Chapter selection</span><span class="scope-chip">Exemption determinations</span><span class="scope-chip">Filing / ECF</span><span class="scope-chip">Billing</span><span class="scope-chip">General practice management</span><span class="scope-chip">Filing-ready AI output</span><span class="scope-chip">Autonomous sends, waivers, approvals, or stage changes</span>
             </div>
           </div>
 
@@ -636,7 +712,7 @@
         tag: "Stage 4 truth test",
         short: "Ready definition",
         question: "What exactly must be true before you personally trust the words ‘Ready for Petition Prep’?",
-        test: "Recommended: Intake Completion complete + Document Review complete + Attorney Review complete = Ready for Petition Prep. If documents alone are enough, call that state Documents Complete."
+        test: "Recommended: Intake Completion complete + Document Review complete + Attorney Review complete = Ready for Petition Prep. The agent may report eligibility; only an authorized human transitions Stage 4. If documents alone are enough, call that state Documents Complete."
       },
       {
         tag: "Authority boundary",
@@ -676,9 +752,9 @@
       },
       {
         tag: "AI boundary",
-        short: "AI drafts",
-        question: "What may draft AI output say before attorney approval, and what language is always prohibited?",
-        test: "Permit preliminary summaries, classifications, flags, and firm-voiced drafts. Prohibit legal advice, chapter selection, exemption determinations, and claims of a filing-ready petition."
+        short: "Agent outcomes",
+        question: "What may the agent’s post-cycle Analysis and Suggested next prompt say or propose before attorney approval, who may run that prompt, and what is always prohibited?",
+        test: "Allow evidence-cited summaries, finding changes, gate state, remaining unknowns, owners, Stage 4 consequence, and neutral follow-up drafts. Tie both artifacts to a packet/event version and mark them stale when evidence changes. The Suggested next prompt is read-only and never auto-runs. Prohibit legal advice, legal conclusions, autonomous sends or waivers, gate approvals, and lifecycle transitions."
       },
       {
         tag: "Build direction",
@@ -771,7 +847,7 @@
         const item = state[index];
         md += `## ${index + 1}. ${q.short}\n\n**Question:** ${q.question}\n\n**Test / recommendation:** ${q.test}\n\n**Status:** ${item.status}${item.flagged ? " — CONTRADICTION OR DEVELOPER AMBIGUITY REMAINS" : ""}\n\n**Matt's answer:** ${item.answer.trim() || "_Not captured_"}\n\n`;
       });
-      md += `## Guardrails\n\n- Intake Step 4: Debts is not CRM lifecycle Stage 4.\n- Use fake/demo data only.\n- GitHub Pages demonstrates behavior, not production security.\n- AI does not give legal advice, select a chapter, determine exemptions, or create a filing-ready petition.\n- Full CRM, petition generation, filing, billing, and general practice management are outside v1.\n`;
+      md += `## Guardrails\n\n- Intake Step 4: Debts is not CRM lifecycle Stage 4.\n- Use fake/demo data only.\n- GitHub Pages demonstrates behavior, not production security.\n- Post-cycle Analysis is an evidence summary, not private reasoning or a legal conclusion.\n- A Suggested next prompt is read-only and never auto-runs, contacts a debtor, waives or approves anything, or changes Stage 4.\n- AI does not give legal advice, select a chapter, determine exemptions, or create a filing-ready petition.\n- Full CRM, petition generation, filing, billing, and general practice management are outside v1.\n`;
       return md;
     }
 
