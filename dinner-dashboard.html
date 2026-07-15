@@ -256,8 +256,34 @@
     .ask-box { padding: clamp(24px, 4vw, 40px); border-radius: 20px; background: #172f39; color: white; }
     .ask-box h2 { margin-bottom: 9px; font-size: clamp(25px, 4vw, 38px); }
     .ask-box p { color: rgba(255,255,255,.72); }
-    .ask-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin-top: 22px; }
-    .ask-item { padding: 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.05); font-size: 13px; font-weight: 700; }
+    .ask-intro { max-width: 900px; font-size: 16px; }
+    .ask-quote { margin-top: 24px; padding: 18px 20px; border-left: 4px solid #e3b35f; background: rgba(255,255,255,.07); color: white; font-family: "Source Serif 4", Georgia, serif; font-size: clamp(18px, 2.4vw, 24px); line-height: 1.45; }
+    .ask-section { margin-top: 32px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,.14); }
+    .ask-section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    .ask-section-head h3 { margin-bottom: 0; font-size: 20px; }
+    .ask-section-head p { max-width: 610px; margin-bottom: 0; font-size: 13px; }
+    .ask-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .ask-item { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 11px; background: rgba(255,255,255,.05); }
+    .ask-number { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: rgba(227,179,95,.16); color: #f0c780; font-size: 11px; font-weight: 800; }
+    .ask-item strong { display: block; margin-bottom: 5px; font-size: 14px; }
+    .ask-item p { margin-bottom: 0; font-size: 12px; line-height: 1.55; }
+    .ask-item code, .ask-guardrail code { color: #f4d49c; }
+    .milestone-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .milestone { padding: 14px 12px; border-top: 3px solid rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
+    .milestone:first-child { border-top-color: #e3b35f; }
+    .milestone:last-child { border-top-color: #7fb69a; }
+    .milestone span { display: block; margin-bottom: 12px; color: #f0c780; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .milestone strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .milestone p { margin-bottom: 0; font-size: 11px; line-height: 1.45; }
+    .ask-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ask-guardrail { padding: 17px; border: 1px solid rgba(255,255,255,.15); border-radius: 11px; background: rgba(255,255,255,.04); }
+    .ask-guardrail h4 { margin: 0 0 10px; font-size: 14px; }
+    .ask-guardrail ul { display: grid; gap: 8px; margin: 0; padding-left: 18px; color: rgba(255,255,255,.7); font-size: 12px; }
+    .scope-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .scope-chip { padding: 6px 9px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: rgba(255,255,255,.7); font-size: 11px; font-weight: 700; }
+    .ask-close { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 24px; padding: 18px 0 0; border-top: 1px solid rgba(255,255,255,.14); }
+    .ask-close strong { max-width: 730px; font-size: 15px; }
+    .ask-close span { color: #f0c780; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 
     footer { padding: 36px 0 54px; color: var(--muted); font-size: 12px; }
     .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; }
@@ -289,6 +315,7 @@
       .decision-name { display: none; }
       .status-dot { position: absolute; margin: -27px 0 0 25px; }
       .workflow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .milestone-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     @media (max-width: 700px) {
       .shell { width: min(100% - 22px, 1180px); }
@@ -298,16 +325,19 @@
       .nav a { flex: 1 1 auto; text-align: center; background: rgba(255,255,255,.52); }
       .hero { padding-top: 38px; }
       .section-head { align-items: flex-start; flex-direction: column; }
-      .launch-grid, .two-col, .ask-grid { grid-template-columns: 1fr; }
+      .launch-grid, .two-col, .ask-grid, .ask-two-col { grid-template-columns: 1fr; }
       .focus-card { grid-template-columns: 1fr; }
       .fields { grid-template-columns: 1fr; }
       .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .decision-actions { align-items: stretch; flex-direction: column; }
       .action-cluster { display: grid; grid-template-columns: 1fr 1fr; }
       .btn { width: 100%; }
+      .ask-section-head, .ask-close { align-items: flex-start; flex-direction: column; }
+      .milestone-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 430px) {
       .launch-grid, .workflow { grid-template-columns: 1fr; }
+      .milestone-grid { grid-template-columns: 1fr; }
       .decision-rail { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .hero-meta { display: grid; }
       .pill { justify-content: center; }
@@ -491,12 +521,86 @@
 
       <section id="developer-ask" aria-labelledby="ask-title">
         <div class="ask-box">
-          <div class="eyebrow">Provisional until question 10 is approved</div>
+          <div class="eyebrow">Recommended return package · provisional until question 10 is approved</div>
           <h2 id="ask-title">Exact Thursday developer-team ask</h2>
-          <p>Confirm how the two prototypes fit the existing Azure platform, identify rule contradictions before estimating, and return one implementation path to the Stage 4 finish line.</p>
-          <div class="ask-grid">
-            <div class="ask-item">Architecture map</div><div class="ask-item">Data + event model</div><div class="ask-item">Milestones + acceptance criteria</div>
-            <div class="ask-item">Security assumptions</div><div class="ask-item">Estimate + dependencies</div><div class="ask-item">Staging-build plan</div>
+          <p class="ask-intro">The team is not being asked to redesign bankruptcy practice management or start coding from screenshots. The assignment is to turn the two behavioral prototypes and tonight’s approved rules into one buildable, secure plan for the debtor-to-Stage-4 vertical slice.</p>
+          <div class="ask-quote">“Please return one recommended implementation path—not three unranked options—for moving a debtor from New Lead through Intake Completion, Document Review, and Attorney Review to Ready for Petition Prep. Map the prototypes onto the existing Azure platform, expose contradictions before estimating, and show us what a secure staging milestone requires.”</div>
+
+          <div class="ask-section">
+            <div class="ask-section-head">
+              <h3>Required return package</h3>
+              <p>Ask for all seven. Every artifact should label confirmed rules, developer assumptions, and decisions still owed by Matt.</p>
+            </div>
+            <div class="ask-grid" role="list" aria-label="Required developer return package">
+              <div class="ask-item" role="listitem"><span class="ask-number">01</span><div><strong>Architecture + ownership map</strong><p>Show existing Azure services, proposed Intake and CRM boundaries, integrations, tenant boundary, and the system of record for Contact, Lead, Intake Package, Document, Task, Communication, lifecycle Stage, and Matter.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">02</span><div><strong>Data + event model</strong><p>Define entity IDs, immutable versus mutable records, gate state, audit history, idempotency, and the events that advance or regress Intake Completion, Document Review, Attorney Review, and Stage 4.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">03</span><div><strong>API + shared-contract map</strong><p>Specify Intake submission, the locked Intake Package, <code>doc_type</code> and <code>files[]</code> bundles, skip/ruling codes, Client Portal token flow, uploads/reasons, corrections, and versioned AI output contracts.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">04</span><div><strong>Security + operations assumptions</strong><p>State identity and roles, tenant isolation, encryption, private Blob access, malware/type/size controls, token expiry/revocation, audit logging, retention/deletion, secrets, AI-provider boundaries, and dev/staging/production separation.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">05</span><div><strong>Milestones + acceptance criteria</strong><p>Break the slice into demoable vertical milestones. For each: inputs, observable behavior, owner, test data, definition of done, dependencies, and the exact acceptance walkthrough against Matt’s prototypes.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">06</span><div><strong>Estimate + dependency register</strong><p>Give ranges tied to staffing and assumptions—not false precision. Name third-party services, accounts/keys, migration needs, unresolved decisions, technical spikes, risks, and what would materially change the estimate.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">07</span><div><strong>Staging-build proposal</strong><p>Recommend the first deployable staging slice, environment owner, seeded demo scenarios, observability, rollback approach, review cadence, and the date when Matt can test an end-to-end happy path plus reopening cases.</p></div></div>
+              <div class="ask-item" role="listitem"><span class="ask-number">08</span><div><strong>Contradiction + decision log</strong><p>List every rule conflict with source links, impact, recommended resolution, decision owner, and deadline. Do not bury product or legal questions inside architecture assumptions or estimates.</p></div></div>
+            </div>
+          </div>
+
+          <div class="ask-section">
+            <div class="ask-section-head">
+              <h3>Expected milestone shape</h3>
+              <p>The team may recommend a different sequence, but it must preserve a working vertical slice and make every gate observable.</p>
+            </div>
+            <div class="milestone-grid" role="list" aria-label="Expected milestone sequence">
+              <div class="milestone" role="listitem"><span>Milestone 0</span><strong>Contract freeze</strong><p>Resolve contradictions; freeze IDs, events, gates, routes, roles, and v1 boundary.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 1</span><strong>Submit + lock</strong><p>Debtor completes Intake; immutable Intake Package reaches CRM with audit event.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 2</span><strong>Firm review gates</strong><p>Staff and attorney resolve facts, warnings, documents, rulings, and tasks.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 3</span><strong>Client Portal loop</strong><p>One secure link handles outstanding uploads/reasons without reopening Intake.</p></div>
+              <div class="milestone" role="listitem"><span>Milestone 4</span><strong>Stage 4 truth</strong><p>Approved gates set readiness; new activity reopens the right gate and audit trail.</p></div>
+            </div>
+          </div>
+
+          <div class="ask-section">
+            <div class="ask-section-head">
+              <h3>What a useful answer must make explicit</h3>
+              <p>No estimate or build commitment should hide an unresolved legal/product rule.</p>
+            </div>
+            <div class="ask-two-col">
+              <div class="ask-guardrail">
+                <h4>Answer before estimating</h4>
+                <ul>
+                  <li>Extend the existing Azure platform, build the canonical BK FastLane stack, or integrate both—and why.</li>
+                  <li>Which system owns each record and event, including Lead-to-Matter conversion.</li>
+                  <li>Which facts staff can waive, which warnings block, and which rulings require an attorney.</li>
+                  <li>Whether counseling blocks Stage 4 or filing only.</li>
+                  <li>Canonical Client Portal route, token scope, expiry, identity check, and revocation.</li>
+                  <li>Exactly what reopens each completed gate and how Stage 4 regresses.</li>
+                </ul>
+              </div>
+              <div class="ask-guardrail">
+                <h4>Definition of a credible response</h4>
+                <ul>
+                  <li>One recommended path with rejected alternatives and tradeoffs.</li>
+                  <li>Source links for every interpreted product rule.</li>
+                  <li>Assumptions separated from approved decisions.</li>
+                  <li>Estimate ranges connected to scope, staffing, dependencies, and risks.</li>
+                  <li>Acceptance tests include happy path, missing facts, rejected documents, corrections, late uploads, and stage regression.</li>
+                  <li>Staging uses synthetic cases only and never treats GitHub Pages as the security model.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="ask-section">
+            <div class="ask-section-head">
+              <h3>Explicit v1 exclusions</h3>
+              <p>Architect seams for later expansion if useful, but do not estimate or build these as part of this slice.</p>
+            </div>
+            <div class="scope-chips" aria-label="Out of scope for version one">
+              <span class="scope-chip">Full CRM</span><span class="scope-chip">Petition generation</span><span class="scope-chip">Chapter selection</span><span class="scope-chip">Exemption determinations</span><span class="scope-chip">Filing / ECF</span><span class="scope-chip">Billing</span><span class="scope-chip">General practice management</span><span class="scope-chip">Filing-ready AI output</span>
+            </div>
+          </div>
+
+          <div class="ask-close">
+            <strong>Thursday is successful when there is an owner and due date for the return package, one recommended technical direction, a named list of remaining Matt decisions, and a proposed first staging acceptance demo.</strong>
+            <span>No coding commitment required Thursday</span>
           </div>
         </div>
       </section>
