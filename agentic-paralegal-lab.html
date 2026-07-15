@@ -771,6 +771,7 @@
 
     function renderLoop() {
       $("loopStrip").innerHTML=phases.map((phase,i)=>`<div class="loop-step ${i===app.activePhase?"active":app.activePhase>=0&&i<app.activePhase?"done":""}"><span>${String(i+1).padStart(2,"0")}</span><strong>${phase.label}</strong></div>`).join("");
+      $("currentAction").textContent=app.activePhase<0?"Packet queued. The agent has not read it yet.":`${phases[app.activePhase].label}: ${phases[app.activePhase].detail}`;
       $("nextStepBtn").disabled=app.running||!app.packet;
       $("runCheckpointBtn").disabled=app.running||!app.packet;
       $("pauseBtn").disabled=!app.running;
