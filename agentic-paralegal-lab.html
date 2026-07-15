@@ -725,18 +725,22 @@
       return `${gate}: ${labels[check.state]}${check.cycle?` in cycle ${check.cycle}`:""}`;
     }
 
+    function humanizeKey(value) {
+      return String(value||"").replace(/([a-z0-9])([A-Z])/g,"$1 $2").replaceAll("_"," ").toLowerCase();
+    }
+
     function factFindings() {
       if(!app.capabilities.schema) return [];
       const p=app.packet, found=[];
       (p.requiredFacts||[]).forEach(field=>{
         if(p.facts?.[field]===null||p.facts?.[field]===undefined||p.facts?.[field]===""){
-          found.push({id:`fact-${field}`,kind:"fact",gate:"Intake Completion",owner:"Staff",title:`Missing required fact: ${field}`,detail:"The locked package contains no value. The agent can draft a neutral question but cannot invent or silently fill the answer.",evidence:`facts.${field} = null`,rule:"Configured required-fact completeness rule",field});
+          found.push({id:`fact-${field}`,kind:"fact",gate:"Intake Completion",owner:"Staff",title:`Missing configured fact: ${humanizeKey(field)}`,detail:"The locked package contains no value. The agent can draft a neutral question but cannot invent or silently fill the answer.",evidence:`facts.${field} = null`,rule:"Configured required-fact completeness rule",field});
         }
       });
       if(p.facts?.employerName&&p.facts?.employerNameOnPaystub&&p.facts.employerName!==p.facts.employerNameOnPaystub){
         found.push({id:"fact-employer-mismatch",kind:"mismatch",gate:"Intake Completion",owner:"Staff",title:"Employer names differ",detail:"The intake answer and fake pay stub do not match literally. The agent asks for clarification without deciding which is correct.",evidence:`facts.employerName = “${p.facts.employerName}” ↔ pay stub = “${p.facts.employerNameOnPaystub}”`,rule:"Literal cross-source consistency check",field:"employerName"});
       }
-      (p.corrections||[]).filter(c=>c.status==="pending").forEach(c=>found.push({id:`finding-${c.id}`,kind:"correction",gate:"Intake Completion",owner:"Staff",title:`Locked-answer correction: ${c.field}`,detail:"A post-submit correction must create a new attributed version and audit event; the original Intake Package remains immutable.",evidence:`corrections.${c.field} = “${c.newValue}” from ${c.source}`,rule:"Submit-and-lock plus attorney-side correction rule",field:c.field,correctionId:c.id,correctionSource:c.source,reopens:c.reopens}));
+      (p.corrections||[]).filter(c=>c.status==="pending").forEach(c=>found.push({id:`finding-${c.id}`,kind:"correction",gate:"Intake Completion",owner:"Staff",title:`Locked-answer correction: ${humanizeKey(c.field)}`,detail:"A post-submit correction must create a new attributed version and audit event; the original Intake Package remains immutable.",evidence:`corrections.${c.field} = “${c.newValue}” from ${c.source}`,rule:"Submit-and-lock plus attorney-side correction rule",field:c.field,correctionId:c.id,correctionSource:c.source,reopens:c.reopens}));
       return found;
     }
 
@@ -745,13 +749,13 @@
       const found=[];
       (app.packet.documents||[]).forEach(doc=>{
         if(doc.requiredMonths&&doc.monthsReceived<doc.requiredMonths){
-          found.push({id:`finding-${doc.id}-coverage`,kind:"document_coverage",gate:"Document Review",owner:"Firm",title:`Incomplete ${doc.doc_type} bundle`,detail:`${doc.monthsReceived} of ${doc.requiredMonths} configured months are present. Originals remain append-only; a follow-up adds files to the bundle.`,evidence:`documents.${doc.doc_type}.monthsReceived = ${doc.monthsReceived}/${doc.requiredMonths}`,rule:"Bundle Rule plus configured lookback",docType:doc.doc_type,docId:doc.id});
+          found.push({id:`finding-${doc.id}-coverage`,kind:"document_coverage",gate:"Document Review",owner:"Firm",title:`Incomplete ${humanizeKey(doc.doc_type)} bundle`,detail:`${doc.monthsReceived} of ${doc.requiredMonths} configured months are present. Originals remain append-only; a follow-up adds files to the bundle.`,evidence:`documents.${doc.doc_type}.monthsReceived = ${doc.monthsReceived}/${doc.requiredMonths}`,rule:"Bundle Rule plus configured lookback",docType:doc.doc_type,docId:doc.id});
         }
         if(doc.quality&&doc.quality!=="clear"){
-          found.push({id:`finding-${doc.id}-quality`,kind:"document_quality",gate:"Document Review",owner:"Firm",title:`${doc.doc_type} needs attention`,detail:"The agent may flag image quality; the firm decides whether to reject and re-request.",evidence:`documents.${doc.doc_type}.quality = ${doc.quality}`,rule:"AI screening is a recommendation; firm approval required",docType:doc.doc_type,docId:doc.id});
+          found.push({id:`finding-${doc.id}-quality`,kind:"document_quality",gate:"Document Review",owner:"Firm",title:`${humanizeKey(doc.doc_type)} needs attention`,detail:"The agent may flag image quality; the firm decides whether to reject and re-request.",evidence:`documents.${doc.doc_type}.quality = ${doc.quality}`,rule:"AI screening is a recommendation; firm approval required",docType:doc.doc_type,docId:doc.id});
         }
         if(doc.status==="reason_given"&&!["not_taken_yet","will_send_later"].includes(doc.reason)){
-          found.push({id:`finding-${doc.id}-ruling`,kind:"document_ruling",gate:"Document Review",owner:"Firm / Attorney",title:`Firm ruling needed: ${doc.doc_type}`,detail:`The debtor reason “${doc.reason}” does not self-close the requirement. The firm must Excuse or Keep Chasing.`,evidence:`documents.${doc.doc_type}.reason = ${doc.reason}`,rule:"Firm-ruling model for skipped Documents",docType:doc.doc_type,docId:doc.id});
+          found.push({id:`finding-${doc.id}-ruling`,kind:"document_ruling",gate:"Document Review",owner:"Firm / Attorney",title:`Firm ruling needed: ${humanizeKey(doc.doc_type)}`,detail:`The debtor reason “${doc.reason}” does not self-close the requirement. The firm must Excuse or Keep Chasing.`,evidence:`documents.${doc.doc_type}.reason = ${doc.reason}`,rule:"Firm-ruling model for skipped Documents",docType:doc.doc_type,docId:doc.id});
         }
       });
       return found;
@@ -891,15 +895,16 @@
       const firstName=(app.packet.syntheticName||"Demo debtor").split(" ")[0];
       const lines=["DRAFT — requires firm review; not sent","",`Hello ${firstName},`,"","To continue our review, please help with the following:"];
       debtorItems.forEach(f=>lines.push(`• ${neutralQuestion(f)}`));
-      lines.push("","Thank you. Your law firm will review anything you provide.","","Internal-only: attorney-owned findings remain in the review queue.");
+      lines.push("","Thank you. Your law firm will review anything you provide.");
+      if(open.some(f=>!isDebtorFacingFinding(f)))lines.push("","Internal-only: firm or attorney-owned findings remain in the review queue.");
       return lines.join("\n");
     }
 
     function neutralQuestion(f) {
-      if(f.kind==="fact") return `Please provide the missing ${f.field}.`;
+      if(f.kind==="fact") return `Please provide the missing ${humanizeKey(f.field)}.`;
       if(f.kind==="mismatch") return "Please confirm the employer name that should appear in your intake.";
-      if(f.kind==="correction") return `Please confirm the corrected ${f.field}.`;
-      if(f.kind.includes("document")) return `Please provide the outstanding or clearer ${f.docType.replaceAll("_"," ")}.`;
+      if(f.kind==="correction") return `Please confirm the corrected ${humanizeKey(f.field)}.`;
+      if(f.kind.includes("document")) return `Please provide the outstanding or clearer ${humanizeKey(f.docType)}.`;
       return f.title;
     }
 
