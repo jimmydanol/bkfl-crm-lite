@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive synthetic-data simulation of a supervised BK FastLane intake-review agent loop.">
+  <title>BK FastLane — Supervised Agent Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #081318;
+      --bg-2: #0c1b21;
+      --panel: #10242b;
+      --panel-2: #142c34;
+      --line: #28434c;
+      --line-soft: rgba(177, 209, 215, .14);
+      --text: #edf4f2;
+      --muted: #9eb0b2;
+      --teal: #69b6ad;
+      --teal-soft: rgba(105, 182, 173, .13);
+      --lime: #bad77b;
+      --lime-soft: rgba(186, 215, 123, .13);
+      --gold: #e1b667;
+      --gold-soft: rgba(225, 182, 103, .13);
+      --red: #e18478;
+      --red-soft: rgba(225, 132, 120, .13);
+      --blue: #89b8dd;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 85% 0%, rgba(105,182,173,.13), transparent 32rem),
+        radial-gradient(circle at 0% 35%, rgba(225,182,103,.08), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, select, textarea, input { font: inherit; }
+    button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(186,215,123,.7);
+      outline-offset: 3px;
+    }
+    a { color: inherit; }
+    code, .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .shell { width: min(1460px, calc(100% - 30px)); margin: 0 auto; }
+
+    .demo-banner {
+      padding: 8px 18px;
+      background: var(--gold);
+      color: #192126;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid var(--line-soft);
+      background: rgba(8,19,24,.91);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 62px; }
+    .brand { font-weight: 800; letter-spacing: -.02em; text-decoration: none; }
+    .brand span { color: var(--lime); }
+    .nav { display: flex; flex-wrap: wrap; gap: 6px; }
+    .nav a { padding: 8px 10px; border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .nav a:hover { background: var(--teal-soft); color: var(--text); }
+
+    .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: 40px; align-items: end; padding: 58px 0 36px; }
+    .eyebrow { color: var(--lime); font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1, h2, h3, h4, p { margin-top: 0; }
+    h1 { max-width: 860px; margin: 10px 0 16px; font-family: "Source Serif 4", Georgia, serif; font-size: clamp(42px, 6.6vw, 78px); line-height: .98; letter-spacing: -.045em; }
+    .hero p { max-width: 780px; color: var(--muted); font-size: 17px; }
+    .hero-note { padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(145deg, rgba(105,182,173,.12), rgba(186,215,123,.06)); box-shadow: var(--shadow); }
+    .hero-note strong { display: block; margin-bottom: 9px; color: var(--lime); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .hero-note p { margin-bottom: 0; color: var(--text); font-family: "IBM Plex Mono", monospace; font-size: 13px; line-height: 1.7; }
+    .boundary-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .boundary { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .boundary.allowed { border-color: rgba(186,215,123,.34); background: var(--lime-soft); color: #dbeab9; }
+    .boundary.denied { border-color: rgba(225,132,120,.34); background: var(--red-soft); color: #f0b7ae; }
+
+    section { padding: 34px 0; scroll-margin-top: 76px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-bottom: 17px; }
+    .section-head h2 { margin-bottom: 0; font-size: clamp(26px, 4vw, 40px); letter-spacing: -.035em; }
+    .section-head p { max-width: 650px; margin-bottom: 2px; color: var(--muted); font-size: 13px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .stat { padding: 15px 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(16,36,43,.76); }
+    .stat span { display: block; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .stat strong { display: block; margin-top: 5px; font-size: 21px; }
+    .stat strong.small { font-size: 15px; }
+
+    .control-room { display: grid; grid-template-columns: 280px minmax(0, 1fr) 300px; gap: 12px; align-items: start; }
+    .panel { border: 1px solid var(--line); border-radius: 15px; background: rgba(16,36,43,.88); box-shadow: 0 14px 42px rgba(0,0,0,.16); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 16px; border-bottom: 1px solid var(--line-soft); }
+    .panel-head h3 { margin: 0; font-size: 14px; }
+    .panel-body { padding: 15px; }
+    .badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 8px; border-radius: 999px; background: var(--teal-soft); color: #a9dbd4; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .badge.running::before { animation: pulse 1s ease-in-out infinite; }
+    .badge.waiting { background: var(--gold-soft); color: #f0cf96; }
+    .badge.blocked { background: var(--red-soft); color: #f0aaa1; }
+    .badge.eligible, .badge.complete { background: var(--lime-soft); color: #d8e8b3; }
+    @keyframes pulse { 50% { opacity: .28; transform: scale(.72); } }
+
+    .case-list { display: grid; gap: 8px; }
+    .case-btn { width: 100%; padding: 12px; border: 1px solid var(--line-soft); border-radius: 10px; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+    .case-btn:hover { border-color: var(--teal); background: var(--teal-soft); }
+    .case-btn.active { border-color: var(--lime); background: var(--lime-soft); }
+    .case-id { display: block; margin-bottom: 5px; color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 10px; }
+    .case-name { display: block; font-size: 13px; font-weight: 800; }
+    .case-scenario { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    details { border-top: 1px solid var(--line-soft); }
+    details summary { padding: 12px 0; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .packet-input { width: 100%; min-height: 210px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: #071116; color: #c9dbd9; font-family: "IBM Plex Mono", monospace; font-size: 10px; line-height: 1.55; resize: vertical; }
+    .field-error { min-height: 18px; margin-top: 7px; color: #f0aaa1; font-size: 10px; }
+
+    .loop-wrap { padding: 16px; border-bottom: 1px solid var(--line-soft); }
+    .loop-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
+    .loop-step { min-height: 76px; padding: 10px 9px; border: 1px solid var(--line-soft); border-radius: 9px; background: rgba(8,19,24,.46); }
+    .loop-step span { display: block; margin-bottom: 13px; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 9px; }
+    .loop-step strong { display: block; font-size: 11px; }
+    .loop-step.active { border-color: var(--lime); background: var(--lime-soft); }
+    .loop-step.active span { color: var(--lime); }
+    .loop-step.done { border-color: rgba(105,182,173,.42); background: var(--teal-soft); }
+    .loop-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 39px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel-2); color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; }
+    .btn:hover:not(:disabled) { border-color: var(--teal); background: var(--teal-soft); }
+    .btn:disabled { cursor: not-allowed; opacity: .42; }
+    .btn-primary { border-color: var(--lime); background: var(--lime); color: #182126; }
+    .btn-primary:hover:not(:disabled) { background: #cce794; color: #182126; }
+    .btn-danger { border-color: rgba(225,132,120,.4); color: #f0aaa1; }
+    .btn-small { min-height: 32px; padding: 6px 9px; font-size: 10px; }
+    .current-action { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+    .current-action::before { content: ""; flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+
+    .gate-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); }
+    .gate { padding: 9px; border-radius: 8px; background: rgba(8,19,24,.42); }
+    .gate span { display: block; color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .gate strong { display: block; margin-top: 4px; font-size: 10px; }
+    .gate.clear strong { color: var(--lime); }
+    .gate.blocked strong { color: var(--red); }
+    .gate.pending strong { color: var(--gold); }
+
+    .work-area { padding: 16px; }
+    .work-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 11px; }
+    .work-head h3 { margin: 0; font-size: 15px; }
+    .work-head span { color: var(--muted); font-size: 10px; }
+    .finding-list { display: grid; gap: 8px; }
+    .empty { padding: 28px 18px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); text-align: center; font-size: 12px; }
+    .finding { padding: 13px; border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); border-radius: 9px; background: rgba(8,19,24,.42); }
+    .finding.resolved { border-left-color: var(--lime); opacity: .72; }
+    .finding.waiting_client, .finding.waiting_attorney { border-left-color: var(--blue); }
+    .finding-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .finding-type { display: block; margin-bottom: 4px; color: var(--gold); font-family: "IBM Plex Mono", monospace; font-size: 9px; text-transform: uppercase; }
+    .finding h4 { margin: 0; font-size: 13px; }
+    .finding p { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+    .finding-status { flex: 0 0 auto; padding: 4px 7px; border-radius: 999px; background: var(--gold-soft); color: #efcd91; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+    .finding.resolved .finding-status { background: var(--lime-soft); color: #d8e8b3; }
+    .finding.waiting_client .finding-status, .finding.waiting_attorney .finding-status { background: rgba(137,184,221,.13); color: #b9d7ee; }
+    .evidence { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line-soft); }
+    .evidence summary { padding: 0; color: var(--teal); }
+    .evidence p { font-family: "IBM Plex Mono", monospace; font-size: 9px; line-height: 1.6; }
+    .finding-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+
+    .draft-box { margin-top: 12px; padding: 13px; border: 1px solid rgba(105,182,173,.28); border-radius: 10px; background: var(--teal-soft); }
+    .draft-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+    .draft-head strong { font-size: 12px; }
+    .draft-head span { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+    .draft-text { width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #08171c; color: var(--text); font-size: 11px; line-height: 1.55; resize: vertical; }
+
+    .field { margin-bottom: 13px; }
+    .field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .select { width: 100%; min-height: 39px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #0a181e; color: var(--text); }
+    .capability-list { display: grid; gap: 7px; }
+    .capability { display: flex; align-items: flex-start; gap: 9px; padding: 9px; border: 1px solid var(--line-soft); border-radius: 8px; background: rgba(8,19,24,.35); }
+    .capability input { margin-top: 3px; accent-color: var(--lime); }
+    .capability strong { display: block; font-size: 11px; }
+    .capability span { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+    .capability.locked { opacity: .52; }
+    .permission-grid { display: grid; grid-template-columns: 1fr auto; gap: 7px 10px; margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line-soft); font-size: 10px; }
+    .permission-grid span:nth-child(odd) { color: var(--muted); }
+    .perm { color: var(--lime); font-weight: 800; text-align: right; }
+    .perm.human { color: var(--gold); }
+    .perm.denied { color: var(--red); }
+    .event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+
+    .log-panel { margin-top: 12px; }
+    .log { display: grid; max-height: 310px; overflow: auto; }
+    .log-entry { display: grid; grid-template-columns: 58px 76px minmax(0, 1fr); gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); font-family: "IBM Plex Mono", monospace; font-size: 9px; }
+    .log-entry:last-child { border-bottom: 0; }
+    .log-time { color: var(--muted); }
+    .log-actor { color: var(--teal); font-weight: 700; }
+    .log-entry.human .log-actor { color: var(--gold); }
+    .log-entry.system .log-actor { color: var(--lime); }
+    .log-detail strong { display: block; margin-bottom: 2px; color: var(--text); font-size: 10px; }
+    .log-detail span { color: var(--muted); }
+
+    .explain-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+    .explain { min-height: 160px; padding: 16px; border-top: 3px solid var(--line); background: rgba(16,36,43,.6); }
+    .explain span { display: block; margin-bottom: 22px; color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 10px; }
+    .explain strong { display: block; margin-bottom: 7px; font-size: 13px; }
+    .explain p { margin-bottom: 0; color: var(--muted); font-size: 11px; }
+
+    .demo-script { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 12px; }
+    .script-card, .guardrail-card { padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: rgba(16,36,43,.75); }
+    .script-card h3, .guardrail-card h3 { margin-bottom: 14px; font-size: 18px; }
+    .script-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; counter-reset: demo; }
+    .script-list li { display: grid; grid-template-columns: 30px 1fr; gap: 11px; color: var(--muted); font-size: 12px; }
+    .script-list li::before { counter-increment: demo; content: counter(demo, decimal-leading-zero); display: grid; place-items: center; width: 29px; height: 29px; border-radius: 8px; background: var(--lime-soft); color: var(--lime); font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 800; }
+    .script-list strong { color: var(--text); }
+    .guardrail-list { display: grid; gap: 9px; margin: 0; padding-left: 18px; color: var(--muted); font-size: 11px; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .source-links a { padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--teal); font-size: 10px; font-weight: 700; text-decoration: none; }
+    .source-links a:hover { background: var(--teal-soft); }
+
+    footer { padding: 38px 0 55px; color: var(--muted); font-size: 10px; }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 17px; border-top: 1px solid var(--line-soft); }
+    .toast { position: fixed; right: 16px; bottom: 16px; z-index: 60; max-width: min(390px, calc(100% - 32px)); padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: #152c34; color: var(--text); box-shadow: var(--shadow); font-size: 11px; opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .16s ease, transform .16s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1180px) {
+      .control-room { grid-template-columns: 250px minmax(0, 1fr); }
+      .manager-panel { grid-column: 1 / -1; }
+      .manager-panel .panel-body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .permission-grid { margin-top: 0; padding-top: 0; border-top: 0; }
+      .explain-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 820px) {
+      .topbar { position: static; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      .nav { width: 100%; }
+      .nav a { flex: 1 1 auto; text-align: center; background: rgba(255,255,255,.03); }
+      .hero, .control-room, .demo-script { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .loop-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .manager-panel { grid-column: auto; }
+      .manager-panel .panel-body { grid-template-columns: 1fr; }
+      .explain-grid { grid-template-columns: 1fr 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 18px, 1460px); }
+      .stats, .gate-row, .event-grid, .explain-grid { grid-template-columns: 1fr; }
+      .loop-strip { grid-template-columns: 1fr 1fr; }
+      .loop-controls { display: grid; grid-template-columns: 1fr 1fr; }
+      .btn { width: 100%; }
+      .finding-top { flex-direction: column; }
+      .log-entry { grid-template-columns: 48px 62px minmax(0, 1fr); gap: 7px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-banner">Interactive agent-loop simulation · synthetic data only · never enter debtor PII</div>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top">BK <span>FastLane Agent Lab</span></a>
+      <nav class="nav" aria-label="Agent lab navigation">
+        <a href="#control-room">Control room</a>
+        <a href="#why-loop">Why looping</a>
+        <a href="#dinner-demo">90-second demo</a>
+        <a href="dinner-dashboard.html">Dinner dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">Supervised intake review</div>
+          <h1 id="page-title">Show Matt the loop, not a chatbot.</h1>
+          <p>A bounded workflow agent can observe a locked fake Intake Package, cite gaps and contradictions, draft neutral follow-up work, pause for human authority, apply only approved simulated actions, and re-check the affected gates.</p>
+          <div class="boundary-row" aria-label="Agent boundaries">
+            <span class="boundary allowed">Inventory</span><span class="boundary allowed">Compare</span><span class="boundary allowed">Flag</span><span class="boundary allowed">Draft</span><span class="boundary allowed">Re-check</span>
+            <span class="boundary denied">No legal advice</span><span class="boundary denied">No autonomous send</span><span class="boundary denied">No Stage 4 decision</span>
+          </div>
+        </div>
+        <aside class="hero-note">
+          <strong>The operating contract</strong>
+          <p>Observe → Check → Propose → Pause → Apply approved action → Re-check → Hand off</p>
+        </aside>
+      </section>
+
+      <section id="control-room" aria-labelledby="control-title">
+        <div class="section-head">
+          <div><div class="eyebrow">Live simulation</div><h2 id="control-title">Paralegal workflow agent control room</h2></div>
+          <p>The scripted loop demonstrates orchestration and human checkpoints; it is not a live model and makes no legal determination.</p>
+        </div>
+
+        <div class="stats" aria-label="Agent loop status">
+          <div class="stat"><span>Agent state</span><strong class="small" id="statState">Ready</strong></div>
+          <div class="stat"><span>Cycle</span><strong id="statCycle">0</strong></div>
+          <div class="stat"><span>Open findings</span><strong id="statFindings">0</strong></div>
+          <div class="stat"><span>Human decisions</span><strong id="statDecisions">0</strong></div>
+        </div>
+
+        <div class="control-room">
+          <aside class="panel">
+            <div class="panel-head"><h3>Synthetic packet queue</h3><span class="badge">3 demos</span></div>
+            <div class="panel-body">
+              <div class="case-list" id="caseList"></div>
+              <details>
+                <summary>Inspect or paste fake packet JSON</summary>
+                <textarea class="packet-input" id="packetInput" spellcheck="false" aria-label="Synthetic intake packet JSON"></textarea>
+                <button class="btn btn-primary" id="queuePacketBtn" type="button">Validate + queue packet</button>
+                <div class="field-error" id="packetError" role="alert"></div>
+              </details>
+            </div>
+          </aside>
+
+          <section class="panel" aria-labelledby="loop-title">
+            <div class="panel-head"><h3 id="loop-title">Agent loop</h3><span class="badge" id="agentBadge">Ready</span></div>
+            <div class="loop-wrap">
+              <div class="loop-strip" id="loopStrip" aria-label="Agent loop phases"></div>
+              <div class="loop-controls">
+                <button class="btn" id="nextStepBtn" type="button">Run next step</button>
+                <button class="btn btn-primary" id="runCheckpointBtn" type="button">Run to human checkpoint</button>
+                <button class="btn" id="pauseBtn" type="button" disabled>Pause</button>
+                <button class="btn btn-danger" id="resetBtn" type="button">Reset fake case</button>
+              </div>
+              <div class="current-action" id="currentAction">Packet queued. The agent has not read it yet.</div>
+            </div>
+            <div class="gate-row" id="gateRow" aria-label="Configured gate status"></div>
+            <div class="work-area">
+              <div class="work-head"><h3>Findings + checkpoints</h3><span id="workSummary">Run the loop to produce cited findings.</span></div>
+              <div class="finding-list" id="findingList"></div>
+              <div id="draftArea"></div>
+              <div id="finalCheckpoint"></div>
+            </div>
+          </section>
+
+          <aside class="panel manager-panel">
+            <div class="panel-head"><h3>Agent manager</h3><span class="badge waiting">Human-owned</span></div>
+            <div class="panel-body">
+              <div>
+                <div class="field"><label for="roleSelect">Simulated reviewer role</label><select class="select" id="roleSelect"><option value="staff">Staff</option><option value="attorney">Attorney / Matt</option></select></div>
+                <div class="field"><label for="autonomySelect">Agent autonomy</label><select class="select" id="autonomySelect"><option value="observe">Observe only</option><option value="draft" selected>Draft + triage</option><option value="apply">Apply approved internal actions</option></select></div>
+                <div class="field"><label for="maxCyclesSelect">Maximum cycles before stop</label><select class="select" id="maxCyclesSelect"><option value="1">1 cycle</option><option value="2">2 cycles</option><option value="3" selected>3 cycles</option><option value="5">5 cycles</option></select></div>
+              </div>
+              <div>
+                <div class="capability-list" aria-label="Agent capabilities">
+                  <label class="capability"><input type="checkbox" data-capability="schema" checked><span><strong>Schema + fact checks</strong><span>Find blanks and literal inconsistencies.</span></span></label>
+                  <label class="capability"><input type="checkbox" data-capability="documents" checked><span><strong>Document screening</strong><span>Inventory bundles, quality, and requested coverage.</span></span></label>
+                  <label class="capability"><input type="checkbox" data-capability="drafts" checked><span><strong>Draft follow-up work</strong><span>Prepare neutral questions and internal notes.</span></span></label>
+                  <label class="capability"><input type="checkbox" data-capability="tasks" checked><span><strong>Propose Tasks</strong><span>Create suggestions; the firm owns approval.</span></span></label>
+                  <label class="capability locked"><input type="checkbox" disabled><span><strong>Send externally</strong><span>Locked off. Requires a firm-owned Task and approval.</span></span></label>
+                  <label class="capability locked"><input type="checkbox" disabled><span><strong>Legal or Stage 4 decision</strong><span>Locked off. Agent may report rule eligibility only.</span></span></label>
+                </div>
+              </div>
+              <div>
+                <div class="permission-grid" id="permissionGrid" aria-label="Agent permission matrix"></div>
+                <div class="event-grid" aria-label="Synthetic event injector">
+                  <button class="btn btn-small" type="button" data-event="answer">Debtor answers</button>
+                  <button class="btn btn-small" type="button" data-event="upload">Upload document</button>
+                  <button class="btn btn-small" type="button" data-event="correction">Staff correction</button>
+                  <button class="btn btn-small" type="button" data-event="attorney">Attorney resolves</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="panel log-panel" aria-labelledby="log-title">
+          <div class="panel-head"><h3 id="log-title">Append-only loop log</h3><span class="mono" id="logCount">0 events</span></div>
+          <div class="log" id="eventLog"></div>
+        </section>
+      </section>
+
+      <section id="why-loop" aria-labelledby="why-title">
+        <div class="section-head">
+          <div><div class="eyebrow">What becomes possible</div><h2 id="why-title">The power is controlled repetition.</h2></div>
+          <p>The agent does not “answer the case.” It keeps a durable objective, uses bounded tools, reacts to events, and knows when authority belongs to a person.</p>
+        </div>
+        <div class="explain-grid">
+          <div class="explain"><span>01 / Observe</span><strong>Read the newest case state</strong><p>Consume a locked Intake Package, document bundle metadata, corrections, and timeline events without silently overwriting history.</p></div>
+          <div class="explain"><span>02 / Ground</span><strong>Cite every finding</strong><p>Attach the exact fake field, bundle count, event, and configured rule so staff can verify why the agent stopped.</p></div>
+          <div class="explain"><span>03 / Act narrowly</span><strong>Draft and route work</strong><p>Propose questions, Task payloads, and review queues while external messages and firm rulings remain human-owned.</p></div>
+          <div class="explain"><span>04 / Re-loop</span><strong>React to new evidence</strong><p>When a correction or upload arrives, reopen only affected gates, rerun relevant checks, and preserve the event trail.</p></div>
+          <div class="explain"><span>05 / Stop</span><strong>Escalate uncertainty</strong><p>Route legal significance, waivers, attorney-only warnings, and Stage 4 transition to the authorized reviewer.</p></div>
+        </div>
+      </section>
+
+      <section id="dinner-demo" aria-labelledby="demo-title">
+        <div class="section-head">
+          <div><div class="eyebrow">Dinner walkthrough</div><h2 id="demo-title">A 90-second proof for Matt</h2></div>
+          <p>Start with Riley to show productive looping. End with Taylor to show the more important capability: knowing when to stop.</p>
+        </div>
+        <div class="demo-script">
+          <article class="script-card">
+            <h3>Say and click</h3>
+            <ol class="script-list">
+              <li><span><strong>Load Riley Chen.</strong> “This is a fake locked Intake Package, not a chatbot prompt.”</span></li>
+              <li><span><strong>Run to human checkpoint.</strong> Show the missing fact, partial bank bundle, employer-name mismatch, correction event, and counseling-policy question—with evidence.</span></li>
+              <li><span><strong>Inspect the draft.</strong> The agent prepares neutral follow-up work but cannot send it.</span></li>
+              <li><span><strong>Inject a fake answer and upload.</strong> Run the loop again and show only affected gates being re-checked.</span></li>
+              <li><span><strong>Switch role to Attorney.</strong> Resolve policy/warnings, then show “eligible under configured rules”—not an autonomous Stage 4 transition.</span></li>
+              <li><span><strong>Load Taylor Brooks.</strong> Show attorney-only transfer/property conflicts and the agent stopping instead of inventing legal consequences.</span></li>
+            </ol>
+          </article>
+          <aside class="guardrail-card">
+            <h3>Non-negotiable guardrails</h3>
+            <ul class="guardrail-list">
+              <li>Synthetic data only; no debtor PII on GitHub Pages.</li>
+              <li>GitHub Pages demonstrates behavior, not production security.</li>
+              <li>No API key, model credential, or confidential prompt in browser code.</li>
+              <li>Uploaded text is untrusted data and cannot change agent instructions.</li>
+              <li>No legal advice, chapter selection, exemption determination, or filing-ready petition.</li>
+              <li>No autonomous send, waiver, document approval, attorney approval, or stage transition.</li>
+              <li>Locked Intake answers are versioned and attributed; never silently overwritten.</li>
+            </ul>
+            <div class="source-links">
+              <a href="https://github.com/mmccune22/bkfl-crm-lite/blob/main/docs/HANDOFF.md" target="_blank" rel="noopener">CRM handoff ↗</a>
+              <a href="https://github.com/mmccune22/mccune-legal-intake-mockups/blob/main/Intake%20Pages/DOC-LOGIC.md" target="_blank" rel="noopener">Document logic ↗</a>
+              <a href="https://github.com/mmccune22/bkfl-crm-lite/blob/main/docs/india-handoff-checklist.md" target="_blank" rel="noopener">Decision checklist ↗</a>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer><div class="shell footer-inner"><span>BK FastLane Agent Lab · Jimmy branch · interactive simulation</span><span>The agent may report “eligible under configured rules”; only an authorized human may transition Stage 4.</span></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const phases = [
+      {key:"observe", label:"Observe", detail:"Read packet + events"},
+      {key:"facts", label:"Check facts", detail:"Schema + consistency"},
+      {key:"documents", label:"Screen docs", detail:"Bundles + quality"},
+      {key:"reconcile", label:"Reconcile", detail:"Gates + policies"},
+      {key:"propose", label:"Propose", detail:"Draft + Task payload"},
+      {key:"pause", label:"Pause", detail:"Human authority"}
+    ];
+
+    const demoCases = [
+      {
+        id:"FL-DEMO-001", name:"Jordan Ellis", scenario:"Clean packet; counseling policy pending",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-001", syntheticName:"Jordan Ellis", stage:"Intake Submitted",
+          intakePackage:{locked:true, submittedAt:"2026-07-15T14:05:00-06:00", version:1},
+          requiredFacts:["county","householdSize","monthlyIncome"],
+          facts:{county:"Demo County", householdSize:1, monthlyIncome:4200},
+          documents:[
+            {doc_type:"id_license",status:"approved",quality:"clear",files:["demo-id.pdf"]},
+            {doc_type:"bank_statements",status:"approved",quality:"clear",requiredMonths:6,monthsReceived:6,files:["demo-bank-1.pdf","demo-bank-2.pdf"]},
+            {doc_type:"unsecured_statements",status:"approved",quality:"clear",files:["demo-creditor.pdf"]},
+            {doc_type:"counseling_certificate",status:"reason_given",reason:"not_taken_yet",files:[]}
+          ],
+          corrections:[], warnings:[], events:[{type:"intake.submitted",at:"14:05",detail:"Locked synthetic Intake Package received"}],
+          configuredPolicy:{counselingBlocksStage4:null}, priorStage:null
+        }
+      },
+      {
+        id:"FL-DEMO-002", name:"Riley Chen", scenario:"Routine gaps, correction, and partial bundle",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-002", syntheticName:"Riley Chen", stage:"Intake Submitted",
+          intakePackage:{locked:true, submittedAt:"2026-07-15T14:12:00-06:00", version:1},
+          requiredFacts:["county","householdSize","monthlyIncome","employerName"],
+          facts:{county:null, householdSize:2, monthlyIncome:4680, employerName:"Northwind Foods", employerNameOnPaystub:"Northwind Food Services"},
+          documents:[
+            {doc_type:"id_license",status:"uploaded",quality:"clear",files:["demo-riley-id.pdf"]},
+            {doc_type:"bank_statements",status:"uploaded",quality:"clear",requiredMonths:6,monthsReceived:4,files:["demo-bank-jan.pdf","demo-bank-feb.pdf","demo-bank-mar.pdf","demo-bank-apr.pdf"]},
+            {doc_type:"pay_stubs",status:"uploaded",quality:"clear",files:["demo-paystub.pdf"]},
+            {doc_type:"tax_return_y1",status:"reason_given",reason:"doesnt_apply",files:[]},
+            {doc_type:"counseling_certificate",status:"reason_given",reason:"not_taken_yet",files:[]}
+          ],
+          corrections:[{field:"mailingAddress",status:"pending",newValue:"101 Demo Avenue",source:"debtor_message"}],
+          warnings:[], events:[{type:"intake.submitted",at:"14:12",detail:"Locked synthetic Intake Package received"},{type:"correction.received",at:"14:18",detail:"Synthetic mailing-address correction received"}],
+          configuredPolicy:{counselingBlocksStage4:null}, priorStage:null
+        }
+      },
+      {
+        id:"FL-DEMO-003", name:"Taylor Brooks", scenario:"Stage regression and attorney-only conflicts",
+        packet:{
+          demoOnly:true, caseId:"FL-DEMO-003", syntheticName:"Taylor Brooks", stage:"Ready for Petition Prep",
+          intakePackage:{locked:true, submittedAt:"2026-07-14T09:20:00-06:00", version:1},
+          requiredFacts:["county","householdSize","monthlyIncome"],
+          facts:{county:"Demo County", householdSize:1, monthlyIncome:3900},
+          documents:[
+            {doc_type:"id_license",status:"approved",quality:"clear",files:["demo-taylor-id.pdf"]},
+            {doc_type:"bank_statements",status:"approved",quality:"clear",requiredMonths:6,monthsReceived:6,files:["demo-bank-bundle.pdf"]},
+            {doc_type:"other_docs",status:"uploaded",quality:"clear",files:["demo-property-record.pdf"],newAfterStage4:true}
+          ],
+          corrections:[],
+          warnings:[
+            {id:"recent-transfer",title:"Recent transfer answer requires attorney review",detail:"Synthetic intake answer indicates a transfer to a family member.",evidence:"financialAffairs.recentTransfer = true",resolved:false,attorneyOnly:true},
+            {id:"property-conflict",title:"Property answer conflicts with uploaded record",detail:"The synthetic answer says no ownership interest; a fake document names the debtor.",evidence:"assets.realEstate = false ↔ demo-property-record.pdf",resolved:false,attorneyOnly:true}
+          ],
+          events:[{type:"document.uploaded",at:"15:02",detail:"New synthetic property record arrived after Stage 4"}],
+          configuredPolicy:{counselingBlocksStage4:false}, priorStage:"Ready for Petition Prep"
+        }
+      }
+    ];
+
+    const app = {
+      selectedCase:1, packet:null, findings:[], logs:[], cycle:0, nextPhase:0, activePhase:-1,
+      running:false, paused:false, status:"ready", decisions:0, role:"staff", autonomy:"draft", maxCycles:3,
+      capabilities:{schema:true,documents:true,drafts:true,tasks:true}, draft:"", draftStatus:"none",
+      eligible:false, finalApproved:false
+    };
+
+    const $ = id => document.getElementById(id);
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    let toastTimer;
+
+    function toast(message) {
+      const el = $("toast"); el.textContent = message; el.classList.add("show");
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 1900);
+    }
+
+    function nowTime() {
+      return new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    }
+
+    function addLog(actor, title, detail, kind="agent") {
+      app.logs.unshift({time:nowTime(),actor,title,detail,kind,cycle:app.cycle});
+    }
+
+    function statusLabel() {
+      const labels={ready:"Ready",running:"Running",paused:"Paused",waiting:"Awaiting human",blocked:"Blocked",eligible:"Eligible under rules",complete:"Stage 4 approved",limited:"Coverage limited"};
+      return labels[app.status] || app.status;
+    }
+
+    function selectCase(index) {
+      app.selectedCase=index;
+      $("packetInput").value=JSON.stringify(demoCases[index].packet,null,2);
+      queuePacket();
+    }
+
+    function queuePacket() {
+      $("packetError").textContent="";
+      let parsed;
+      try { parsed=JSON.parse($("packetInput").value); }
+      catch (error) { $("packetError").textContent="Invalid JSON: "+error.message; return; }
+      if(parsed.demoOnly!==true){ $("packetError").textContent="Refused: packet must include demoOnly: true. Never use real debtor data here."; return; }
+      if(!parsed.caseId||!parsed.intakePackage||parsed.intakePackage.locked!==true){ $("packetError").textContent="Packet needs caseId and a locked intakePackage."; return; }
+      app.packet=clone(parsed); app.findings=[]; app.logs=[]; app.cycle=0; app.nextPhase=0; app.activePhase=-1;
+      app.running=false; app.paused=false; app.status="ready"; app.decisions=0; app.draft=""; app.draftStatus="none"; app.eligible=false; app.finalApproved=false;
+      addLog("SYSTEM","Synthetic packet queued",`${parsed.caseId} · immutable package v${parsed.intakePackage.version}`,"system");
+      (parsed.events||[]).forEach(event=>addLog("EVENT",event.type,event.detail,"system"));
+      render(); toast("Synthetic packet validated and queued.");
+    }
+
+    function upsertFindings(items) {
+      items.forEach(item=>{
+        const existing=app.findings.find(f=>f.id===item.id);
+        if(!existing) app.findings.push({...item,status:"open",resolution:null});
+      });
+    }
+
+    function factFindings() {
+      if(!app.capabilities.schema) return [];
+      const p=app.packet, found=[];
+      (p.requiredFacts||[]).forEach(field=>{
+        if(p.facts?.[field]===null||p.facts?.[field]===undefined||p.facts?.[field]===""){
+          found.push({id:`fact-${field}`,kind:"fact",gate:"Intake Completion",owner:"Staff",title:`Missing required fact: ${field}`,detail:"The locked package contains no value. The agent can draft a neutral question but cannot invent or silently fill the answer.",evidence:`facts.${field} = null`,rule:"Configured required-fact completeness rule",field});
+        }
+      });
+      if(p.facts?.employerName&&p.facts?.employerNameOnPaystub&&p.facts.employerName!==p.facts.employerNameOnPaystub){
+        found.push({id:"fact-employer-mismatch",kind:"mismatch",gate:"Intake Completion",owner:"Staff",title:"Employer names differ",detail:"The intake answer and fake pay stub do not match literally. The agent asks for clarification without deciding which is correct.",evidence:`facts.employerName = “${p.facts.employerName}” ↔ pay stub = “${p.facts.employerNameOnPaystub}”`,rule:"Literal cross-source consistency check",field:"employerName"});
+      }
+      (p.corrections||[]).filter(c=>c.status==="pending").forEach(c=>found.push({id:`correction-${c.field}`,kind:"correction",gate:"Intake Completion",owner:"Staff",title:`Locked-answer correction: ${c.field}`,detail:"A post-submit correction must create a new attributed version and audit event; the original Intake Package remains immutable.",evidence:`corrections.${c.field} = “${c.newValue}” from ${c.source}`,rule:"Submit-and-lock plus attorney-side correction rule",field:c.field}));
+      return found;
+    }
+
+    function documentFindings() {
+      if(!app.capabilities.documents) return [];
+      const found=[];
+      (app.packet.documents||[]).forEach(doc=>{
+        if(doc.requiredMonths&&doc.monthsReceived<doc.requiredMonths){
+          found.push({id:`doc-${doc.doc_type}-coverage`,kind:"document_coverage",gate:"Document Review",owner:"Firm",title:`Incomplete ${doc.doc_type} bundle`,detail:`${doc.monthsReceived} of ${doc.requiredMonths} configured months are present. Originals remain append-only; a follow-up adds files to the bundle.`,evidence:`documents.${doc.doc_type}.monthsReceived = ${doc.monthsReceived}/${doc.requiredMonths}`,rule:"Bundle Rule plus configured lookback",docType:doc.doc_type});
+        }
+        if(doc.quality&&doc.quality!=="clear"){
+          found.push({id:`doc-${doc.doc_type}-quality`,kind:"document_quality",gate:"Document Review",owner:"Firm",title:`${doc.doc_type} needs attention`,detail:"The agent may flag image quality; the firm decides whether to reject and re-request.",evidence:`documents.${doc.doc_type}.quality = ${doc.quality}`,rule:"AI screening is a recommendation; firm approval required",docType:doc.doc_type});
+        }
+        if(doc.status==="reason_given"&&!["not_taken_yet","will_send_later"].includes(doc.reason)){
+          found.push({id:`doc-${doc.doc_type}-ruling`,kind:"document_ruling",gate:"Document Review",owner:"Firm / Attorney",title:`Firm ruling needed: ${doc.doc_type}`,detail:`The debtor reason “${doc.reason}” does not self-close the requirement. The firm must Excuse or Keep Chasing.`,evidence:`documents.${doc.doc_type}.reason = ${doc.reason}`,rule:"Firm-ruling model for skipped Documents",docType:doc.doc_type});
+        }
+      });
+      return found;
+    }
+
+    function reconciliationFindings() {
+      const p=app.packet, found=[];
+      const counseling=(p.documents||[]).find(d=>d.doc_type==="counseling_certificate"&&d.reason==="not_taken_yet");
+      if(counseling&&p.configuredPolicy?.counselingBlocksStage4===null){
+        found.push({id:"policy-counseling",kind:"policy",gate:"Attorney Review",owner:"Matt / Attorney",title:"Counseling policy is not frozen",detail:"The current intake rule treats the certificate as a filing blocker. Matt must decide whether it also blocks Stage 4.",evidence:"counseling_certificate.reason = not_taken_yet",rule:"Unresolved product/legal policy; agent must not choose"});
+      }
+      if(counseling&&p.configuredPolicy?.counselingBlocksStage4===true){
+        found.push({id:"policy-counseling",kind:"counseling_blocker",gate:"Attorney Review",owner:"Client + Firm",title:"Counseling certificate blocks configured Stage 4",detail:"The configured policy requires the certificate before readiness. The agent can request it but cannot waive the blocker.",evidence:"counseling_certificate.reason = not_taken_yet; policy = blocks Stage 4",rule:"Matt-approved counseling gate policy",docType:"counseling_certificate"});
+      }
+      (p.warnings||[]).filter(w=>!w.resolved).forEach(w=>found.push({id:`warning-${w.id}`,kind:"warning",gate:"Attorney Review",owner:"Attorney",title:w.title,detail:w.detail,evidence:w.evidence,rule:"Configured attorney-only warning",warningId:w.id}));
+      if(p.priorStage==="Ready for Petition Prep"&&(p.documents||[]).some(d=>d.newAfterStage4)){
+        found.push({id:"stage-regression",kind:"regression",gate:"Stage 4",owner:"System + Firm",title:"New activity requires Stage 4 regression",detail:"A new Document arrived after readiness. The badge must tell the truth while affected Document and Attorney Review gates reopen.",evidence:"document.uploaded after priorStage = Ready for Petition Prep",rule:"Ready-for-prep regression rule"});
+      }
+      return found;
+    }
+
+    function unresolvedFindings() { return app.findings.filter(f=>!["resolved"].includes(f.status)); }
+
+    function processPhase(index) {
+      const phase=phases[index]; app.activePhase=index;
+      if(index===0){ app.cycle+=1; addLog("AGENT","Observe latest case state",`${app.packet.caseId} · cycle ${app.cycle}`,"agent"); }
+      if(phase.key==="facts"){
+        const items=factFindings(); upsertFindings(items); addLog("AGENT","Fact checks complete",`${items.length} finding(s) cited`,"agent");
+      }
+      if(phase.key==="documents"){
+        const items=documentFindings(); upsertFindings(items); addLog("AGENT","Document screening complete",`${items.length} finding(s) cited`,"agent");
+      }
+      if(phase.key==="reconcile"){
+        const items=reconciliationFindings(); upsertFindings(items); addLog("AGENT","Gate reconciliation complete",`${items.length} policy, warning, or regression finding(s)`,"agent");
+      }
+      if(phase.key==="propose"){
+        if(app.autonomy!=="observe"&&app.capabilities.drafts){ app.draft=buildDraft(); app.draftStatus="draft"; addLog("AGENT","Neutral follow-up work drafted","No message sent; awaiting firm review","agent"); }
+        else addLog("AGENT","Proposal skipped","Observe-only mode or drafting capability off","agent");
+      }
+      if(phase.key==="pause") evaluateCheckpoint();
+      $("currentAction").textContent=`${phase.label}: ${phase.detail}`;
+    }
+
+    function coverageComplete() { return app.capabilities.schema&&app.capabilities.documents; }
+
+    function evaluateCheckpoint() {
+      const open=unresolvedFindings();
+      if(!coverageComplete()){ app.status="limited"; app.eligible=false; addLog("AGENT","Stopped: coverage limited","Required fact or document checks are disabled","agent"); return; }
+      if(open.length){ app.status="waiting"; app.eligible=false; addLog("AGENT","Human checkpoint",`${open.length} unresolved finding(s); no autonomous action taken`,"agent"); return; }
+      app.eligible=true; app.status=app.finalApproved?"complete":"eligible";
+      addLog("AGENT","Eligibility recommendation","Configured gates appear clear; attorney Stage 4 approval still required","agent");
+    }
+
+    async function runNextStep() {
+      if(app.running||!app.packet) return;
+      if(app.nextPhase===0&&app.cycle>=app.maxCycles){ toast("Maximum cycle limit reached. Change the limit or reset the fake case."); return; }
+      app.running=true; app.paused=false; app.status="running"; render();
+      processPhase(app.nextPhase); await sleep(260);
+      if(app.nextPhase===phases.length-1) app.nextPhase=0; else app.nextPhase+=1;
+      app.running=false; if(app.status==="running") app.status="paused"; render();
+    }
+
+    async function runToCheckpoint() {
+      if(app.running||!app.packet) return;
+      if(app.cycle>=app.maxCycles&&app.nextPhase===0){ toast("Maximum cycle limit reached. Change the limit or reset the fake case."); return; }
+      app.running=true; app.paused=false; app.status="running"; render();
+      let index=app.nextPhase;
+      while(index<phases.length&&!app.paused){
+        processPhase(index); render(); await sleep(window.matchMedia("(prefers-reduced-motion: reduce)").matches?20:420); index+=1;
+      }
+      app.nextPhase=index>=phases.length?0:index;
+      app.running=false;
+      if(app.paused){ app.status="paused"; addLog("HUMAN","Agent paused","Loop stopped between bounded steps","human"); }
+      else if(app.status==="running") app.status="paused";
+      render();
+    }
+
+    function buildDraft() {
+      const open=unresolvedFindings();
+      if(!open.length) return "Internal note: configured checks found no unresolved items. Route to Attorney Review for the human Stage 4 decision.";
+      const debtorItems=open.filter(f=>!["warning","policy","regression"].includes(f.kind));
+      if(!debtorItems.length) return "INTERNAL DRAFT — requires firm review\n\nAttorney-owned findings remain open. No debtor-facing request is proposed because the agent cannot resolve or characterize their legal significance.";
+      const firstName=(app.packet.syntheticName||"Demo debtor").split(" ")[0];
+      const lines=["DRAFT — requires firm review; not sent","",`Hello ${firstName},`,"","To continue our review, please help with the following:"];
+      debtorItems.forEach(f=>lines.push(`• ${neutralQuestion(f)}`));
+      lines.push("","Thank you. Your law firm will review anything you provide.","","Internal-only: attorney-owned findings remain in the review queue.");
+      return lines.join("\n");
+    }
+
+    function neutralQuestion(f) {
+      if(f.kind==="fact") return `Please provide the missing ${f.field}.`;
+      if(f.kind==="mismatch") return "Please confirm the employer name that should appear in your intake.";
+      if(f.kind==="correction") return `Please confirm the corrected ${f.field}.`;
+      if(f.kind.includes("document")) return `Please provide the outstanding or clearer ${f.docType.replaceAll("_"," ")}.`;
+      return f.title;
+    }
+
+    function findDocument(docType) { return (app.packet.documents||[]).find(d=>d.doc_type===docType); }
+
+    function humanAction(findingId, action) {
+      const f=app.findings.find(item=>item.id===findingId); if(!f) return;
+      const attorneyOnly=["excuse","policy-filing","policy-stage4","clear-warning","approve-stage4"];
+      if(attorneyOnly.includes(action)&&app.role!=="attorney"){ toast("Switch the simulated reviewer role to Attorney / Matt for that action."); return; }
+      app.decisions+=1; app.eligible=false; app.finalApproved=false;
+      if(action==="apply-fact"){
+        if(f.kind==="mismatch") app.packet.facts.employerName=app.packet.facts.employerNameOnPaystub;
+        else if(f.kind==="correction"){ const c=app.packet.corrections.find(x=>x.field===f.field); if(c)c.status="applied_with_audit"; }
+        else app.packet.facts[f.field]="Synthetic County";
+        f.status="resolved"; f.resolution="Synthetic correction applied with audit event";
+      }
+      if(action==="request-upload"||action==="keep-chasing"){ f.status="waiting_client"; f.resolution="Client Portal request proposed"; }
+      if(action==="simulate-upload"){
+        const doc=findDocument(f.docType); if(doc){ if(doc.requiredMonths)doc.monthsReceived=doc.requiredMonths; doc.quality="clear"; doc.status="uploaded"; doc.reason=null; doc.files.push(`demo-follow-up-${doc.doc_type}.pdf`); }
+        f.status="resolved"; f.resolution="Synthetic follow-up upload appended to bundle";
+      }
+      if(action==="excuse"){
+        const doc=findDocument(f.docType); if(doc)doc.status="excused";
+        f.status="resolved"; f.resolution="Simulated attorney ruling: Excused";
+      }
+      if(action==="policy-filing"){ app.packet.configuredPolicy.counselingBlocksStage4=false; f.status="resolved"; f.resolution="Matt policy: blocks filing only"; }
+      if(action==="policy-stage4"){ app.packet.configuredPolicy.counselingBlocksStage4=true; f.kind="counseling_blocker"; f.docType="counseling_certificate"; f.status="waiting_client"; f.resolution="Matt policy: blocks Stage 4 until certificate arrives"; }
+      if(action==="escalate"){ f.status="waiting_attorney"; f.resolution="Escalated to Attorney Review"; }
+      if(action==="clear-warning"){
+        const w=app.packet.warnings.find(x=>x.id===f.warningId); if(w)w.resolved=true;
+        f.status="resolved"; f.resolution="Simulated attorney resolution recorded";
+      }
+      if(action==="confirm-regression"){ app.packet.stage="Intake Submitted"; f.status="resolved"; f.resolution="Stage regressed; affected gates reopened"; }
+      addLog("HUMAN",actionLabel(action),`${f.title} · ${f.resolution||"recorded"}`,"human");
+      app.status="paused"; render();
+    }
+
+    function actionLabel(action) {
+      const labels={"apply-fact":"Apply synthetic correction","request-upload":"Request more evidence","keep-chasing":"Keep Chasing","simulate-upload":"Inject synthetic upload","excuse":"Attorney: Excuse","policy-filing":"Policy: filing only","policy-stage4":"Policy: blocks Stage 4","escalate":"Escalate to attorney","clear-warning":"Attorney resolves warning","confirm-regression":"Confirm stage regression"};
+      return labels[action]||action;
+    }
+
+    function findingButtons(f) {
+      if(f.status==="resolved") return "";
+      const buttons=[];
+      const add=(action,label,role=null)=>buttons.push(`<button class="btn btn-small" type="button" data-finding="${f.id}" data-action="${action}" ${role&&app.role!==role?"disabled":""}>${label}${role&&app.role!==role?" · "+role:""}</button>`);
+      if(["fact","mismatch","correction"].includes(f.kind)) add("apply-fact","Apply fake correction");
+      if(["document_coverage","document_quality"].includes(f.kind)) f.status==="waiting_client"?add("simulate-upload","Inject fake upload"):add("request-upload","Request more evidence");
+      if(f.kind==="document_ruling"){
+        if(f.status==="waiting_client") add("simulate-upload","Inject fake upload");
+        else { add("keep-chasing","Keep Chasing"); add("excuse","Excuse","attorney"); }
+      }
+      if(f.kind==="counseling_blocker") add("simulate-upload","Inject fake certificate");
+      if(f.kind==="policy"){ add("policy-filing","Blocks filing only","attorney"); add("policy-stage4","Blocks Stage 4","attorney"); }
+      if(f.kind==="warning"){ if(f.status!=="waiting_attorney")add("escalate","Escalate to attorney"); add("clear-warning","Resolve warning","attorney"); }
+      if(f.kind==="regression") add("confirm-regression","Confirm regression");
+      return buttons.join("");
+    }
+
+    function injectEvent(type) {
+      let target;
+      if(type==="answer"||type==="correction") target=app.findings.find(f=>["fact","mismatch","correction"].includes(f.kind)&&f.status!=="resolved");
+      if(type==="upload") target=app.findings.find(f=>f.kind.startsWith("document")&&f.status!=="resolved");
+      if(type==="attorney") target=app.findings.find(f=>["warning","policy"].includes(f.kind)&&f.status!=="resolved");
+      if(!target){ toast("No matching open checkpoint in this fake case."); return; }
+      if(type==="attorney"&&app.role!=="attorney"){ toast("Switch role to Attorney / Matt first."); return; }
+      const action=type==="upload"?"simulate-upload":type==="attorney"?(target.kind==="warning"?"clear-warning":"policy-filing"):"apply-fact";
+      humanAction(target.id,action);
+    }
+
+    function gateState(gate) {
+      if(!app.packet) return "pending";
+      const relevant=app.findings.filter(f=>f.gate===gate);
+      if(!relevant.length){
+        if(gate==="Intake Completion"&&!app.capabilities.schema)return "pending";
+        if(gate==="Document Review"&&!app.capabilities.documents)return "pending";
+        return app.cycle>0?"clear":"pending";
+      }
+      return relevant.every(f=>f.status==="resolved")?"clear":"blocked";
+    }
+
+    function renderCases() {
+      $("caseList").innerHTML=demoCases.map((c,i)=>`<button class="case-btn ${i===app.selectedCase?"active":""}" type="button" data-case="${i}"><span class="case-id">${c.id}</span><span class="case-name">${c.name}</span><span class="case-scenario">${c.scenario}</span></button>`).join("");
+    }
+
+    function renderLoop() {
+      $("loopStrip").innerHTML=phases.map((phase,i)=>`<div class="loop-step ${i===app.activePhase?"active":app.activePhase>=0&&i<app.activePhase?"done":""}"><span>${String(i+1).padStart(2,"0")}</span><strong>${phase.label}</strong></div>`).join("");
+      $("nextStepBtn").disabled=app.running||!app.packet;
+      $("runCheckpointBtn").disabled=app.running||!app.packet;
+      $("pauseBtn").disabled=!app.running;
+    }
+
+    function renderGates() {
+      const gates=["Intake Completion","Document Review","Attorney Review","Stage 4"];
+      $("gateRow").innerHTML=gates.map(g=>{
+        let state=gateState(g),label=state==="clear"?"Clear":state==="blocked"?"Blocked":"Not checked";
+        if(g==="Stage 4"){ state=app.finalApproved?"clear":app.eligible?"pending":"blocked"; label=app.finalApproved?"Human approved":app.eligible?"Eligible · approval needed":"Not eligible"; }
+        return `<div class="gate ${state}"><span>${g}</span><strong>${label}</strong></div>`;
+      }).join("");
+    }
+
+    function renderFindings() {
+      const list=$("findingList");
+      if(!app.findings.length){ list.innerHTML='<div class="empty">No findings yet. Run the bounded loop to inspect the fake packet.</div>'; }
+      else list.innerHTML=app.findings.map(f=>`<article class="finding ${f.status}"><div class="finding-top"><div><span class="finding-type">${f.gate} · ${f.owner}</span><h4>${f.title}</h4><p>${f.detail}</p></div><span class="finding-status">${f.status.replaceAll("_"," ")}</span></div><details class="evidence"><summary>Why did the agent stop?</summary><p>Evidence: ${f.evidence}<br>Rule: ${f.rule}</p></details><div class="finding-actions">${findingButtons(f)}</div></article>`).join("");
+      const open=unresolvedFindings().length;
+      $("workSummary").textContent=app.findings.length?`${open} open · ${app.findings.length-open} resolved`:`Run the loop to produce cited findings.`;
+    }
+
+    function renderDraft() {
+      if(!app.draft){ $("draftArea").innerHTML=""; return; }
+      $("draftArea").innerHTML=`<div class="draft-box"><div class="draft-head"><strong>Agent-drafted follow-up work</strong><span>${app.draftStatus} · never auto-sent</span></div><textarea class="draft-text" id="draftText" aria-label="Agent drafted follow-up">${escapeHtml(app.draft)}</textarea><div class="finding-actions"><button class="btn btn-small" type="button" data-draft="approve">Approve draft for simulated Task</button><button class="btn btn-small" type="button" data-draft="reject">Reject draft</button></div></div>`;
+    }
+
+    function renderFinalCheckpoint() {
+      if(!app.eligible||app.finalApproved){ $("finalCheckpoint").innerHTML=""; return; }
+      $("finalCheckpoint").innerHTML=`<article class="finding waiting_attorney"><div class="finding-top"><div><span class="finding-type">Stage 4 · Attorney-owned</span><h4>Eligible under configured rules</h4><p>Intake Completion, Document Review, and Attorney Review appear clear with zero unresolved configured warnings. The agent cannot transition the lifecycle stage.</p></div><span class="finding-status">human checkpoint</span></div><div class="finding-actions"><button class="btn btn-primary btn-small" type="button" id="approveStage4Btn" ${app.role!=="attorney"?"disabled":""}>Attorney approves Stage 4${app.role!=="attorney"?" · attorney":""}</button></div></article>`;
+    }
+
+    function renderManager() {
+      $("roleSelect").value=app.role; $("autonomySelect").value=app.autonomy; $("maxCyclesSelect").value=String(app.maxCycles);
+      document.querySelectorAll("[data-capability]").forEach(input=>input.checked=app.capabilities[input.dataset.capability]);
+      const draftAllowed=app.autonomy!=="observe"&&app.capabilities.drafts;
+      const permissions=[["Read packet","Allowed",""],["Create cited findings","Allowed",""],["Draft work",draftAllowed?"Allowed":"Off",draftAllowed?"":"denied"],["Apply internal update",app.autonomy==="apply"?"After approval":"Draft only",app.autonomy==="apply"?"human":"denied"],["Send externally","Human only","human"],["Waive / approve","Human only","human"],["Stage transition","Denied","denied"]];
+      $("permissionGrid").innerHTML=permissions.map(p=>`<span>${p[0]}</span><strong class="perm ${p[2]}">${p[1]}</strong>`).join("");
+    }
+
+    function renderLog() {
+      $("eventLog").innerHTML=app.logs.length?app.logs.map(entry=>`<div class="log-entry ${entry.kind}"><span class="log-time">${entry.time}</span><span class="log-actor">${entry.actor}${entry.cycle?` · C${entry.cycle}`:""}</span><span class="log-detail"><strong>${entry.title}</strong><span>${entry.detail}</span></span></div>`).join(""):'<div class="empty">No events yet.</div>';
+      $("logCount").textContent=`${app.logs.length} event${app.logs.length===1?"":"s"}`;
+    }
+
+    function escapeHtml(text) { return text.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+
+    function render() {
+      renderCases(); renderLoop(); renderGates(); renderFindings(); renderDraft(); renderFinalCheckpoint(); renderManager(); renderLog();
+      const label=statusLabel(); $("statState").textContent=label; $("statCycle").textContent=app.cycle; $("statFindings").textContent=unresolvedFindings().length; $("statDecisions").textContent=app.decisions;
+      const badge=$("agentBadge"); badge.textContent=label; badge.className=`badge ${app.status}`;
+    }
+
+    document.addEventListener("click", event=>{
+      const caseButton=event.target.closest("[data-case]"); if(caseButton){ selectCase(Number(caseButton.dataset.case)); return; }
+      const findingButton=event.target.closest("[data-finding]"); if(findingButton){ humanAction(findingButton.dataset.finding,findingButton.dataset.action); return; }
+      const eventButton=event.target.closest("[data-event]"); if(eventButton){ injectEvent(eventButton.dataset.event); return; }
+      const draftButton=event.target.closest("[data-draft]"); if(draftButton){
+        app.draft=$("draftText").value; app.draftStatus=draftButton.dataset.draft==="approve"?"approved":"rejected"; app.decisions+=1;
+        addLog("HUMAN",app.draftStatus==="approved"?"Draft approved":"Draft rejected","Simulation only; no external message sent","human"); render(); return;
+      }
+      if(event.target.id==="approveStage4Btn"){
+        if(app.role!=="attorney"){toast("Switch role to Attorney / Matt.");return;}
+        app.finalApproved=true; app.status="complete"; app.decisions+=1; addLog("ATTORNEY","Stage 4 approved","Human lifecycle transition recorded after configured gates cleared","human"); render();
+      }
+    });
+    $("queuePacketBtn").addEventListener("click",queuePacket);
+    $("nextStepBtn").addEventListener("click",runNextStep);
+    $("runCheckpointBtn").addEventListener("click",runToCheckpoint);
+    $("pauseBtn").addEventListener("click",()=>{app.paused=true;});
+    $("resetBtn").addEventListener("click",()=>selectCase(app.selectedCase));
+    $("roleSelect").addEventListener("change",event=>{app.role=event.target.value;addLog("HUMAN","Reviewer role changed",app.role,"human");render();});
+    $("autonomySelect").addEventListener("change",event=>{app.autonomy=event.target.value;addLog("HUMAN","Agent autonomy changed",app.autonomy,"human");render();});
+    $("maxCyclesSelect").addEventListener("change",event=>{app.maxCycles=Number(event.target.value);render();});
+    document.querySelectorAll("[data-capability]").forEach(input=>input.addEventListener("change",event=>{app.capabilities[event.target.dataset.capability]=event.target.checked;app.eligible=false;app.finalApproved=false;addLog("HUMAN","Capability changed",`${event.target.dataset.capability} = ${event.target.checked}`,"human");render();}));
+
+    selectCase(1);
+  </script>
+</body>
+</html>
