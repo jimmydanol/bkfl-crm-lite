@@ -9,6 +9,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<script src="./stage4-readiness.js"></script>
+<script src="./intake-stage4-bridge.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;}
@@ -26,6 +28,8 @@ a{text-decoration:none;}
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
+const STAGE4_READINESS=window.BKFLStage4Readiness;
+if(!STAGE4_READINESS)throw new Error("BK FastLane Stage 4 readiness engine did not load.");
 
 /* ════════════════════════════════════════════════════════════════
    DEMO DATA
@@ -786,9 +790,10 @@ const leadStageColors={
 };
 
 function useLocalLeads(){
-  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v21");return s?JSON.parse(s):INITIAL_LEADS;}catch{return INITIAL_LEADS;}});
+  const [leads,setLeads]=useState(()=>{try{const s=localStorage.getItem("bkfl_lite_leads_v21");return STAGE4_READINESS.reconcileLeads(s?JSON.parse(s):INITIAL_LEADS);}catch{return STAGE4_READINESS.reconcileLeads(INITIAL_LEADS);}});
   useEffect(()=>{localStorage.setItem("bkfl_lite_leads_v21",JSON.stringify(leads));},[leads]);
-  return [leads,setLeads];
+  const setLeadsWithReadiness=useCallback((next)=>setLeads(prev=>STAGE4_READINESS.reconcileLeads(typeof next==="function"?next(prev):next)),[]);
+  return [leads,setLeadsWithReadiness];
 }
 
 const fmt=(n)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:0,maximumFractionDigits:0}).format(n);
@@ -831,7 +836,7 @@ const isPendingRuling=(d)=>d.status==="reason_given"&&REVIEW_REASONS.includes(d.
 const isChaseDoc=(d)=>d.status==="open"||(d.status==="reason_given"&&CHASE_REASONS.includes(d.reason));
 const isUploadedReview=(d)=>d.status==="ai_accepted"||d.status==="ai_flagged";
 const docReviewDone=(cl)=>!!(cl&&cl.length)&&!cl.some(d=>isUploadedReview(d)||isPendingRuling(d));
-const isPrepReady=(cl)=>!!(cl&&cl.length)&&cl.every(d=>d.status==="approved"||d.status==="excused");
+const isPrepReady=(lead)=>STAGE4_READINESS.evaluateLead(lead).ready;
 const prepAge=(l)=>{if(!l.prepReadyDate)return"\u2014";const d=Math.floor((Date.now()-new Date(l.prepReadyDate+"T00:00:00").getTime())/86400000);return d<=0?"Ready today":"Ready "+d+(d===1?" day":" days");};
 
 function StageBadge({stage}){
@@ -1301,11 +1306,16 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
         _tks=[{id:Date.now()+7,title:"Approve document follow-up request",due:_today,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},..._tks];
       }
       m={...m,tasks:_tks};
-      const ready=isPrepReady(m.docChecklist);
+    }
+    if(m.leadStage==="Intake Submitted"||m.leadStage==="Ready for Petition Prep"){
+      const _today=new Date().toISOString().split("T")[0];
+      const _readiness=STAGE4_READINESS.evaluateLead(m);
+      const ready=_readiness.ready;
+      m={...m,readiness:_readiness};
       if(ready&&m.leadStage==="Intake Submitted"){
-        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"Document checklist complete \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Ready for Petition Prep",prepReadyDate:_today,timeline:[{id:Date.now()+9,date:_today,action:"Ready for Petition Prep",detail:"Intake Completion, Document Review, and Attorney Review are complete \u2014 Stage: Intake Submitted \u2192 Ready for Petition Prep",user:"System"},...(m.timeline||[])]};
       }else if(!ready&&m.leadStage==="Ready for Petition Prep"){
-        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"New Document activity reopened the checklist \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
+        m={...m,leadStage:"Intake Submitted",prepReadyDate:undefined,timeline:[{id:Date.now()+9,date:_today,action:"Back to Intake Submitted",detail:"New or corrected data, Document evidence, or Attorney Review activity reopened a Stage 4 gate \u2014 Stage: Ready for Petition Prep \u2192 Intake Submitted",user:"System"},...(m.timeline||[])]};
       }
     }
     return m;
