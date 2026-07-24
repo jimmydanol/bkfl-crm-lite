@@ -11,6 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
 <script src="./stage4-readiness.js"></script>
 <script src="./intake-stage4-bridge.js"></script>
+<script src="./demo-document-assets.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter','Segoe UI',Roboto,sans-serif;background:#FBFAF7;color:#434343;}
@@ -30,6 +31,8 @@ a{text-decoration:none;}
 const {useState,useEffect,useMemo,useCallback}=React;
 const STAGE4_READINESS=window.BKFLStage4Readiness;
 if(!STAGE4_READINESS)throw new Error("BK FastLane Stage 4 readiness engine did not load.");
+const DEMO_DOCUMENTS=window.BKFLDemoDocuments;
+if(!DEMO_DOCUMENTS)throw new Error("BK FastLane demo document assets did not load.");
 
 /* ════════════════════════════════════════════════════════════════
    DEMO DATA
@@ -1749,21 +1752,26 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
               </div>
               </React.Fragment>
               )}
-              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const files=d?docFiles(d):[];const f=d&&(d.fileName||d.rejectedFile||(files.length?files[files.length-1].name:null));if(!f)return null;return(
+              {previewDoc&&(()=>{const d=checklist.find(x=>x.id===previewDoc);const files=d?docFiles(d):[];const f=d&&(d.fileName||d.rejectedFile||(files.length?files[files.length-1].name:null));const asset=d?DEMO_DOCUMENTS.resolve(d,files):null;if(!f)return null;return(
                 <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:60}} onClick={()=>setPreviewDoc(null)}>
-                  <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:560,maxWidth:"92vw",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 22px"}}>
+                  <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:12,width:720,maxWidth:"92vw",maxHeight:"92vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.3)",padding:"18px 22px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
                       <span style={{fontSize:14,fontWeight:700,color:"#434343"}}>{dName(d)}</span>
                       {d.rejectedFile&&!d.fileName&&<span style={{fontSize:10,fontWeight:700,color:"#a94438",background:"#fdf0ef",border:"1px solid #f0b9b1",borderRadius:4,padding:"1px 7px"}}>REJECTED UPLOAD</span>}
+                      {asset&&asset.synthetic&&<span style={{fontSize:9,fontWeight:700,color:"#3d5c43",background:"#eef6ef",border:"1px solid #cfe3d2",borderRadius:4,padding:"2px 7px",marginLeft:"auto"}}>SYNTHETIC DEMO</span>}
                     </div>
-                    <div style={{border:"1px dashed #ccc",borderRadius:8,padding:"46px 20px",textAlign:"center",background:"#fbfbf9",marginBottom:12}}>
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
-                      <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
-                      <div style={{fontSize:11,color:"#aaa",marginTop:4}}>In production the PDF renders here, with {"\u201c"}Open full size{"\u201d"} in a new tab. Never a download.</div>
+                    <div data-document-preview={f} style={{border:"1px solid #d8ded9",borderRadius:8,height:"58vh",minHeight:360,maxHeight:620,overflow:"hidden",textAlign:"center",background:"#f3f5f2",marginBottom:8}}>
+                      {asset&&asset.kind==="image"?<img src={asset.previewUrl||asset.url} alt={dName(d)+" - "+f} style={{width:"100%",height:"100%",objectFit:"contain",background:"#fff"}}/>:asset?<iframe title={dName(d)+" - "+f} src={asset.url+"#toolbar=0&navpanes=0&view=FitH"} style={{width:"100%",height:"100%",border:0,background:"#fff"}}/>:<div style={{height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 20px"}}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{opacity:0.35}}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#434343" strokeWidth="1.5"/><path d="M14 2v6h6" stroke="#434343" strokeWidth="1.5"/></svg>
+                        <div style={{fontSize:13,fontWeight:600,color:"#666",marginTop:8}}>{f}</div>
+                        <div style={{fontSize:11,color:"#999",marginTop:4}}>No preview source is attached to this upload.</div>
+                      </div>}
                     </div>
+                    <div style={{fontSize:10.5,color:"#777",marginBottom:12,display:"flex",justifyContent:"space-between",gap:12}}><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f}</span><span style={{whiteSpace:"nowrap"}}>{asset?"Document loaded":"Preview unavailable"}</span></div>
                     {files.length>1&&<div style={{border:"1px solid #eee",borderRadius:7,padding:"8px 10px",marginBottom:12}}><div style={{fontSize:10.5,fontWeight:700,color:"#777",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:4}}>Upload history</div>{files.slice().reverse().map((file,i)=><div key={file.id||file.name+"-"+i} style={{fontSize:11,color:"#666",padding:"3px 0",display:"flex",justifyContent:"space-between",gap:12}}><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{file.name}</span><span style={{color:file.status==="rejected"?"#a94438":"#999",whiteSpace:"nowrap"}}>{file.uploadedAt||"Earlier upload"} {"\u00b7"} {file.status}</span></div>)}</div>}
                     {(d.reviewedBy||d.internalNote)&&<div style={{fontSize:11,color:"#777",lineHeight:1.5,marginBottom:10}}>Reviewed by {d.reviewedBy||CURRENT_USER}{d.reviewedDate?" on "+d.reviewedDate:""}{d.internalNote?<React.Fragment><br/>Internal note: {d.internalNote}</React.Fragment>:null}</div>}
-                    <div style={{display:"flex",justifyContent:"flex-end"}}>
+                    <div style={{display:"flex",justifyContent:asset?"space-between":"flex-end",alignItems:"center",gap:10}}>
+                      {asset&&<a href={asset.url} target="_blank" rel="noopener noreferrer" style={{...btn,padding:"6px 14px",fontSize:12,color:"#3d5c43",display:"inline-flex",alignItems:"center",gap:6}}>Open full size</a>}
                       <button onClick={()=>setPreviewDoc(null)} style={{...btn,padding:"6px 16px",fontSize:12}}>Close</button>
                     </div>
                   </div>
