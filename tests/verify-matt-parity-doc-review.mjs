@@ -25,9 +25,11 @@ check(
 );
 
 check(
-  html.includes('const followUpReady=queue.length===0&&chase.length>0&&!!openFollowUpTask') &&
-    html.includes('disabled={!followUpReady}'),
-  "Client follow-up waits for completed review and the assigned Task",
+  html.includes('const followUpReady=chase.length>0') &&
+    html.includes('disabled={!followUpReady}') &&
+    !html.includes('Finish "+queue.length+" review decision') &&
+    html.includes('Items still in To Review remain separate.'),
+  "Any Chase List item enables follow-up without waiting for unrelated review decisions",
 );
 
 check(
