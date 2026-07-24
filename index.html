@@ -1305,7 +1305,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
       let _tks=m.tasks||[];
       if(_chaseN===0){
         _tks=_tks.map(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request"?{...tk,status:"Completed",completedDate:_today,completedBy:"System — Chase List cleared"}:tk);
-      }else if(docReviewDone(_cl)&&taskEnabled("Approve document follow-up request")&&!_tks.some(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request")){
+      }else if(taskEnabled("Approve document follow-up request")&&!_tks.some(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request")){
         _tks=[{id:Date.now()+7,title:"Approve document follow-up request",due:_today,status:"Pending",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true},..._tks];
       }
       m={...m,tasks:_tks};
@@ -1527,8 +1527,8 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
             const openTask=tasks.find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
             if(openTask){
               tasks=tasks.map(tk=>tk.id===openTask.id?{...tk,status:"Completed",completedDate:today,completedBy:CURRENT_USER}:tk);
-              tasks=[{...openTask,id:Date.now()+5,status:"Pending",due:next,completedDate:undefined},...tasks];
             }
+            if(taskEnabled("Approve document follow-up request"))tasks=[{...(openTask||{title:"Approve document follow-up request",assignee:"Matt McCune",stage:"Intake Submitted",recurring:true}),id:Date.now()+5,status:"Pending",due:next,completedDate:undefined,completedBy:undefined},...tasks];
             update({
               docChecklist:checklist.map(d=>isChaseDoc(d)?{...d,requestedDate:today,requestCount:(d.requestCount||0)+1}:d),
               communications:[comm,...(lead.communications||[])],
@@ -1545,8 +1545,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
           const queue=[...required,...others].filter(needsDecision);
           const resolvedDocs=[...buckets.home,...buckets.excused];
           const resolvedCount=resolvedDocs.length;
-          const openFollowUpTask=(lead.tasks||[]).find(tk=>tk.status==="Pending"&&tk.title==="Approve document follow-up request");
-          const followUpReady=queue.length===0&&chase.length>0&&!!openFollowUpTask;
+          const followUpReady=chase.length>0;
           const flyGhost=(docId,dir)=>{
             try{
               const card=document.getElementById("doccard-"+docId)||document.getElementById("chasecard-"+docId);
@@ -1629,7 +1628,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       <div style={{fontSize:14,fontWeight:700,color:"#434343",marginTop:6}}>Review complete</div>
                       <div style={{fontSize:12,color:"#777",marginTop:5,lineHeight:1.6}}>
                         {chase.length>0
-                          ?<span>The Chase List has {chase.length} item{chase.length===1?"":"s"} {"\u2014"} the {"\u201c"}Approve document follow-up request{"\u201d"} Task is open, and the draft is ready below: Review &amp; Send, bottom right.</span>
+                          ?<span>The Chase List has {chase.length} item{chase.length===1?"":"s"} {"\u2014"} the follow-up draft is ready now. Items still in To Review remain separate.</span>
                           :<span>Nothing left to chase {"\u2014"} every Document is Approved or Excused{lead.leadStage==="Ready for Petition Prep"?<span>, and this Lead is <strong>Ready for Petition Prep</strong></span>:null}.</span>}
                       </div>
                     </div>
@@ -1734,7 +1733,6 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                       <button onClick={()=>setAddingRequest(!addingRequest)} style={{...btn,flex:1,padding:"8px 10px"}}>+ Request a Document</button>
                       <button onClick={()=>{if(!followUpReady)return;if(followUpPreview){setFollowUpPreview(false);}else{setFollowUpSubject(followUpDraft.subject);setFollowUpBody(followUpDraft.body);setFollowUpPreview(true);}}} disabled={!followUpReady} style={{...btn,flex:2,background:followUpReady?"#7a9c80":"#eee",color:followUpReady?"#fff":"#aaa",border:"none",padding:"8px 10px",fontSize:12,cursor:followUpReady?"pointer":"default",animation:followUpReady?"bkflPulse 1.6s ease-out 3":"none"}}>Review &amp; Send Follow-Up{chase.length?" ("+chase.length+")":""}</button>
                     </div>
-                    {chase.length>0&&!followUpReady&&<div style={{fontSize:10.5,color:"#a94438",marginTop:6}}>{queue.length>0?"Finish "+queue.length+" review decision"+(queue.length===1?"":"s")+" before contacting the debtor.":"The assigned follow-up Task must be open before sending."}</div>}
                     {addingRequest&&(
                       <div style={{marginTop:8}}>
                         <select value={requestDocId} onChange={ev=>setRequestDocId(ev.target.value)} style={{width:"100%",padding:"7px 9px",fontSize:11.5,border:"1px solid #d0d0d0",borderRadius:6,background:"#fff",marginBottom:5}}>
@@ -1778,7 +1776,7 @@ function LeadDetail({lead,setLeads,setPage,setSelectedLead,matters,setMatters,se
                 </div>);})()}
               {followUpSentAt&&!followUpPreview&&(
                 <div style={{padding:"10px 20px",background:"#eef6ef",borderTop:"1px solid #cfe3d2",fontSize:12.5,color:"#3d5c43",fontWeight:600}}>
-                  Follow-up sent and logged to Communications. The completed Task is in the Task history, and the next {"\u201c"}Approve document follow-up request{"\u201d"} Task is due in one week.
+                  Follow-up sent and logged to Communications.{taskEnabled("Approve document follow-up request")?<span> The next {"\u201c"}Approve document follow-up request{"\u201d"} Task is due in one week.</span>:null}
                 </div>
               )}
               {followUpPreview&&followUpDraft&&(
@@ -2710,7 +2708,7 @@ function SettingsPage(){
           {[
             {name:"New Lead",desc:"A Contact and Lead exist, but the intake form has not been sent. Created manually by staff after a phone call, or automatically when a debtor first enters the system.",tasks:[{t:"Send the intake link",w:"Created with the Lead when the link isn\u2019t sent at creation. Completes automatically the moment the link is sent."}]},
             {name:"Intake Sent",desc:"The intake form link has been emailed to the debtor. Set automatically when the link is sent — by approving the send-intake Task, or at Lead creation with the send box checked.",tasks:[{t:"Approve follow-up email — intake not completed",w:"Created 1 week after the link is sent and repeats weekly until the debtor submits. The law firm approves the AI-drafted reminder email before it goes to the Lead."}]},
-            {name:"Intake Submitted",desc:"The debtor's intake has been received. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Lead, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created the moment the initial Document review is complete and Documents are still missing. Repeats weekly until the Chase List is empty — the law firm approves every request email before it goes out."}]},
+            {name:"Intake Submitted",desc:"The debtor's intake has been received. Set automatically on submission — any open Intake Sent Tasks are closed automatically.",tasks:[{t:"Review & approve AI Intake Summary email",w:"Created immediately on submission. The law firm reviews the AI Intake Summary before it is emailed to the debtor."},{t:"Review Documents — initial intake submission",w:"Created immediately on submission \u2014 every Document that came in with the intake, one Task for the whole pile, completed when the review pile is cleared."},{t:"Review Documents — follow-up uploads",w:"Created by the daily 5:00 a.m. batch as post-submission uploads arrive \u2014 at most one open Task per Lead, count refreshed by each batch."},{t:"Approve document follow-up request",w:"Created as soon as anything enters the Chase List. It does not wait for the rest of Document Review. Repeats weekly until the Chase List is empty — the law firm approves every request email before it goes out."}]},
             {name:"Ready for Petition Prep",desc:"The finish line of this workflow. Every requested Document is Approved or Excused by your firm \u2014 nothing is awaiting upload, review, ruling, or follow-up. Set automatically the moment the Document checklist is complete; if new Document activity reopens the checklist (a new request, upload, or rejection), the Lead moves back to Intake Submitted automatically. The Stage shows how many days the case has been ready.",tasks:[],empty:"No automatic Tasks \u2014 the case is ready for petition prep."},
           ].map(s=>{
             const sc=leadStageColors[s.name]||{bg:"#f5f5f5",border:"#999",text:"#555"};
@@ -2747,7 +2745,7 @@ function SettingsPage(){
             {title:"Review & approve AI Intake Summary email",stage:"Intake Submitted",created:"Immediately when the intake is submitted",repeats:"Never — a one-time task",desc:"On submission, the AI analyzes everything the debtor submitted and produces the AI Intake Summary — the same summary shown on the Lead’s AI tab. The law firm reviews it and approves the email before the debtor receives it. Nothing is sent without this approval."},
             {title:"Review Documents — initial intake submission",stage:"Intake Submitted",created:"Immediately when the intake is submitted — every Document that came in with the intake is AI-analyzed and waiting for firm review",repeats:"Never — one Task covers the whole initial pile. It completes automatically when the review pile is cleared",desc:"The big review. The debtor's full Document set arrives with the intake, so staff should expect a longer workflow. The Task deep-links into the Lead's Documents tab, where each Document is approved, flagged, or rejected. The Task completes itself when every uploaded Document is ruled on and every skipped Document has a firm ruling — Excuse or Keep Chasing."},
             {title:"Review Documents — follow-up uploads",stage:"Daily 5:00 AM Batch",batch:true,created:"By the daily 5:00 a.m. batch, for Documents uploaded after submission — the handful that arrive from follow-up requests",repeats:"At most one open Task per Lead — the batch refreshes the Document count on an existing open Task instead of stacking a new one",desc:"The small review. After follow-up requests go out, debtors upload a few Documents at a time; those are digested overnight rather than firing a Task per file. Same doorway as the initial review — the Lead's Documents tab — but staff should expect only a handful of Documents. The Dashboard's Intake Inbox still shows live counts between batches."},
-            {title:"Approve document follow-up request",stage:"Intake Submitted",created:"The moment the initial Document review is finished, if anything is left to chase — never on a blind timer. The Chase List is built by your review: rejected Documents and Keep Chasing rulings",repeats:"Weekly, while the Chase List is not empty. It stops re-arming — and any open copy auto-completes — the moment the Chase List clears",desc:"Opening the Task shows the AI-drafted request email — the “Document Request — Initial” template the first time, “Document Request — Reminder” on every repeat — and the law firm approves it before it is sent to the debtor."},
+            {title:"Approve document follow-up request",stage:"Intake Submitted",created:"As soon as one or more Documents enter the Chase List. It does not wait for unrelated To Review decisions. The Chase List is built from rejected Documents, missing uploads, and Keep Chasing rulings",repeats:"Weekly, while the Chase List is not empty. It stops re-arming — and any open copy auto-completes — the moment the Chase List clears",desc:"Opening the Task shows the AI-drafted request email — the “Document Request — Initial” template the first time, “Document Request — Reminder” on every repeat — and the law firm approves it before it is sent to the debtor."},
           ].map((task,i)=>{
             const enabled=taskToggles[task.title]!==false;
             const sc=task.batch?{bg:"#fef3cd",border:"#F59E0B",text:"#856404"}:(leadStageColors[task.stage]||{bg:"#f5f5f5",border:"#999",text:"#555"});
@@ -2838,7 +2836,7 @@ function SettingsPage(){
                 ]},
                 {h:"How and when we follow up",rules:[
                   "The Chase List is built by law firm review: Rejected Documents, and missing Documents that are not Excused.",
-                  "The AI drafts one follow-up email covering every Document on the Chase List and delivers it as the Task \u201cApprove document follow-up request\u201d \u2014 created the moment the initial review is finished with anything left to chase, never on a blind timer.",
+                  "The AI drafts one follow-up email covering every Document on the Chase List and makes it available as soon as the first chase item exists. Unrelated To Review decisions do not block it.",
                   "The email is not sent until the law firm approves that Task. Both templates live in Settings \u2192 Communications.",
                   "\u201cDocument Request \u2014 Initial\u201d \u2014 the first request, sent once after the initial Document review.",
                   "\u201cDocument Request \u2014 Reminder\u201d \u2014 the automated follow-up, repeating weekly while the Chase List is not empty. The Task completes itself the moment the list clears.",
